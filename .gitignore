@@ -1,0 +1,11 @@
+.idea
+*.iml
+
+target
+extracted
+output
+assets
+manifest.toml
+
+CLAUDE.md
+.claude

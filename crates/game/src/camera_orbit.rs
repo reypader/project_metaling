@@ -1,0 +1,66 @@
+// ─────────────────────────────────────────────────────────────
+// Camera orbit
+// ─────────────────────────────────────────────────────────────
+
+use bevy::app::{App, Plugin, Update};
+use bevy::camera::Camera3d;
+use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
+use bevy::input::ButtonInput;
+use bevy::math::Vec3;
+use bevy::prelude::{
+    EulerRot, KeyCode, MouseButton, Quat, Res, ResMut, Resource, Single, Time, Transform, With,
+};
+use std::f32::consts::{FRAC_1_PI, FRAC_PI_3};
+
+pub struct OrbitCameraPlugin;
+impl Plugin for OrbitCameraPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_resource::<OrbitCamera>();
+        app.add_systems(Update, camera_orbit);
+    }
+}
+#[derive(Resource)]
+pub struct OrbitCamera {
+    distance: f32,
+    pub focus: Vec3,
+}
+
+impl Default for OrbitCamera {
+    fn default() -> Self {
+        Self {
+            distance: 5000.0,
+            focus: Vec3::ZERO,
+        }
+    }
+}
+
+fn camera_orbit(
+    mouse_button: Res<ButtonInput<MouseButton>>,
+    kb_button: Res<ButtonInput<KeyCode>>,
+    mouse: Res<AccumulatedMouseMotion>,
+    scroll: Res<AccumulatedMouseScroll>,
+    time: Res<Time>,
+    mut orbit: ResMut<OrbitCamera>,
+    mut camera: Single<&mut Transform, With<Camera3d>>,
+) {
+    let dt = time.delta_secs();
+
+    let mut delta_pitch = 0.0;
+    let mut delta_yaw = 0.0;
+    if mouse_button.pressed(MouseButton::Right) && kb_button.pressed(KeyCode::ShiftLeft) {
+        delta_pitch = mouse.delta.y * dt;
+    } else if mouse_button.pressed(MouseButton::Right) {
+        delta_yaw -= mouse.delta.x * dt;
+    }
+
+    let d = orbit.distance - (scroll.delta.y * 200.0 * dt);
+    orbit.distance = d.clamp(200.0, 5000.0);
+
+    let (yaw, pitch, roll) = camera.rotation.to_euler(EulerRot::YXZ);
+
+    let pitch = (pitch + delta_pitch);//.clamp(-FRAC_PI_3, -FRAC_1_PI);
+    let yaw = yaw + delta_yaw;
+    camera.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
+
+    camera.translation = orbit.focus - camera.forward() * orbit.distance;
+}

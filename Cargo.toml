@@ -1,0 +1,17 @@
+[workspace]
+members = [
+    "crates/ro_files",
+    "crates/bevy_ro_maps",
+    "crates/bevy_ro_models",
+    "crates/bevy_ro_sprites",
+    "crates/asset_importer",
+    "crates/grf_extractor",
+    "crates/game",
+]
+resolver = "3"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

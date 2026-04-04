@@ -1,0 +1,256 @@
+# project-metaling-extractor
+
+Extracts a Ragnarok Online `.grf` archive to disk with Korean→English filename
+translation. Designed as the upstream step before running
+[project-metaling-exporter](../asset_importer/README.md).
+
+## Build
+
+```sh
+cargo build --release
+```
+
+## Usage
+
+```
+extractor [OPTIONS] <grf>
+
+Arguments:
+  <grf>  Path to the .grf file
+
+Options:
+  -o, --output <DIR>            Output directory [default: extracted]
+  -t, --translations <TOML>    Path to translations.toml [default: translations.toml]
+      --rathena-db <PATH>       Path to rAthena db/ directory
+      --headgear-slots <PATH>   Where to write headgear_slots.toml (requires --rathena-db)
+                                [default: headgear_slots.toml]
+      --weapon-types <PATH>     Where to write weapon_types.toml (requires --rathena-db)
+                                [default: weapon_types.toml]
+      --bundles <TOML>          Bundle definitions file [default: bundles.toml]
+      --extract <NAMES>         Comma-separated bundles to extract (omit = extract everything)
+      --miss-log <PATH>         Where to write untranslated segments [default: miss_log.toml]
+      --dry-run                 Translate paths without writing files (still writes miss log)
+  -v, --verbose                 Print each file as it is extracted
+  -h, --help                    Print help
+```
+
+### Basic extraction
+
+```sh
+grf_extractor data.grf -o extracted/
+```
+
+Extracts all files to `extracted/`, translating Korean path segments to English
+using `translations.toml`. Any segments that could not be translated are written
+to `miss_log.toml` for later enrichment.
+
+### With rAthena item name resolution, headgear slots, and weapon types
+
+```sh
+grf_extractor data.grf -o extracted/ --rathena-db /path/to/rathena/db
+```
+
+When `--rathena-db` is provided, three additional things happen automatically:
+
+1. **Item name translation** — reads `idnum2itemresnametable.txt` from the GRF
+   and cross-references it with rAthena item databases to translate Korean item
+   resource names (garment directories, item sprites, etc.) to AegisNames.
+
+2. **`headgear_slots.toml` generation** — parses `re/item_db_equip.yml` to build
+   a view ID → accname + slot + items lookup consumed by `exporter
+   scan`. Accnames are the lowercased AegisName of the lowest-ID item for each view
+   group. Written to `headgear_slots.toml` by default; override with
+   `--headgear-slots`.
+
+3. **`weapon_types.toml` generation** — parses `re/item_db_equip.yml` for weapon
+   items and groups them by SubType, producing a weapon type ID → sprite dir name +
+   items lookup. Written to `weapon_types.toml` by default; override with
+   `--weapon-types`.
+
+The `--rathena-db` path should point to the rAthena `db/` directory, which
+contains subdirectories `re/` and `pre-re/`. The following files are read:
+
+| File | Purpose |
+|---|---|
+| `re/item_db_equip.yml` | Equipment items (armor, weapons, garments, headgear) |
+| `re/item_db_usable.yml` | Usable/consumable items |
+| `re/item_db_etc.yml` | Miscellaneous items |
+| `pre-re/item_db_equip.yml` | Pre-renewal equipment (fallback) |
+
+rAthena source: https://github.com/rathena/rathena
+
+### Dry run
+
+Useful for previewing the translated output and generating the miss log before
+committing to a full extraction:
+
+```sh
+grf_extractor data.grf --dry-run --rathena-db /path/to/rathena/db
+```
+
+### Selective extraction with bundles
+
+To extract only a subset of files, use `--extract` with one or more bundle names:
+
+```sh
+# Sprites and IMF anchor files only (fastest iteration)
+grf_extractor data.grf -o extracted/ --extract sprite
+
+# Map geometry, textures, and sprites together
+grf_extractor data.grf -o extracted/ --extract map,sprite
+```
+
+Bundles are defined in `bundles.toml` next to the binary. Each bundle matches
+GRF entries by path prefix, file extension, or both (union). Two bundles ship
+by default:
+
+| Bundle | Matches |
+|--------|---------|
+| `sprite` | `data/sprite/`, `data/imf/`, and `data/palette/` (sprites, IMF anchors, body/head palettes) |
+| `map` | `data/texture/`, `data/model/` prefixes and `.gat`, `.gnd`, `.rsw` extensions |
+| `sound` | `data/wav/` (skill, monster, and environmental sound effects; BGM is not in the GRF) |
+
+Omitting `--extract` extracts everything (the default).
+
+To add new bundles, edit `bundles.toml` — no code changes required. Example:
+
+```toml
+[[bundle]]
+name = "sound"
+path_prefixes = ["data/wav/", "data/bgm/"]
+extensions = ["wav", "mp3", "ogg"]
+```
+
+The `--bundles` flag overrides which file is loaded (useful when maintaining
+multiple bundle configurations alongside different projects).
+
+## Translation pipeline
+
+Each GRF internal path (e.g. `data\sprite\인간족\몸통\남\novice_남.spr`) is
+translated segment by segment:
+
+1. **Pure ASCII** — kept as-is (most job names, weapon names, and English content
+   are already ASCII in the GRF).
+2. **`translations.toml` lookup** — whole segment matched against the hand-curated
+   dictionary. Takes priority over all other sources.
+3. **rAthena lookup** — whole segment matched against the Korean→AegisName map
+   built from `idnum2itemresnametable.txt` + rAthena item DBs.
+4. **Token-level fallback** — the segment is split on `_` and steps 1–3 are
+   applied to each token individually (handles compound names like `novice_남`
+   → `novice_male`).
+5. **Miss** — any token that could not be translated is kept in its original
+   Korean form and logged to the miss log.
+
+Result: `data/sprite/human/body/male/novice_male.spr`
+
+## Additional resources
+
+### `translations.toml`
+
+The hand-curated dictionary lives at `translations.toml` next to the binary. It
+covers:
+
+- Top-level GRF categories (`인간족` → `human`, `몬스터` → `monster`, etc.)
+- Human sprite sub-directories (`몸통` → `body`, `머리통` → `head`)
+- Gender tokens (`남` → `male`, `여` → `female`)
+- All base and third-job class names
+- Job mount variants (`룬드래곤` → `rune_dragon`, `레인져늑대` → `ranger_wolf`, etc.)
+
+To add new entries, append to `[known]` in `translations.toml` and re-run.
+
+### `miss_log.toml`
+
+After each run a `miss_log.toml` is written listing every Korean segment that
+could not be translated:
+
+```toml
+# Translation misses — fill in the English values and move entries to translations.toml
+[known]
+"검의날개" = ""
+"요정의파란날개" = ""
+```
+
+Fill in the empty values and move the entries into `translations.toml` to
+resolve them on the next run. Over time this enriches the dictionary for content
+not covered by rAthena (newer cash-shop items, costume garments, etc.).
+
+### `util/translate.py`
+
+A helper script that reads `miss_log.toml` and uses the Claude API to
+batch-translate untranslated Korean tokens, then appends the results to
+`translations.toml` automatically. Useful when `miss_log.toml` grows large
+after extracting a new GRF with many unfamiliar item names.
+
+**Setup** (run once from the `util/` directory):
+
+```sh
+cd util/
+pyenv exec python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+**Environment:**
+
+```sh
+export ANTHROPIC_API_KEY=sk-ant-...
+```
+
+**Basic usage** (run from `util/`, paths default to `../miss_log.toml` and
+`../translations.toml`):
+
+```sh
+.venv/bin/python translate.py
+```
+
+**Options:**
+
+```
+--model sonnet|haiku     Model to use (default: sonnet)
+--batch-size N           Keys per API call (default: 200)
+--miss-log PATH          Path to miss_log.toml (default: ../miss_log.toml)
+--translations PATH      Path to translations.toml (default: ../translations.toml)
+--progress PATH          Progress file for resume support (default: ./translation_progress.json)
+--dry-run                Show batch plan without making API calls
+--no-append              Translate and save progress only; skip writing translations.toml
+-v, --verbose            Print per-batch token usage
+--debug                  Print raw API response for the first batch
+```
+
+A `translation_progress.json` file is written after each batch so an interrupted
+run can be resumed. Re-running the script skips keys already present in
+`translations.toml` or the progress file. Once complete, re-run the extractor
+with the updated `translations.toml` to resolve the previously missed paths.
+
+## Output structure
+
+The extracted output mirrors the GRF's internal directory tree with Korean
+segments replaced by English equivalents. The `sprite/` subtree — consumed by
+`exporter` — looks like:
+
+```
+extracted/
+└── data/
+    └── sprite/
+        ├── human/
+        │   ├── body/
+        │   │   ├── male/          # Body sprites per job (novice_male.spr, ...)
+        │   │   └── female/
+        │   ├── head/
+        │   │   ├── male/          # Numbered head sprites (1_male.spr, ...)
+        │   │   └── female/
+        │   ├── swordsman/         # Weapon sprites per job
+        │   ├── mage/
+        │   └── ...
+        ├── accessory/
+        │   ├── male/              # Headgear sprites (m_ribbon.spr, ...)
+        │   └── female/
+        ├── robe/
+        │   └── <garment_name>/    # Garment sprites per name/job/gender
+        │       ├── male/
+        │       └── female/
+        ├── monster/               # Monster sprites
+        ├── item/                  # Item icon sprites
+        └── ...
+```
+
+Point `exporter scan` at `extracted/data/` as the `data_root`.

@@ -1,0 +1,10651 @@
+[[headgear]]
+view = 1
+slot = "Head_Top"
+accname = "goggle"
+items = [
+    2224,
+    2225,
+]
+
+[[headgear]]
+view = 2
+slot = "Head_Top"
+accname = "cat_hairband"
+items = [2213]
+
+[[headgear]]
+view = 3
+slot = "Head_Mid"
+accname = "glasses"
+items = [
+    2203,
+    2204,
+    18556,
+    410208,
+    410209,
+]
+
+[[headgear]]
+view = 4
+slot = "Head_Top"
+accname = "fancy_flower"
+items = [
+    2207,
+    19247,
+    400487,
+]
+
+[[headgear]]
+view = 5
+slot = "Head_Top"
+accname = "flower_hairband"
+items = [
+    2215,
+    5803,
+]
+
+[[headgear]]
+view = 6
+slot = "Head_Top"
+accname = "bandana"
+items = [
+    2211,
+    5408,
+]
+
+[[headgear]]
+view = 7
+slot = "Head_Top"
+accname = "turban"
+items = [
+    2222,
+    2223,
+]
+
+[[headgear]]
+view = 8
+slot = "Head_Low"
+accname = "flu_mask"
+items = [
+    2218,
+    2219,
+    5156,
+    420178,
+    420179,
+]
+
+[[headgear]]
+view = 9
+slot = "Head_Top"
+accname = "hair_band"
+items = [2210]
+
+[[headgear]]
+view = 10
+slot = "Head_Mid"
+accname = "diver's_goggles"
+items = [2205]
+
+[[headgear]]
+view = 11
+slot = "Head_Top"
+accname = "biretta"
+items = [
+    2216,
+    2217,
+    400340,
+]
+
+[[headgear]]
+view = 12
+slot = "Head_Mid"
+accname = "sunglasses"
+items = [
+    2201,
+    2202,
+    5154,
+    5837,
+    18557,
+    410299,
+]
+
+[[headgear]]
+view = 13
+slot = "Head_Mid"
+accname = "eye_bandage"
+items = [
+    2212,
+    5804,
+]
+
+[[headgear]]
+view = 14
+slot = "Head_Top"
+accname = "cap"
+items = [
+    2226,
+    2227,
+    18732,
+    19223,
+    400483,
+]
+
+[[headgear]]
+view = 15
+slot = "Head_Top"
+accname = "bunny_band"
+items = [
+    2214,
+    5218,
+    5266,
+    5553,
+    5619,
+    5647,
+    5702,
+    5729,
+    18764,
+    400003,
+    400584,
+]
+
+[[headgear]]
+view = 16
+slot = "Head_Top"
+accname = "hat"
+items = [
+    2220,
+    2221,
+    5144,
+    5812,
+    400359,
+    400360,
+]
+
+[[headgear]]
+view = 17
+slot = "Head_Top"
+accname = "ribbon"
+items = [
+    2208,
+    2209,
+]
+
+[[headgear]]
+view = 18
+slot = "Head_Top"
+accname = "circlet"
+items = [
+    2232,
+    2233,
+    5540,
+    5541,
+    5542,
+    5543,
+]
+
+[[headgear]]
+view = 19
+slot = "Head_Top"
+accname = "tiara"
+items = [
+    2234,
+    5164,
+    5835,
+]
+
+[[headgear]]
+view = 20
+slot = "Head_Top"
+accname = "santa's_hat"
+items = [
+    2236,
+    5136,
+]
+
+[[headgear]]
+view = 21
+slot = "Head_Low"
+accname = "weird_goatee"
+items = [2237]
+
+[[headgear]]
+view = 22
+slot = "Head_Low"
+accname = "weird_moustache"
+items = [2238]
+
+[[headgear]]
+view = 23
+slot = "Head_Mid"
+accname = "one_eyed_glass"
+items = [
+    2239,
+    5516,
+    5517,
+    18874,
+]
+
+[[headgear]]
+view = 24
+slot = "Head_Low"
+accname = "beard"
+items = [2240]
+
+[[headgear]]
+view = 25
+slot = "Head_Low"
+accname = "granpa_beard"
+items = [
+    2241,
+    5155,
+    5811,
+    18658,
+]
+
+[[headgear]]
+view = 26
+slot = "Head_Mid"
+accname = "luxury_sunglasses"
+items = [2242]
+
+[[headgear]]
+view = 27
+slot = "Head_Mid"
+accname = "spinning_eyes"
+items = [
+    2243,
+    19093,
+]
+
+[[headgear]]
+view = 28
+slot = "Head_Top"
+accname = "big_sis'_ribbon"
+items = [
+    2244,
+    5348,
+    5831,
+]
+
+[[headgear]]
+view = 29
+slot = "Head_Top"
+accname = "sweet_gents"
+items = [2245]
+
+[[headgear]]
+view = 30
+slot = "Head_Top"
+accname = "golden_gear"
+items = [
+    2246,
+    5159,
+    5693,
+]
+
+[[headgear]]
+view = 31
+slot = "Head_Top"
+accname = "oldman's_romance"
+items = [2247]
+
+[[headgear]]
+view = 32
+slot = "Head_Top"
+accname = "western_grace"
+items = [2248]
+
+[[headgear]]
+view = 33
+slot = "Head_Top"
+accname = "coronet"
+items = [2249]
+
+[[headgear]]
+view = 34
+slot = "Head_Top"
+accname = "fillet"
+items = [2250]
+
+[[headgear]]
+view = 35
+slot = "Head_Top"
+accname = "holy_bonnet"
+items = [
+    2251,
+    5158,
+]
+
+[[headgear]]
+view = 36
+slot = "Head_Top"
+accname = "star_sparkling"
+items = [2252]
+
+[[headgear]]
+view = 37
+slot = "Head_Top"
+accname = "sunflower"
+items = [
+    2253,
+    5351,
+]
+
+[[headgear]]
+view = 38
+slot = "Head_Top"
+accname = "angelic_chain"
+items = [
+    2254,
+    5215,
+    5368,
+]
+
+[[headgear]]
+view = 39
+slot = "Head_Top"
+accname = "satanic_chain"
+items = [
+    2255,
+    5216,
+    5369,
+]
+
+[[headgear]]
+view = 40
+slot = "Head_Top"
+accname = "helm"
+items = [
+    2228,
+    2229,
+    400336,
+]
+
+[[headgear]]
+view = 41
+slot = "Head_Top"
+accname = "magestic_goat"
+items = [
+    2256,
+    5160,
+    5217,
+    5280,
+    5620,
+    5652,
+    5683,
+    5703,
+    5734,
+]
+
+[[headgear]]
+view = 42
+slot = "Head_Top"
+accname = "snowy_horn"
+items = [2257]
+
+[[headgear]]
+view = 43
+slot = "Head_Top"
+accname = "sharp_gear"
+items = [
+    2258,
+    5161,
+    5805,
+]
+
+[[headgear]]
+view = 44
+slot = "Head_Top"
+accname = "wedding_veil"
+items = [
+    2206,
+    5888,
+]
+
+[[headgear]]
+view = 45
+slot = "Head_Top"
+accname = "crown"
+items = [
+    2235,
+    5165,
+    5834,
+]
+
+[[headgear]]
+view = 46
+slot = "Head_Top"
+accname = "mini_propeller"
+items = [2259]
+
+[[headgear]]
+view = 47
+slot = "Head_Mid"
+accname = "mini_glasses"
+items = [
+    2260,
+    18591,
+    19218,
+]
+
+[[headgear]]
+view = 48
+slot = "Head_Top"
+accname = "prontera_army_cap"
+items = [
+    2261,
+    5685,
+]
+
+[[headgear]]
+view = 49
+slot = "Head_Low"
+accname = "pierrot_nose"
+items = [
+    2262,
+    5204,
+]
+
+[[headgear]]
+view = 50
+slot = "Head_Mid"
+accname = "gangster_patch"
+items = [
+    2263,
+    5848,
+]
+
+[[headgear]]
+view = 51
+slot = "Head_Top"
+accname = "munak_turban"
+items = [
+    2264,
+    5167,
+    18769,
+]
+
+[[headgear]]
+view = 52
+slot = "Head_Low"
+accname = "ganster_mask"
+items = [
+    2265,
+    18621,
+]
+
+[[headgear]]
+view = 53
+slot = "Head_Low"
+accname = "iron_cane"
+items = [2266]
+
+[[headgear]]
+view = 54
+slot = "Head_Low"
+accname = "cigar"
+items = [2267]
+
+[[headgear]]
+view = 55
+slot = "Head_Low"
+accname = "smoking_pipe"
+items = [
+    2268,
+    5220,
+    5614,
+    5697,
+]
+
+[[headgear]]
+view = 56
+slot = "Head_Low"
+accname = "centimental_flower"
+items = [
+    2269,
+    2687,
+    5648,
+    5730,
+]
+
+[[headgear]]
+view = 57
+slot = "Head_Low"
+accname = "centimental_leaf"
+items = [
+    2270,
+    5419,
+]
+
+[[headgear]]
+view = 58
+slot = "Head_Top"
+accname = "jack_a_dandy"
+items = [2271]
+
+[[headgear]]
+view = 59
+slot = "Head_Top"
+accname = "stop_post"
+items = [2272]
+
+[[headgear]]
+view = 60
+slot = "Head_Top"
+accname = "doctor_cap"
+items = [
+    2273,
+    5849,
+]
+
+[[headgear]]
+view = 61
+slot = "Head_Top"
+accname = "ghost_bandana"
+items = [2274]
+
+[[headgear]]
+view = 62
+slot = "Head_Top"
+accname = "red_bandana"
+items = [2275]
+
+[[headgear]]
+view = 63
+slot = "Head_Mid"
+accname = "eagle_eyes"
+items = [2276]
+
+[[headgear]]
+view = 64
+slot = "Head_Top"
+accname = "nurse_cap"
+items = [
+    2277,
+    19209,
+    400464,
+]
+
+[[headgear]]
+view = 65
+slot = "Head_Top"
+accname = "mr_smile"
+items = [
+    2278,
+    19094,
+]
+
+[[headgear]]
+view = 66
+slot = "Head_Top"
+accname = "bomb_wick"
+items = [2279]
+
+[[headgear]]
+view = 67
+slot = "Head_Top"
+accname = "sahkkat"
+items = [
+    2280,
+    5267,
+    5806,
+    5830,
+]
+
+[[headgear]]
+view = 68
+slot = "Head_Top"
+accname = "phantom_of_opera"
+items = [2281]
+
+[[headgear]]
+view = 69
+slot = "Head_Top"
+accname = "spirit_chain"
+items = [2282]
+
+[[headgear]]
+view = 70
+slot = "Head_Top"
+accname = "ear_mufs"
+items = [2283]
+
+[[headgear]]
+view = 71
+slot = "Head_Top"
+accname = "antler"
+items = [2284]
+
+[[headgear]]
+view = 72
+slot = "Head_Top"
+accname = "apple_of_archer"
+items = [
+    2285,
+    5265,
+    5649,
+    5731,
+    19210,
+    400337,
+    400463,
+]
+
+[[headgear]]
+view = 73
+slot = "Head_Mid"
+accname = "elven_ears"
+items = [
+    2286,
+    2686,
+    5650,
+    5732,
+    5840,
+    18507,
+]
+
+[[headgear]]
+view = 74
+slot = "Head_Top"
+accname = "pirate_bandana"
+items = [
+    2287,
+    5350,
+]
+
+[[headgear]]
+view = 75
+slot = "Head_Top"
+accname = "mr_scream"
+items = [2288]
+
+[[headgear]]
+view = 76
+slot = "Head_Top"
+accname = "poo_poo_hat"
+items = [2289]
+
+[[headgear]]
+view = 77
+slot = "Head_Top"
+accname = "funeral_costume"
+items = [2290]
+
+[[headgear]]
+view = 78
+slot = "Head_Mid"
+accname = "masquerade"
+items = [
+    2291,
+    5326,
+    19132,
+]
+
+[[headgear]]
+view = 79
+slot = "Head_Top"
+accname = "welding_mask"
+items = [
+    2292,
+    18775,
+]
+
+[[headgear]]
+view = 80
+slot = "Head_Top"
+accname = "pretend_murdered"
+items = [2293]
+
+[[headgear]]
+view = 81
+slot = "Head_Top"
+accname = "star_dust"
+items = [2294]
+
+[[headgear]]
+view = 82
+slot = "Head_Mid"
+accname = "blinker"
+items = [
+    2295,
+    19089,
+]
+
+[[headgear]]
+view = 83
+slot = "Head_Mid"
+accname = "binoculars"
+items = [
+    2296,
+    18772,
+    18788,
+    19088,
+]
+
+[[headgear]]
+view = 84
+slot = "Head_Top"
+accname = "goblini_mask"
+items = [2297]
+
+[[headgear]]
+view = 85
+slot = "Head_Top"
+accname = "green_feeler"
+items = [2298]
+
+[[headgear]]
+view = 86
+slot = "Head_Top"
+accname = "viking_helm"
+items = [
+    2299,
+    5157,
+    5687,
+]
+
+[[headgear]]
+view = 87
+slot = "Head_Top"
+accname = "headset"
+items = [5001]
+
+[[headgear]]
+view = 88
+slot = "Head_Top"
+accname = "gemmed_crown"
+items = [
+    5002,
+    5684,
+]
+
+[[headgear]]
+view = 89
+slot = "Head_Top"
+accname = "joker_jester"
+items = [
+    5003,
+    5145,
+    18763,
+]
+
+[[headgear]]
+view = 90
+slot = "Head_Low"
+accname = "oxygen_mask"
+items = [
+    5004,
+    19389,
+]
+
+[[headgear]]
+view = 91
+slot = "Head_Top"
+accname = "gas_mask"
+items = [5005]
+
+[[headgear]]
+view = 92
+slot = "Head_Mid"
+accname = "machoman_glasses"
+items = [
+    5006,
+    19092,
+]
+
+[[headgear]]
+view = 93
+slot = "Head_Top"
+accname = "loard_circlet"
+items = [
+    5007,
+    5268,
+    5552,
+]
+
+[[headgear]]
+view = 94
+slot = "Head_Top"
+accname = "puppy_love"
+items = [5008]
+
+[[headgear]]
+view = 95
+slot = "Head_Top"
+accname = "safety_helmet"
+items = [5009]
+
+[[headgear]]
+view = 96
+slot = "Head_Top"
+accname = "indian_hair_piece"
+items = [5010]
+
+[[headgear]]
+view = 97
+slot = "Head_Top"
+accname = "antenna"
+items = [5011]
+
+[[headgear]]
+view = 98
+slot = "Head_Top"
+accname = "ph.d_hat"
+items = [
+    5012,
+    5347,
+    5810,
+]
+
+[[headgear]]
+view = 99
+slot = "Head_Top"
+accname = "horn_of_lord_kaho"
+items = [5013]
+
+[[headgear]]
+view = 100
+slot = "Head_Mid"
+accname = "fin_helm"
+items = [
+    5014,
+    5838,
+    18773,
+]
+
+[[headgear]]
+view = 101
+slot = "Head_Top"
+accname = "egg_shell"
+items = [
+    5015,
+    5055,
+    5741,
+]
+
+[[headgear]]
+view = 102
+slot = "Head_Top"
+accname = "boy's_cap"
+items = [
+    5016,
+    5349,
+    5492,
+    5836,
+    19310,
+]
+
+[[headgear]]
+view = 103
+slot = "Head_Top"
+accname = "bone_helm"
+items = [
+    5017,
+    5162,
+    18733,
+    18768,
+]
+
+[[headgear]]
+view = 104
+slot = "Head_Top"
+accname = "feather_bonnet"
+items = [
+    5018,
+    5686,
+    5807,
+]
+
+[[headgear]]
+view = 105
+slot = "Head_Top"
+accname = "corsair"
+items = [
+    5019,
+    5163,
+    5331,
+    18765,
+]
+
+[[headgear]]
+view = 106
+slot = "Head_Top"
+accname = "kafra_band"
+items = [
+    5020,
+    15955,
+    19168,
+    400413,
+]
+
+[[headgear]]
+view = 107
+slot = "Head_Top"
+accname = "bankruptcy_of_heart"
+items = [5021]
+
+[[headgear]]
+view = 108
+slot = "Head_Top"
+accname = "hat_of_bundle"
+items = [5023]
+
+[[headgear]]
+view = 109
+slot = "Head_Top"
+accname = "hat_of_cake"
+items = [
+    5024,
+    5105,
+]
+
+[[headgear]]
+view = 110
+slot = "Head_Top"
+accname = "helm_of_angel"
+items = [
+    5025,
+    18766,
+]
+
+[[headgear]]
+view = 111
+slot = "Head_Top"
+accname = "hat_of_cook"
+items = [5026]
+
+[[headgear]]
+view = 112
+slot = "Head_Top"
+accname = "wizardry_hat"
+items = [
+    5027,
+    18760,
+    400338,
+]
+
+[[headgear]]
+view = 113
+slot = "Head_Top"
+accname = "candle"
+items = [
+    5028,
+    5178,
+]
+
+[[headgear]]
+view = 114
+slot = "Head_Top"
+accname = "spore_hat"
+items = [5029]
+
+[[headgear]]
+view = 115
+slot = "Head_Top"
+accname = "panda_cap"
+items = [5030]
+
+[[headgear]]
+view = 116
+slot = "Head_Top"
+accname = "mine_helm"
+items = [5031]
+
+[[headgear]]
+view = 117
+slot = "Head_Top"
+accname = "picnic_hat"
+items = [
+    5032,
+    5833,
+]
+
+[[headgear]]
+view = 118
+slot = "Head_Top"
+accname = "smokie_hat"
+items = [5033]
+
+[[headgear]]
+view = 119
+slot = "Head_Top"
+accname = "light_bulb_band"
+items = [5034]
+
+[[headgear]]
+view = 120
+slot = "Head_Top"
+accname = "poring_hat"
+items = [5035]
+
+[[headgear]]
+view = 121
+slot = "Head_Top"
+accname = "cross_band"
+items = [5036]
+
+[[headgear]]
+view = 122
+slot = "Head_Top"
+accname = "fruit_shell"
+items = [5037]
+
+[[headgear]]
+view = 123
+slot = "Head_Top"
+accname = "deviruchi_cap"
+items = [
+    5038,
+    5281,
+]
+
+[[headgear]]
+view = 124
+slot = "Head_Top"
+accname = "mottled_egg_shell"
+items = [5039]
+
+[[headgear]]
+view = 125
+slot = "Head_Mid"
+accname = "blush"
+items = [
+    5040,
+    5800,
+    5839,
+    18607,
+]
+
+[[headgear]]
+view = 126
+slot = "Head_Top"
+accname = "heart_hair_pin"
+items = [5041]
+
+[[headgear]]
+view = 127
+slot = "Head_Top"
+accname = "hair_protector"
+items = [5042]
+
+[[headgear]]
+view = 128
+slot = "Head_Mid"
+accname = "opera_ghost_mask"
+items = [
+    5043,
+    18771,
+    19091,
+]
+
+[[headgear]]
+view = 129
+slot = "Head_Top"
+accname = "devil's_wing"
+items = [5044]
+
+[[headgear]]
+view = 130
+slot = "Head_Top"
+accname = "magician_hat"
+items = [
+    5045,
+    18761,
+]
+
+[[headgear]]
+view = 131
+slot = "Head_Top"
+accname = "fashion_sunglass"
+items = [5047]
+
+[[headgear]]
+view = 132
+slot = "Head_Top"
+accname = "first_moon_hair_pin"
+items = [5048]
+
+[[headgear]]
+view = 133
+slot = "Head_Top"
+accname = "stripe_band"
+items = [5049]
+
+[[headgear]]
+view = 134
+slot = "Head_Top"
+accname = "mystery_fruit_shell"
+items = [5050]
+
+[[headgear]]
+view = 135
+slot = "Head_Low"
+accname = "kitty_bell"
+items = [5051]
+
+[[headgear]]
+view = 136
+slot = "Head_Top"
+accname = "blue_hair_band"
+items = [5052]
+
+[[headgear]]
+view = 137
+slot = "Head_Top"
+accname = "spinx_helm"
+items = [
+    5053,
+    5166,
+    5494,
+]
+
+[[headgear]]
+view = 138
+slot = "Head_Top"
+accname = "helm_of_sun"
+items = [
+    5022,
+    5295,
+    5353,
+    5851,
+    18767,
+]
+
+[[headgear]]
+view = 139
+slot = "Head_Top"
+accname = "bongun_hat"
+items = [
+    5046,
+    5168,
+    18770,
+]
+
+[[headgear]]
+view = 140
+slot = "Head_Top"
+accname = "love_berry"
+items = [5056]
+
+[[headgear]]
+view = 141
+slot = "Head_Top"
+accname = "ear_of_black_cat"
+items = [5057]
+
+[[headgear]]
+view = 142
+slot = "Head_Top"
+accname = "drooping_kitty"
+items = [
+    5058,
+    5219,
+    5279,
+    5330,
+]
+
+[[headgear]]
+view = 143
+slot = "Head_Top"
+accname = "brown_bear_cap"
+items = [5059]
+
+[[headgear]]
+view = 144
+slot = "Head_Top"
+accname = "party_hat"
+items = [
+    5060,
+    5097,
+    5106,
+    5201,
+]
+
+[[headgear]]
+view = 145
+slot = "Head_Top"
+accname = "flower_hairpin"
+items = [5061]
+
+[[headgear]]
+view = 146
+slot = "Head_Top"
+accname = "straw_hat"
+items = [5062]
+
+[[headgear]]
+view = 147
+slot = "Head_Top"
+accname = "plaster"
+items = [5063]
+
+[[headgear]]
+view = 148
+slot = "Head_Top"
+accname = "leaf_headgear"
+items = [5064]
+
+[[headgear]]
+view = 149
+slot = "Head_Top"
+accname = "fish_on_head"
+items = [
+    5065,
+    5222,
+    5616,
+    5699,
+]
+
+[[headgear]]
+view = 150
+slot = "Head_Top"
+accname = "horn_of_succubus"
+items = [5066]
+
+[[headgear]]
+view = 151
+slot = "Head_Top"
+accname = "sombrero"
+items = [5067]
+
+[[headgear]]
+view = 152
+slot = "Head_Mid"
+accname = "ear_of_devil's_wing"
+items = [
+    5068,
+    5328,
+    18519,
+    18559,
+]
+
+[[headgear]]
+view = 153
+slot = "Head_Top"
+accname = "mask_of_fox"
+items = [
+    5069,
+    18762,
+]
+
+[[headgear]]
+view = 154
+slot = "Head_Top"
+accname = "headband_of_power"
+items = [
+    5070,
+    19344,
+]
+
+[[headgear]]
+view = 155
+slot = "Head_Top"
+accname = "indian_headband"
+items = [5071]
+
+[[headgear]]
+view = 156
+slot = "Head_Top"
+accname = "inccubus_horn"
+items = [5072]
+
+[[headgear]]
+view = 157
+slot = "Head_Top"
+accname = "cap_of_concentration"
+items = [5073]
+
+[[headgear]]
+view = 158
+slot = "Head_Mid"
+accname = "ear_of_angel's_wing"
+items = [
+    5074,
+    18518,
+]
+
+[[headgear]]
+view = 159
+slot = "Head_Top"
+accname = "cowboy_hat"
+items = [5075]
+
+[[headgear]]
+view = 160
+slot = "Head_Top"
+accname = "fur_hat"
+items = [5076]
+
+[[headgear]]
+view = 161
+slot = "Head_Top"
+accname = "tulip_hairpin"
+items = [5077]
+
+[[headgear]]
+view = 162
+slot = "Head_Top"
+accname = "sea_otter_cap"
+items = [5078]
+
+[[headgear]]
+view = 163
+slot = "Head_Top"
+accname = "crossed_hair_band"
+items = [5079]
+
+[[headgear]]
+view = 164
+slot = "Head_Top"
+accname = "headgear_of_queen"
+items = [
+    5080,
+    400710,
+]
+
+[[headgear]]
+view = 165
+slot = "Head_Top"
+accname = "mistress_crown"
+items = [
+    5081,
+    5323,
+    5853,
+]
+
+[[headgear]]
+view = 166
+slot = "Head_Top"
+accname = "mushroom_band"
+items = [5082]
+
+[[headgear]]
+view = 167
+slot = "Head_Top"
+accname = "red_tailed_ribbon"
+items = [
+    5083,
+    5801,
+]
+
+[[headgear]]
+view = 168
+slot = "Head_Top"
+accname = "lazy_raccoon"
+items = [5084]
+
+[[headgear]]
+view = 169
+slot = "Head_Mid"
+accname = "pair_of_red_ribbon"
+items = [
+    5085,
+    5221,
+    5615,
+    5698,
+    18608,
+]
+
+[[headgear]]
+view = 170
+slot = "Head_Top"
+accname = "alarm_mask"
+items = [
+    5086,
+    19090,
+]
+
+[[headgear]]
+view = 171
+slot = "Head_Top"
+accname = "goblin_mask_01"
+items = [5087]
+
+[[headgear]]
+view = 172
+slot = "Head_Top"
+accname = "goblin_mask_02"
+items = [5088]
+
+[[headgear]]
+view = 173
+slot = "Head_Top"
+accname = "goblin_mask_03"
+items = [5089]
+
+[[headgear]]
+view = 174
+slot = "Head_Top"
+accname = "goblin_mask_04"
+items = [5090]
+
+[[headgear]]
+view = 175
+slot = "Head_Top"
+accname = "big_golden_bell"
+items = [
+    5091,
+    5223,
+]
+
+[[headgear]]
+view = 176
+slot = "Head_Top"
+accname = "blue_coif"
+items = [5092]
+
+[[headgear]]
+view = 177
+slot = "Head_Top"
+accname = "blue_coif_"
+items = [5093]
+
+[[headgear]]
+view = 178
+slot = "Head_Top"
+accname = "orc_hero_helm"
+items = [
+    5094,
+    5224,
+    5327,
+]
+
+[[headgear]]
+view = 179
+slot = "Head_Top"
+accname = "orc_hero_helm_"
+items = [5095]
+
+[[headgear]]
+view = 180
+slot = "Head_Top"
+accname = "popcorn_hair"
+items = [
+    5054,
+    5096,
+    18560,
+    18774,
+]
+
+[[headgear]]
+view = 181
+slot = "Head_Top"
+accname = "tiger_mask"
+items = [
+    5098,
+    5644,
+    5727,
+]
+
+[[headgear]]
+view = 182
+slot = "Head_Top"
+accname = "cat_hat"
+items = [
+    5099,
+    5618,
+    5701,
+]
+
+[[headgear]]
+view = 183
+slot = "Head_Top"
+accname = "sales_signboard"
+items = [5100]
+
+[[headgear]]
+view = 184
+slot = "Head_Mid"
+accname = "takius_blindfold"
+items = [5101]
+
+[[headgear]]
+view = 185
+slot = "Head_Mid"
+accname = "round_eyes"
+items = [5102]
+
+[[headgear]]
+view = 186
+slot = "Head_Top"
+accname = "sunflower_hairpin"
+items = [5103]
+
+[[headgear]]
+view = 187
+slot = "Head_Mid"
+accname = "dark_blindfold"
+items = [
+    5104,
+    5329,
+    18609,
+]
+
+[[headgear]]
+view = 188
+slot = "Head_Low"
+accname = "well_baked_toast"
+items = [
+    5107,
+    5391,
+]
+
+[[headgear]]
+view = 189
+slot = "Head_Top"
+accname = "detective_hat"
+items = [5108]
+
+[[headgear]]
+view = 190
+slot = "Head_Top"
+accname = "red_bonnet"
+items = [5109]
+
+[[headgear]]
+view = 191
+slot = "Head_Low"
+accname = "baby_pacifier"
+items = [5110]
+
+[[headgear]]
+view = 192
+slot = "Head_Top"
+accname = "galapago_cap"
+items = [5111]
+
+[[headgear]]
+view = 193
+slot = "Head_Top"
+accname = "super_novice_hat"
+items = [
+    5112,
+    5119,
+    400087,
+]
+
+[[headgear]]
+view = 194
+slot = "Head_Low"
+accname = "angry_mouth"
+items = [
+    5113,
+    5521,
+    18650,
+]
+
+[[headgear]]
+view = 195
+slot = "Head_Top"
+accname = "fedora"
+items = [
+    5114,
+    5120,
+]
+
+[[headgear]]
+view = 196
+slot = "Head_Top"
+accname = "winter_hat"
+items = [5115]
+
+[[headgear]]
+view = 197
+slot = "Head_Top"
+accname = "banana_hat"
+items = [5116]
+
+[[headgear]]
+view = 198
+slot = "Head_Top"
+accname = "mistic_rose"
+items = [5117]
+
+[[headgear]]
+view = 199
+slot = "Head_Top"
+accname = "ear_of_puppy"
+items = [5118]
+
+[[headgear]]
+view = 200
+slot = "Head_Top"
+accname = "zherlthsh_mask"
+items = [
+    5121,
+    19127,
+]
+
+[[headgear]]
+view = 201
+slot = "Head_Top"
+accname = "bird_nest"
+items = [5129]
+
+[[headgear]]
+view = 202
+slot = "Head_Top"
+accname = "lion_mask"
+items = [5130]
+
+[[headgear]]
+view = 203
+slot = "Head_Top"
+accname = "close_helmet"
+items = [5131]
+
+[[headgear]]
+view = 204
+slot = "Head_Top"
+accname = "angeling_hat"
+items = [5132]
+
+[[headgear]]
+view = 205
+slot = "Head_Top"
+accname = "sheep_hat"
+items = [
+    5133,
+    5621,
+    5704,
+]
+
+[[headgear]]
+view = 206
+slot = "Head_Top"
+accname = "pumpkin_hat"
+items = [
+    5134,
+    5202,
+    5356,
+    5668,
+    18535,
+]
+
+[[headgear]]
+view = 207
+slot = "Head_Mid"
+accname = "cyclops_visor"
+items = [5135]
+
+[[headgear]]
+view = 208
+slot = "Head_Top"
+accname = "alice_doll"
+items = [
+    5137,
+    5623,
+    5706,
+]
+
+[[headgear]]
+view = 209
+slot = "Head_Top"
+accname = "magic_eyes"
+items = [
+    5138,
+    5639,
+    5722,
+    18734,
+    19130,
+]
+
+[[headgear]]
+view = 210
+slot = "Head_Top"
+accname = "hibiscus"
+items = [
+    5139,
+    5617,
+    5700,
+]
+
+[[headgear]]
+view = 211
+slot = "Head_Top"
+accname = "charming_ribbon"
+items = [
+    5140,
+    5630,
+    5713,
+]
+
+[[headgear]]
+view = 212
+slot = "Head_Top"
+accname = "marionette_doll"
+items = [5141]
+
+[[headgear]]
+view = 213
+slot = "Head_Top"
+accname = "crescent_helm"
+items = [
+    5142,
+    5643,
+    5726,
+]
+
+[[headgear]]
+view = 214
+slot = "Head_Top"
+accname = "kabuki_mask"
+items = [5143]
+
+[[headgear]]
+view = 215
+slot = "Head_Top"
+accname = "elephant_hat"
+items = [
+    5146,
+    5259,
+    5802,
+]
+
+[[headgear]]
+view = 216
+slot = "Head_Top"
+accname = "baseball_cap"
+items = [
+    5147,
+    5190,
+    5199,
+    5282,
+    5809,
+]
+
+[[headgear]]
+view = 217
+slot = "Head_Top"
+accname = "phrygian_cap"
+items = [
+    5148,
+    5180,
+    5260,
+    15928,
+]
+
+[[headgear]]
+view = 218
+slot = "Head_Top"
+accname = "silver_tiara"
+items = [
+    5149,
+    5261,
+]
+
+[[headgear]]
+view = 219
+slot = "Head_Top"
+accname = "joker_jester_"
+items = [5150]
+
+[[headgear]]
+view = 220
+slot = "Head_Top"
+accname = "headset_ost"
+items = [5151]
+
+[[headgear]]
+view = 221
+slot = "Head_Top"
+accname = "chinese_crown"
+items = [
+    5152,
+    5271,
+]
+
+[[headgear]]
+view = 222
+slot = "Head_Top"
+accname = "angeling_hairpin"
+items = [5153]
+
+[[headgear]]
+view = 223
+slot = "Head_Top"
+accname = "bride_mask"
+items = [5169]
+
+[[headgear]]
+view = 224
+slot = "Head_Top"
+accname = "feather_beret"
+items = [
+    5170,
+    18755,
+]
+
+[[headgear]]
+view = 225
+slot = "Head_Top"
+accname = "valkyrie_helm"
+items = [
+    5171,
+    5826,
+    18731,
+]
+
+[[headgear]]
+view = 226
+slot = "Head_Top"
+accname = "beret"
+items = [
+    5172,
+    400339,
+]
+
+[[headgear]]
+view = 227
+slot = "Head_Top"
+accname = "satto_hat"
+items = [5173]
+
+[[headgear]]
+view = 228
+slot = "Head_Top"
+accname = "ayam"
+items = [
+    5174,
+    5386,
+]
+
+[[headgear]]
+view = 229
+slot = "Head_Mid"
+accname = "censor_bar"
+items = [
+    5175,
+    18736,
+]
+
+[[headgear]]
+view = 230
+slot = "Head_Top"
+accname = "hahoe_mask"
+items = [5176]
+
+[[headgear]]
+view = 231
+slot = "Head_Top"
+accname = "guardian_lion_mask"
+items = [5177]
+
+[[headgear]]
+view = 232
+slot = "Head_Top"
+accname = "gold_tiara"
+items = [
+    5179,
+    5262,
+]
+
+[[headgear]]
+view = 233
+slot = "Head_Top"
+accname = "helm_of_darkness"
+items = [5181]
+
+[[headgear]]
+view = 234
+slot = "Head_Top"
+accname = "puppy_hat"
+items = [
+    5182,
+    5454,
+    5638,
+    5721,
+]
+
+[[headgear]]
+view = 235
+slot = "Head_Top"
+accname = "bird_nest_hat"
+items = [5183]
+
+[[headgear]]
+view = 236
+slot = "Head_Top"
+accname = "captain_hat"
+items = [
+    5184,
+    5578,
+    400085,
+]
+
+[[headgear]]
+view = 237
+slot = "Head_Top"
+accname = "laurel_wreath"
+items = [5185]
+
+[[headgear]]
+view = 238
+slot = "Head_Top"
+accname = "geographer_band"
+items = [
+    5186,
+    5455,
+]
+
+[[headgear]]
+view = 239
+slot = "Head_Top"
+accname = "twin_ribbon"
+items = [5187]
+
+[[headgear]]
+view = 240
+slot = "Head_Top"
+accname = "minstrel_hat"
+items = [
+    5188,
+    5544,
+    19119,
+]
+
+[[headgear]]
+view = 241
+slot = "Head_Top"
+accname = "fallen_leaves"
+items = [
+    5189,
+    5270,
+]
+
+[[headgear]]
+view = 242
+slot = "Head_Top"
+accname = "ribbon_black"
+items = [5191]
+
+[[headgear]]
+view = 243
+slot = "Head_Top"
+accname = "ribbon_yellow"
+items = [5192]
+
+[[headgear]]
+view = 244
+slot = "Head_Top"
+accname = "ribbon_green"
+items = [
+    5193,
+    5681,
+    5735,
+]
+
+[[headgear]]
+view = 245
+slot = "Head_Top"
+accname = "ribbon_pink"
+items = [5194]
+
+[[headgear]]
+view = 246
+slot = "Head_Top"
+accname = "ribbon_red"
+items = [5195]
+
+[[headgear]]
+view = 247
+slot = "Head_Top"
+accname = "ribbon_orange"
+items = [5196]
+
+[[headgear]]
+view = 248
+slot = "Head_Top"
+accname = "ribbon_white"
+items = [5197]
+
+[[headgear]]
+view = 249
+slot = "Head_Top"
+accname = "drooping_bunny"
+items = [
+    5198,
+    5290,
+    5459,
+    5633,
+    5716,
+]
+
+[[headgear]]
+view = 250
+slot = "Head_Top"
+accname = "magni_cap"
+items = [
+    5122,
+    18594,
+]
+
+[[headgear]]
+view = 251
+slot = "Head_Top"
+accname = "fricca_circlet"
+items = [5124]
+
+[[headgear]]
+view = 252
+slot = "Head_Top"
+accname = "coppola"
+items = [5200]
+
+[[headgear]]
+view = 253
+slot = "Head_Top"
+accname = "tongue_mask"
+items = [
+    5203,
+    5272,
+]
+
+[[headgear]]
+view = 254
+slot = "Head_Top"
+accname = "ulle_cap"
+items = [
+    5123,
+    5493,
+]
+
+[[headgear]]
+view = 255
+slot = "Head_Top"
+accname = "kiss_of_angel"
+items = [
+    5125,
+    18776,
+]
+
+[[headgear]]
+view = 256
+slot = "Head_Top"
+accname = "morpheus's_hood"
+items = [
+    5126,
+    19428,
+]
+
+[[headgear]]
+view = 257
+slot = "Head_Top"
+accname = "morrigane's_helm"
+items = [
+    5127,
+    19044,
+    400053,
+]
+
+[[headgear]]
+view = 258
+slot = "Head_Top"
+accname = "goibne's_helmet"
+items = [
+    5128,
+    18578,
+    19043,
+    19366,
+]
+
+[[headgear]]
+view = 259
+slot = "Head_Low"
+accname = "romantic_white_flower"
+items = [5206]
+
+[[headgear]]
+view = 260
+slot = "Head_Top"
+accname = "gold_spirit_chain"
+items = [5207]
+
+[[headgear]]
+view = 261
+slot = "Head_Top"
+accname = "wreath"
+items = [
+    5205,
+    5320,
+    5533,
+]
+
+[[headgear]]
+view = 262
+slot = "Head_Top"
+accname = "rideword_hat"
+items = [
+    5208,
+    19404,
+]
+
+[[headgear]]
+view = 263
+slot = "Head_Top"
+accname = "yellow_baseball_cap"
+items = [5209]
+
+[[headgear]]
+view = 264
+slot = "Head_Top"
+accname = "flying_angel"
+items = [
+    5210,
+    5269,
+    5613,
+    5696,
+]
+
+[[headgear]]
+view = 265
+slot = "Head_Top"
+accname = "dress_hat"
+items = [
+    5211,
+    5824,
+]
+
+[[headgear]]
+view = 266
+slot = "Head_Top"
+accname = "satellite_hairband"
+items = [5212]
+
+[[headgear]]
+view = 267
+slot = "Head_Top"
+accname = "black_bunny_band"
+items = [5213]
+
+[[headgear]]
+view = 268
+slot = "Head_Top"
+accname = "moonlight_flower_hat"
+items = [5214]
+
+[[headgear]]
+view = 269
+slot = "Head_Top"
+accname = "marcher_hat"
+items = [5225]
+
+[[headgear]]
+view = 270
+slot = "Head_Top"
+accname = "mini_propeller_"
+items = [
+    5226,
+    5622,
+    5705,
+]
+
+[[headgear]]
+view = 271
+slot = "Head_Top"
+accname = "red_deviruchi_cap"
+items = [5227]
+
+[[headgear]]
+view = 272
+slot = "Head_Top"
+accname = "white_deviruchi_cap"
+items = [
+    5228,
+    5626,
+    5709,
+]
+
+[[headgear]]
+view = 273
+slot = "Head_Top"
+accname = "gray_deviruchi_cap"
+items = [5229]
+
+[[headgear]]
+view = 274
+slot = "Head_Top"
+accname = "white_drooping_kitty"
+items = [5230]
+
+[[headgear]]
+view = 275
+slot = "Head_Top"
+accname = "gray_drooping_kitty"
+items = [5231]
+
+[[headgear]]
+view = 276
+slot = "Head_Top"
+accname = "pink_drooping_kitty"
+items = [5232]
+
+[[headgear]]
+view = 277
+slot = "Head_Top"
+accname = "blue_drooping_kitty"
+items = [
+    5233,
+    5612,
+    5695,
+]
+
+[[headgear]]
+view = 278
+slot = "Head_Top"
+accname = "yellow_drooping_kitty"
+items = [5234]
+
+[[headgear]]
+view = 279
+slot = "Head_Top"
+accname = "gray_fur_hat"
+items = [5235]
+
+[[headgear]]
+view = 280
+slot = "Head_Top"
+accname = "blue_fur_hat"
+items = [5236]
+
+[[headgear]]
+view = 281
+slot = "Head_Top"
+accname = "pink_fur_hat"
+items = [
+    5237,
+    5637,
+    5720,
+]
+
+[[headgear]]
+view = 282
+slot = "Head_Top"
+accname = "red_wizardry_hat"
+items = [
+    5238,
+    5885,
+]
+
+[[headgear]]
+view = 283
+slot = "Head_Top"
+accname = "white_wizardry_hat"
+items = [
+    5239,
+    5882,
+]
+
+[[headgear]]
+view = 284
+slot = "Head_Top"
+accname = "gray_wizardry_hat"
+items = [
+    5240,
+    5883,
+]
+
+[[headgear]]
+view = 285
+slot = "Head_Top"
+accname = "blue_wizardry_hat"
+items = [
+    5241,
+    5884,
+]
+
+[[headgear]]
+view = 286
+slot = "Head_Top"
+accname = "yellow_wizardry_hat"
+items = [
+    5242,
+    5642,
+    5725,
+    5886,
+]
+
+[[headgear]]
+view = 287
+slot = "Head_Top"
+accname = "chullos"
+items = [5243]
+
+[[headgear]]
+view = 288
+slot = "Head_Mid"
+accname = "elven_blindfold"
+items = [5244]
+
+[[headgear]]
+view = 289
+slot = "Head_Mid"
+accname = "elven_sunglasses"
+items = [5245]
+
+[[headgear]]
+view = 290
+slot = "Head_Top"
+accname = "angelic_helm"
+items = [5246]
+
+[[headgear]]
+view = 291
+slot = "Head_Top"
+accname = "satanic_helm"
+items = [5247]
+
+[[headgear]]
+view = 292
+slot = "Head_Mid"
+accname = "robotic_blindfold"
+items = [5248]
+
+[[headgear]]
+view = 293
+slot = "Head_Mid"
+accname = "human_blindfold"
+items = [5249]
+
+[[headgear]]
+view = 294
+slot = "Head_Mid"
+accname = "robotic_ears"
+items = [5250]
+
+[[headgear]]
+view = 295
+slot = "Head_Mid"
+accname = "round_ears"
+items = [5251]
+
+[[headgear]]
+view = 296
+slot = "Head_Top"
+accname = "drooping_nine_tail"
+items = [
+    5252,
+    5296,
+]
+
+[[headgear]]
+view = 297
+slot = "Head_Top"
+accname = "lif_doll_hat"
+items = [5253]
+
+[[headgear]]
+view = 298
+slot = "Head_Top"
+accname = "deviling_hat"
+items = [5254]
+
+[[headgear]]
+view = 299
+slot = "Head_Top"
+accname = "triple_poring_hat"
+items = [
+    5255,
+    400740,
+]
+
+[[headgear]]
+view = 300
+slot = "Head_Top"
+accname = "valkyrie_feather_band"
+items = [5256]
+
+[[headgear]]
+view = 301
+slot = "Head_Top"
+accname = "soulless_wing"
+items = [
+    5257,
+    5297,
+]
+
+[[headgear]]
+view = 302
+slot = "Head_Top"
+accname = "afro_wig"
+items = [5258]
+
+[[headgear]]
+view = 303
+slot = "Head_Top"
+accname = "ati_atihan_hat"
+items = [
+    5263,
+    5299,
+    5814,
+]
+
+[[headgear]]
+view = 304
+slot = "Head_Top"
+accname = "aussie_flag_hat"
+items = [5264]
+
+[[headgear]]
+view = 305
+slot = "Head_Top"
+accname = "happy_wig"
+items = [5273]
+
+[[headgear]]
+view = 306
+slot = "Head_Top"
+accname = "shiny_wig"
+items = [5274]
+
+[[headgear]]
+view = 307
+slot = "Head_Top"
+accname = "marvelous_wig"
+items = [
+    5275,
+    5298,
+]
+
+[[headgear]]
+view = 308
+slot = "Head_Top"
+accname = "fantastic_wig"
+items = [
+    5276,
+    5645,
+    5728,
+]
+
+[[headgear]]
+view = 309
+slot = "Head_Top"
+accname = "yellow_bandana"
+items = [5277]
+
+[[headgear]]
+view = 310
+slot = "Head_Top"
+accname = "yellow_ribbon"
+items = [5278]
+
+[[headgear]]
+view = 311
+slot = "Head_Top"
+accname = "chick_hat"
+items = [
+    5283,
+    5625,
+    5708,
+    19129,
+]
+
+[[headgear]]
+view = 312
+slot = "Head_Top"
+accname = "water_lily_crown"
+items = [
+    5284,
+    5631,
+    5714,
+]
+
+[[headgear]]
+view = 313
+slot = "Head_Top"
+accname = "vane_hairpin"
+items = [
+    5285,
+    5627,
+    5710,
+    5832,
+]
+
+[[headgear]]
+view = 314
+slot = "Head_Top"
+accname = "pecopeco_hairband"
+items = [
+    5286,
+    5628,
+    5711,
+]
+
+[[headgear]]
+view = 315
+slot = "Head_Top"
+accname = "vacation_hat"
+items = [
+    5287,
+    5456,
+    5629,
+    5712,
+]
+
+[[headgear]]
+view = 316
+slot = "Head_Mid"
+accname = "red_glasses"
+items = [
+    5288,
+    5624,
+    5707,
+]
+
+[[headgear]]
+view = 317
+slot = "Head_Top"
+accname = "vanilmirth_hat"
+items = [
+    5289,
+    5632,
+    5715,
+]
+
+[[headgear]]
+view = 318
+slot = "Head_Top"
+accname = "kettle_hat"
+items = [
+    5291,
+    5634,
+    5717,
+]
+
+[[headgear]]
+view = 319
+slot = "Head_Top"
+accname = "dragon_skull"
+items = [
+    5292,
+    5635,
+    5718,
+    400017,
+]
+
+[[headgear]]
+view = 320
+slot = "Head_Top"
+accname = "ramen_hat"
+items = [
+    5293,
+    5636,
+    5719,
+]
+
+[[headgear]]
+view = 321
+slot = "Head_Top"
+accname = "whisper_mask"
+items = [
+    5294,
+    5646,
+    5736,
+]
+
+[[headgear]]
+view = 322
+slot = "Head_Top"
+accname = "bullock_helm"
+items = [
+    5300,
+    5560,
+]
+
+[[headgear]]
+view = 323
+slot = "Head_Top"
+accname = "russian_ribbon"
+items = [5301]
+
+[[headgear]]
+view = 324
+slot = "Head_Top"
+accname = "lotus_flower_hat"
+items = [5302]
+
+[[headgear]]
+view = 325
+slot = "Head_Top"
+accname = "flower_coronet"
+items = [5303]
+
+[[headgear]]
+view = 326
+slot = "Head_Top"
+accname = "cap_of_blindness"
+items = [
+    5304,
+    15855,
+]
+
+[[headgear]]
+view = 327
+slot = "Head_Low"
+accname = "pirate_dagger"
+items = [
+    5305,
+    5532,
+]
+
+[[headgear]]
+view = 328
+slot = "Head_Top"
+accname = "freyja_crown"
+items = [
+    5306,
+    400060,
+]
+
+[[headgear]]
+view = 329
+slot = "Head_Top"
+accname = "carmen_miranda's_hat"
+items = [5307]
+
+[[headgear]]
+view = 330
+slot = "Head_Top"
+accname = "brazilian_flag_hat"
+items = [5308]
+
+[[headgear]]
+view = 331
+slot = "Head_Top"
+accname = "mahican"
+items = [5309]
+
+[[headgear]]
+view = 332
+slot = "Head_Top"
+accname = "bulb_hairband"
+items = [5310]
+
+[[headgear]]
+view = 333
+slot = "Head_Top"
+accname = "large_hibiscus"
+items = [5311]
+
+[[headgear]]
+view = 334
+slot = "Head_Top"
+accname = "ayothaya_hat"
+items = [
+    5312,
+    400125,
+]
+
+[[headgear]]
+view = 335
+slot = "Head_Top"
+accname = "diadem"
+items = [
+    5313,
+    15879,
+    410254,
+]
+
+[[headgear]]
+view = 336
+slot = "Head_Top"
+accname = "hockey_mask"
+items = [
+    5314,
+    18787,
+]
+
+[[headgear]]
+view = 337
+slot = "Head_Mid"
+accname = "observer"
+items = [5315]
+
+[[headgear]]
+view = 338
+slot = "Head_Top"
+accname = "umbrella_hat"
+items = [5316]
+
+[[headgear]]
+view = 339
+slot = "Head_Top"
+accname = "fisherman_hat"
+items = [
+    5317,
+    19390,
+]
+
+[[headgear]]
+view = 340
+slot = "Head_Top"
+accname = "poring_party_hat"
+items = [
+    5318,
+    5669,
+]
+
+[[headgear]]
+view = 341
+slot = "Head_Top"
+accname = "hellomother_hat"
+items = [5319]
+
+[[headgear]]
+view = 342
+slot = "Head_Top"
+accname = "indonesian_bandana"
+items = [5321]
+
+[[headgear]]
+view = 343
+slot = "Head_Top"
+accname = "scarf"
+items = [5322]
+
+[[headgear]]
+view = 344
+slot = "Head_Top"
+accname = "little_angel_doll"
+items = [5324]
+
+[[headgear]]
+view = 345
+slot = "Head_Mid"
+accname = "robo_eye"
+items = [
+    5325,
+    5641,
+    5724,
+    18690,
+    19086,
+]
+
+[[headgear]]
+view = 346
+slot = "Head_Top"
+accname = "loki_mask"
+items = [5332]
+
+[[headgear]]
+view = 347
+slot = "Head_Top"
+accname = "radio_antenna"
+items = [
+    5333,
+    19131,
+]
+
+[[headgear]]
+view = 348
+slot = "Head_Top"
+accname = "angeling_wanna_fly"
+items = [5334]
+
+[[headgear]]
+view = 349
+slot = "Head_Top"
+accname = "jumping_poring"
+items = [
+    5335,
+    5640,
+    5723,
+]
+
+[[headgear]]
+view = 350
+slot = "Head_Top"
+accname = "guildsman_recruiter"
+items = [5336]
+
+[[headgear]]
+view = 351
+slot = "Head_Top"
+accname = "party_recruiter_hat"
+items = [5337]
+
+[[headgear]]
+view = 352
+slot = "Head_Top"
+accname = "bf_recruiter_hat"
+items = [5338]
+
+[[headgear]]
+view = 353
+slot = "Head_Top"
+accname = "friend_recruiter_hat"
+items = [5339]
+
+[[headgear]]
+view = 354
+slot = "Head_Top"
+accname = "deprotai_doll_hat"
+items = [5340]
+
+[[headgear]]
+view = 355
+slot = "Head_Top"
+accname = "claris_doll_hat"
+items = [5341]
+
+[[headgear]]
+view = 356
+slot = "Head_Top"
+accname = "sorin_doll_hat"
+items = [5342]
+
+[[headgear]]
+view = 357
+slot = "Head_Top"
+accname = "tayelin_doll_hat"
+items = [5343]
+
+[[headgear]]
+view = 358
+slot = "Head_Top"
+accname = "binit_doll_hat"
+items = [5344]
+
+[[headgear]]
+view = 359
+slot = "Head_Top"
+accname = "debril_doll_hat"
+items = [5345]
+
+[[headgear]]
+view = 360
+slot = "Head_Top"
+accname = "gf_recruiter_hat"
+items = [5346]
+
+[[headgear]]
+view = 361
+slot = "Head_Top"
+accname = "poporing_cap"
+items = [5352]
+
+[[headgear]]
+view = 362
+slot = "Head_Top"
+accname = "muslim_hat_m"
+items = [5354]
+
+[[headgear]]
+view = 363
+slot = "Head_Top"
+accname = "muslim_hat_f"
+items = [5355]
+
+[[headgear]]
+view = 364
+slot = "Head_Top"
+accname = "diabolus_helmet"
+items = [5808]
+
+[[headgear]]
+view = 365
+slot = "Head_Top"
+accname = "wings_of_victory"
+items = [5357]
+
+[[headgear]]
+view = 366
+slot = "Head_Mid"
+accname = "pecopeco_wing_ears"
+items = [5358]
+
+[[headgear]]
+view = 367
+slot = "Head_Top"
+accname = "j_captain_hat"
+items = [5359]
+
+[[headgear]]
+view = 368
+slot = "Head_Top"
+accname = "whikebain_ears"
+items = [
+    5360,
+    5986,
+    18923,
+    19134,
+    400153,
+]
+
+[[headgear]]
+view = 369
+slot = "Head_Low"
+accname = "gang_scarf"
+items = [
+    5361,
+    5796,
+    5797,
+    5798,
+    5799,
+    18500,
+    18501,
+    18502,
+    420215,
+    420216,
+]
+
+[[headgear]]
+view = 370
+slot = "Head_Low"
+accname = "ninja_scroll"
+items = [5362]
+
+[[headgear]]
+view = 371
+slot = "Head_Top"
+accname = "helm_of_abyss"
+items = [5363]
+
+[[headgear]]
+view = 372
+slot = "Head_Top"
+accname = "dark_snake_lord_hat"
+items = [
+    5364,
+    5655,
+]
+
+[[headgear]]
+view = 373
+slot = "Head_Top"
+accname = "fried_egg"
+items = [5365]
+
+[[headgear]]
+view = 374
+slot = "Head_Top"
+accname = "hat_0f_king"
+items = [5366]
+
+[[headgear]]
+view = 375
+slot = "Head_Top"
+accname = "hyegun_hat"
+items = [5367]
+
+[[headgear]]
+view = 376
+slot = "Head_Top"
+accname = "orchid_hairband"
+items = [
+    5370,
+    19033,
+]
+
+[[headgear]]
+view = 377
+slot = "Head_Top"
+accname = "hat_of_judge"
+items = [
+    5371,
+    18572,
+]
+
+[[headgear]]
+view = 378
+slot = "Head_Top"
+accname = "drooping_white_kitty"
+items = [5372]
+
+[[headgear]]
+view = 379
+slot = "Head_Top"
+accname = "darkness_helm"
+items = [5373]
+
+[[headgear]]
+view = 380
+slot = "Head_Top"
+accname = "l_magestic_goat"
+items = [
+    5374,
+    5887,
+    18724,
+]
+
+[[headgear]]
+view = 381
+slot = "Head_Top"
+accname = "l_orc_hero_helm"
+items = [
+    5375,
+    5889,
+    400006,
+]
+
+[[headgear]]
+view = 382
+slot = "Head_Top"
+accname = "satanic_chain_p"
+items = [5376]
+
+[[headgear]]
+view = 383
+slot = "Head_Low"
+accname = "antique_pipe"
+items = [
+    5377,
+    5657,
+]
+
+[[headgear]]
+view = 384
+slot = "Head_Top"
+accname = "rabbit_ear_hat"
+items = [5378]
+
+[[headgear]]
+view = 385
+slot = "Head_Top"
+accname = "balloon_hat"
+items = [5379]
+
+[[headgear]]
+view = 386
+slot = "Head_Top"
+accname = "fish_head_hat"
+items = [5380]
+
+[[headgear]]
+view = 387
+slot = "Head_Top"
+accname = "santa_poring_hat"
+items = [5381]
+
+[[headgear]]
+view = 388
+slot = "Head_Top"
+accname = "bell_ribbon"
+items = [5382]
+
+[[headgear]]
+view = 389
+slot = "Head_Top"
+accname = "hunting_cap"
+items = [5383]
+
+[[headgear]]
+view = 390
+slot = "Head_Top"
+accname = "santa_hat_1"
+items = [
+    5384,
+    5488,
+]
+
+[[headgear]]
+view = 391
+slot = "Head_Top"
+accname = "yoyo_hat"
+items = [5385]
+
+[[headgear]]
+view = 392
+slot = "Head_Top"
+accname = "neko_mimi_kafra"
+items = [5387]
+
+[[headgear]]
+view = 393
+slot = "Head_Top"
+accname = "snake_head"
+items = [5388]
+
+[[headgear]]
+view = 394
+slot = "Head_Mid"
+accname = "angel_spirit"
+items = [
+    5389,
+    19087,
+]
+
+[[headgear]]
+view = 395
+slot = "Head_Top"
+accname = "santa_hat_2"
+items = [
+    5390,
+    5486,
+]
+
+[[headgear]]
+view = 396
+slot = "Head_Top"
+accname = "louyang_cap"
+items = [5392]
+
+[[headgear]]
+view = 397
+slot = "Head_Top"
+accname = "valentine_hat"
+items = [
+    5393,
+    18851,
+]
+
+[[headgear]]
+view = 398
+slot = "Head_Top"
+accname = "tiraya_bonnet"
+items = [5395]
+
+[[headgear]]
+view = 399
+slot = "Head_Top"
+accname = "jasper_crest"
+items = [5396]
+
+[[headgear]]
+view = 400
+slot = "Head_Mid"
+accname = "scuba_mask"
+items = [
+    5397,
+    19162,
+    19275,
+]
+
+[[headgear]]
+view = 401
+slot = "Head_Top"
+accname = "bone_head"
+items = [5398]
+
+[[headgear]]
+view = 402
+slot = "Head_Top"
+accname = "mandragora_cap"
+items = [5399]
+
+[[headgear]]
+view = 403
+slot = "Head_Top"
+accname = "fox_hat"
+items = [
+    5400,
+    5534,
+]
+
+[[headgear]]
+view = 404
+slot = "Head_Mid"
+accname = "black_glasses"
+items = [
+    5401,
+    18611,
+]
+
+[[headgear]]
+view = 405
+slot = "Head_Mid"
+accname = "mischievous_fairy"
+items = [5402]
+
+[[headgear]]
+view = 406
+slot = "Head_Low"
+accname = "fish_in_mouth"
+items = [5403]
+
+[[headgear]]
+view = 407
+slot = "Head_Top"
+accname = "blue_ribbon"
+items = [5404]
+
+[[headgear]]
+view = 408
+slot = "Head_Top"
+accname = "filir_hat"
+items = [5405]
+
+[[headgear]]
+view = 409
+slot = "Head_Top"
+accname = "academy_freshman_hat"
+items = [5406]
+
+[[headgear]]
+view = 410
+slot = "Head_Top"
+accname = "academy_graduating_cap"
+items = [5407]
+
+[[headgear]]
+view = 411
+slot = "Head_Top"
+accname = "new_cowboy_hat"
+items = [
+    5409,
+    5816,
+]
+
+[[headgear]]
+view = 412
+slot = "Head_Top"
+accname = "bread_bag2"
+items = [5410]
+
+[[headgear]]
+view = 413
+slot = "Head_Top"
+accname = "white_snake_hat"
+items = [
+    5411,
+    18811,
+]
+
+[[headgear]]
+view = 414
+slot = "Head_Low"
+accname = "sweet_candy"
+items = [5412]
+
+[[headgear]]
+view = 415
+slot = "Head_Top"
+accname = "popcorn_hat"
+items = [5413]
+
+[[headgear]]
+view = 416
+slot = "Head_Top"
+accname = "campfire_hat"
+items = [5414]
+
+[[headgear]]
+view = 417
+slot = "Head_Top"
+accname = "poring_cake_cap"
+items = [
+    5415,
+    5487,
+    5590,
+]
+
+[[headgear]]
+view = 418
+slot = "Head_Top"
+accname = "beer_cap"
+items = [5416]
+
+[[headgear]]
+view = 419
+slot = "Head_Top"
+accname = "crown_parrot"
+items = [5417]
+
+[[headgear]]
+view = 420
+slot = "Head_Top"
+accname = "soldier_hat"
+items = [5418]
+
+[[headgear]]
+view = 421
+slot = "Head_Top"
+accname = "mask_of_ifrit"
+items = [5420]
+
+[[headgear]]
+view = 422
+slot = "Head_Mid"
+accname = "ifrit's_ear"
+items = [
+    5421,
+    18822,
+    19128,
+]
+
+[[headgear]]
+view = 423
+slot = "Head_Top"
+accname = "linguistic_book_cap"
+items = [
+    5422,
+    5827,
+    19326,
+]
+
+[[headgear]]
+view = 424
+slot = "Head_Top"
+accname = "lovecap_china"
+items = [5423]
+
+[[headgear]]
+view = 425
+slot = "Head_Top"
+accname = "fanta_orange_can"
+items = [5424]
+
+[[headgear]]
+view = 426
+slot = "Head_Top"
+accname = "fanta_grape_can"
+items = [5425]
+
+[[headgear]]
+view = 427
+slot = "Head_Top"
+accname = "karada_meguri_tea_hat"
+items = [5426]
+
+[[headgear]]
+view = 428
+slot = "Head_Top"
+accname = "royal_milk_tea_hat"
+items = [5427]
+
+[[headgear]]
+view = 429
+slot = "Head_Top"
+accname = "bread_bag1"
+items = [5428]
+
+[[headgear]]
+view = 430
+slot = "Head_Top"
+accname = "bogy_cap"
+items = [5429]
+
+[[headgear]]
+view = 431
+slot = "Head_Top"
+accname = "sacred_torch_coronet"
+items = [5430]
+
+[[headgear]]
+view = 432
+slot = "Head_Top"
+accname = "chicken_hat"
+items = [
+    5431,
+    400468,
+]
+
+[[headgear]]
+view = 433
+slot = "Head_Top"
+accname = "brazil_baseball_cap"
+items = [5432]
+
+[[headgear]]
+view = 434
+slot = "Head_Top"
+accname = "golden_wreath"
+items = [5433]
+
+[[headgear]]
+view = 435
+slot = "Head_Top"
+accname = "cola_can"
+items = [5434]
+
+[[headgear]]
+view = 436
+slot = "Head_Top"
+accname = "coke_hat"
+items = [5435]
+
+[[headgear]]
+view = 437
+slot = "Head_Top"
+accname = "bride's_corolla"
+items = [5436]
+
+[[headgear]]
+view = 438
+slot = "Head_Top"
+accname = "flower_of_fairy"
+items = [
+    5437,
+    19079,
+]
+
+[[headgear]]
+view = 439
+slot = "Head_Top"
+accname = "fillet_green"
+items = [5438]
+
+[[headgear]]
+view = 440
+slot = "Head_Top"
+accname = "fillet_red"
+items = [5439]
+
+[[headgear]]
+view = 441
+slot = "Head_Top"
+accname = "fillet_blue"
+items = [5440]
+
+[[headgear]]
+view = 442
+slot = "Head_Top"
+accname = "fillet_white"
+items = [5441]
+
+[[headgear]]
+view = 443
+slot = "Head_Top"
+accname = "necktie"
+items = [
+    5442,
+    18512,
+]
+
+[[headgear]]
+view = 444
+slot = "Head_Top"
+accname = "status_of_baby_angel"
+items = [
+    5443,
+    18552,
+]
+
+[[headgear]]
+view = 445
+slot = "Head_Top"
+accname = "hair_brush"
+items = [5444]
+
+[[headgear]]
+view = 446
+slot = "Head_Low"
+accname = "candy_cane_in_the_mouth"
+items = [
+    5445,
+    18526,
+    18870,
+    18871,
+]
+
+[[headgear]]
+view = 447
+slot = "Head_Top"
+accname = "cat_foot_hairpin"
+items = [5446]
+
+[[headgear]]
+view = 448
+slot = "Head_Top"
+accname = "frog_cap"
+items = [5447]
+
+[[headgear]]
+view = 449
+slot = "Head_Top"
+accname = "solo_play_box1"
+items = [5448]
+
+[[headgear]]
+view = 450
+slot = "Head_Top"
+accname = "solo_play_box2"
+items = [5449]
+
+[[headgear]]
+view = 451
+slot = "Head_Top"
+accname = "sun_cap"
+items = [
+    5450,
+    19367,
+]
+
+[[headgear]]
+view = 452
+slot = "Head_Top"
+accname = "dragonhelm_gold"
+items = [5451]
+
+[[headgear]]
+view = 453
+slot = "Head_Top"
+accname = "dragonhelm_silver"
+items = [5452]
+
+[[headgear]]
+view = 454
+slot = "Head_Top"
+accname = "dragonhelm_copper"
+items = [5453]
+
+[[headgear]]
+view = 455
+slot = "Head_Top"
+accname = "spring_rabbit_hat"
+items = [5457]
+
+[[headgear]]
+view = 456
+slot = "Head_Top"
+accname = "pinwheel_cap"
+items = [5458]
+
+[[headgear]]
+view = 457
+slot = "Head_Top"
+accname = "adv_dragon_skull"
+items = [5460]
+
+[[headgear]]
+view = 458
+slot = "Head_Top"
+accname = "adv_whisper_mask"
+items = [5461]
+
+[[headgear]]
+view = 459
+slot = "Head_Low"
+accname = "spiked_scarf"
+items = [5462]
+
+[[headgear]]
+view = 460
+slot = "Head_Low"
+accname = "rainbow_scarf"
+items = [5463]
+
+[[headgear]]
+view = 461
+slot = "Head_Top"
+accname = "zaha_doll_hat"
+items = [
+    5464,
+    18861,
+    400246,
+]
+
+[[headgear]]
+view = 462
+slot = "Head_Top"
+accname = "celestial_hat"
+items = [5465]
+
+[[headgear]]
+view = 463
+slot = "Head_Top"
+accname = "wind_milestone"
+items = [5466]
+
+[[headgear]]
+view = 464
+slot = "Head_Top"
+accname = "helm_of_dragoon"
+items = [5467]
+
+[[headgear]]
+view = 465
+slot = "Head_Top"
+accname = "parade_cap"
+items = [
+    5468,
+    5583,
+]
+
+[[headgear]]
+view = 466
+slot = "Head_Top"
+accname = "noble_hat"
+items = [5469]
+
+[[headgear]]
+view = 467
+slot = "Head_Mid"
+accname = "eyes_of_darkness"
+items = [5470]
+
+[[headgear]]
+view = 468
+slot = "Head_Top"
+accname = "hairband_of_reginleif"
+items = [
+    5471,
+    400075,
+]
+
+[[headgear]]
+view = 469
+slot = "Head_Top"
+accname = "red_white_hat"
+items = [5472]
+
+[[headgear]]
+view = 470
+slot = "Head_Top"
+accname = "forceps_hairpin"
+items = [5473]
+
+[[headgear]]
+view = 471
+slot = "Head_Top"
+accname = "notice_board"
+items = [5474]
+
+[[headgear]]
+view = 472
+slot = "Head_Top"
+accname = "cube_mask"
+items = [5475]
+
+[[headgear]]
+view = 473
+slot = "Head_Top"
+accname = "hairband_of_grandpeco"
+items = [
+    5476,
+    19399,
+]
+
+[[headgear]]
+view = 474
+slot = "Head_Top"
+accname = "bro_flag"
+items = [5477]
+
+[[headgear]]
+view = 475
+slot = "Head_Top"
+accname = "classic_hat"
+items = [
+    5478,
+    5815,
+]
+
+[[headgear]]
+view = 476
+slot = "Head_Top"
+accname = "shaman's_hair_ornament"
+items = [5479]
+
+[[headgear]]
+view = 477
+slot = "Head_Top"
+accname = "bizofnil_wing_deco"
+items = [5480]
+
+[[headgear]]
+view = 478
+slot = "Head_Top"
+accname = "hermose_cap"
+items = [5481]
+
+[[headgear]]
+view = 479
+slot = "Head_Top"
+accname = "dark_knight_mask"
+items = [
+    5482,
+    5577,
+]
+
+[[headgear]]
+view = 480
+slot = "Head_Top"
+accname = "odin_mask"
+items = [
+    5483,
+    19133,
+]
+
+[[headgear]]
+view = 481
+slot = "Head_Top"
+accname = "red_ph.d_hat"
+items = [5813]
+
+[[headgear]]
+view = 482
+slot = "Head_Top"
+accname = "taiwan_flag_hat"
+items = [5484]
+
+[[headgear]]
+view = 483
+slot = "Head_Top"
+accname = "tiger_face"
+items = [5485]
+
+[[headgear]]
+view = 484
+slot = "Head_Top"
+accname = "love_daddy"
+items = [5489]
+
+[[headgear]]
+view = 485
+slot = "Head_Top"
+accname = "anubis_helm"
+items = [
+    5490,
+    18504,
+    19180,
+]
+
+[[headgear]]
+view = 486
+slot = "Head_Top"
+accname = "hat_of_outlaw"
+items = [5491]
+
+[[headgear]]
+view = 487
+slot = "Head_Top"
+accname = "pizza_hat"
+items = [
+    5499,
+    19349,
+]
+
+[[headgear]]
+view = 488
+slot = "Head_Top"
+accname = "icecream_hat"
+items = [5500]
+
+[[headgear]]
+view = 489
+slot = "Head_Top"
+accname = "china_wedding_veil"
+items = [
+    5504,
+    5562,
+]
+
+[[headgear]]
+view = 490
+slot = "Head_Top"
+accname = "wondering_wolf_helm"
+items = [5498]
+
+[[headgear]]
+view = 491
+slot = "Head_Top"
+accname = "necromencer's_hood"
+items = [5502]
+
+[[headgear]]
+view = 492
+slot = "Head_Top"
+accname = "asara_fairy_hat"
+items = [5505]
+
+[[headgear]]
+view = 493
+slot = "Head_Top"
+accname = "power_of_thor"
+items = [5495]
+
+[[headgear]]
+view = 494
+slot = "Head_Top"
+accname = "dice_hat"
+items = [5496]
+
+[[headgear]]
+view = 495
+slot = "Head_Top"
+accname = "king_tiger_doll_hat"
+items = [
+    5497,
+    19169,
+    400245,
+]
+
+[[headgear]]
+view = 496
+slot = "Head_Top"
+accname = "pirate's_pride"
+items = [
+    5501,
+    5774,
+    18955,
+]
+
+[[headgear]]
+view = 497
+slot = "Head_Top"
+accname = "rabbit_magic_hat"
+items = [
+    5503,
+    5561,
+    19179,
+]
+
+[[headgear]]
+view = 498
+slot = "Head_Mid"
+accname = "black_elven_ears"
+items = [
+    5820,
+    19041,
+]
+
+[[headgear]]
+view = 499
+slot = "Head_Top"
+accname = "gold_tulip_hairpin"
+items = [5821]
+
+[[headgear]]
+view = 500
+slot = "Head_Top"
+accname = "love_chick_hat"
+items = [5822]
+
+[[headgear]]
+view = 501
+slot = "Head_Top"
+accname = "blue_pajamas_hat"
+items = [5506]
+
+[[headgear]]
+view = 502
+slot = "Head_Top"
+accname = "pink_pajamas_hat"
+items = [5507]
+
+[[headgear]]
+view = 503
+slot = "Head_Top"
+accname = "shark_hat"
+items = [5508]
+
+[[headgear]]
+view = 504
+slot = "Head_Top"
+accname = "sting_hat"
+items = [5509]
+
+[[headgear]]
+view = 505
+slot = "Head_Top"
+accname = "carnival_hat"
+items = [5818]
+
+[[headgear]]
+view = 506
+slot = "Head_Top"
+accname = "carnival_circlet"
+items = [5819]
+
+[[headgear]]
+view = 507
+slot = "Head_Top"
+accname = "shower_cap"
+items = [
+    5510,
+    400077,
+    400679,
+    400680,
+]
+
+[[headgear]]
+view = 508
+slot = "Head_Top"
+accname = "samambaia"
+items = [5511]
+
+[[headgear]]
+view = 509
+slot = "Head_Top"
+accname = "aquarius_diadem"
+items = [
+    5512,
+    400095,
+]
+
+[[headgear]]
+view = 510
+slot = "Head_Top"
+accname = "aquarius_crown"
+items = [
+    5513,
+    19496,
+    400094,
+]
+
+[[headgear]]
+view = 511
+slot = "Head_Top"
+accname = "pisces_diadem"
+items = [
+    5514,
+    400134,
+]
+
+[[headgear]]
+view = 512
+slot = "Head_Top"
+accname = "pisces_crown"
+items = [
+    5515,
+    400135,
+]
+
+[[headgear]]
+view = 513
+slot = "Head_Top"
+accname = "l_magestic_goat2"
+items = [5518]
+
+[[headgear]]
+view = 514
+slot = "Head_Top"
+accname = "peacock_feather"
+items = [5519]
+
+[[headgear]]
+view = 515
+slot = "Head_Top"
+accname = "rabbit_earplug"
+items = [5520]
+
+[[headgear]]
+view = 516
+slot = "Head_Top"
+accname = "fanta_zero_lemon_hat"
+items = [5522]
+
+[[headgear]]
+view = 517
+slot = "Head_Top"
+accname = "sakura_mist_hat"
+items = [5523]
+
+[[headgear]]
+view = 518
+slot = "Head_Top"
+accname = "sakura_milk_tea_hat"
+items = [5524]
+
+[[headgear]]
+view = 519
+slot = "Head_Top"
+accname = "first_leaf_tea_hat"
+items = [5525]
+
+[[headgear]]
+view = 520
+slot = "Head_Top"
+accname = "lady_tanee_doll"
+items = [5526]
+
+[[headgear]]
+view = 521
+slot = "Head_Top"
+accname = "lunatic_hat"
+items = [5527]
+
+[[headgear]]
+view = 522
+slot = "Head_Top"
+accname = "king_frog_hat"
+items = [5528]
+
+[[headgear]]
+view = 523
+slot = "Head_Top"
+accname = "evil's_bone_hat"
+items = [
+    5529,
+    15845,
+]
+
+[[headgear]]
+view = 524
+slot = "Head_Top"
+accname = "raven_cap"
+items = [5530]
+
+[[headgear]]
+view = 525
+slot = "Head_Top"
+accname = "b_dragon_hat"
+items = [
+    5531,
+    19010,
+]
+
+[[headgear]]
+view = 526
+slot = "Head_Low"
+accname = "spare_card"
+items = [5536]
+
+[[headgear]]
+view = 527
+slot = "Head_Top"
+accname = "quati_hat"
+items = [5537]
+
+[[headgear]]
+view = 528
+slot = "Head_Top"
+accname = "tucan_hat"
+items = [5538]
+
+[[headgear]]
+view = 529
+slot = "Head_Top"
+accname = "side_cap"
+items = [5535]
+
+[[headgear]]
+view = 530
+slot = "Head_Top"
+accname = "jaguar_hat"
+items = [
+    5539,
+    5602,
+]
+
+[[headgear]]
+view = 531
+slot = "Head_Top"
+accname = "aries_diadem"
+items = [5545]
+
+[[headgear]]
+view = 532
+slot = "Head_Top"
+accname = "aries_crown"
+items = [
+    5546,
+    400078,
+]
+
+[[headgear]]
+view = 533
+slot = "Head_Top"
+accname = "rjc_katusa"
+items = [5547]
+
+[[headgear]]
+view = 534
+slot = "Head_Low"
+accname = "scarlet_rose"
+items = [5548]
+
+[[headgear]]
+view = 535
+slot = "Head_Top"
+accname = "taurus_diadem"
+items = [
+    5549,
+    19473,
+    400099,
+]
+
+[[headgear]]
+view = 536
+slot = "Head_Top"
+accname = "taurus_crown"
+items = [
+    5550,
+    400098,
+]
+
+[[headgear]]
+view = 537
+slot = "Head_Top"
+accname = "holy_egg_hat"
+items = [
+    5551,
+    5852,
+    19340,
+]
+
+[[headgear]]
+view = 538
+slot = "Head_Top"
+accname = "octopus_hat"
+items = [
+    5554,
+    5938,
+]
+
+[[headgear]]
+view = 539
+slot = "Head_Top"
+accname = "leaf_cat_hat"
+items = [
+    5555,
+    5692,
+]
+
+[[headgear]]
+view = 540
+slot = "Head_Top"
+accname = "fur_seal_hat"
+items = [
+    5556,
+    19035,
+]
+
+[[headgear]]
+view = 541
+slot = "Head_Top"
+accname = "wild_rose_hat"
+items = [
+    5557,
+    18529,
+]
+
+[[headgear]]
+view = 542
+slot = "Head_Top"
+accname = "saci_hat"
+items = [
+    5558,
+    5691,
+]
+
+[[headgear]]
+view = 543
+slot = "Head_Top"
+accname = "piece_of_white_cloth_e"
+items = [5559]
+
+[[headgear]]
+view = 544
+slot = "Head_Top"
+accname = "crown_of_deceit"
+items = [5564]
+
+[[headgear]]
+view = 545
+slot = "Head_Top"
+accname = "dragon_arhat_mask"
+items = [5565]
+
+[[headgear]]
+view = 546
+slot = "Head_Top"
+accname = "tiger_arhat_mask"
+items = [5566]
+
+[[headgear]]
+view = 547
+slot = "Head_Top"
+accname = "dolor_hat"
+items = [
+    5563,
+    400023,
+    400465,
+]
+
+[[headgear]]
+view = 548
+slot = "Head_Top"
+accname = "bright_fury"
+items = [
+    5567,
+    400276,
+]
+
+[[headgear]]
+view = 549
+slot = "Head_Top"
+accname = "rabbit_bonnet"
+items = [
+    5568,
+    5593,
+    5764,
+]
+
+[[headgear]]
+view = 550
+slot = "Head_Top"
+accname = "gemini_diadem"
+items = [5569]
+
+[[headgear]]
+view = 551
+slot = "Head_Top"
+accname = "gemini_crown"
+items = [
+    5570,
+    400121,
+]
+
+[[headgear]]
+view = 552
+slot = "Head_Top"
+accname = "rasta_wig"
+items = [5571]
+
+[[headgear]]
+view = 553
+slot = "Head_Top"
+accname = "savage_baby_hat"
+items = [5572]
+
+[[headgear]]
+view = 554
+slot = "Head_Top"
+accname = "bogy_horn"
+items = [5573]
+
+[[headgear]]
+view = 555
+slot = "Head_Low"
+accname = "pencil_in_mouth"
+items = [5574]
+
+[[headgear]]
+view = 556
+slot = "Head_Top"
+accname = "onigiri_hat"
+items = [5575]
+
+[[headgear]]
+view = 557
+slot = "Head_Low"
+accname = "japan_winecup"
+items = [
+    5576,
+    420252,
+    420313,
+]
+
+[[headgear]]
+view = 558
+slot = "Head_Top"
+accname = "wanderer's_sakkat"
+items = [
+    5579,
+    15834,
+    430006,
+    430007,
+]
+
+[[headgear]]
+view = 559
+slot = "Head_Top"
+accname = "red_beret"
+items = [
+    5580,
+    400478,
+    400479,
+]
+
+[[headgear]]
+view = 560
+slot = "Head_Top"
+accname = "cancer_diadem"
+items = [
+    5581,
+    400118,
+]
+
+[[headgear]]
+view = 561
+slot = "Head_Top"
+accname = "cancer_crown"
+items = [
+    5582,
+    19449,
+]
+
+[[headgear]]
+view = 562
+slot = "Head_Top"
+accname = "majestic_evil_horn"
+items = [
+    5584,
+    18503,
+]
+
+[[headgear]]
+view = 563
+slot = "Head_Top"
+accname = "mosquito_coil"
+items = [
+    5586,
+    5587,
+]
+
+[[headgear]]
+view = 564
+slot = "Head_Top"
+accname = "rune_hairband"
+items = [
+    5585,
+    18590,
+]
+
+[[headgear]]
+view = 565
+slot = "Head_Top"
+accname = "leo_crown"
+items = [
+    5588,
+    19447,
+    400119,
+]
+
+[[headgear]]
+view = 566
+slot = "Head_Top"
+accname = "leo_diadem"
+items = [
+    5589,
+    400418,
+    400419,
+]
+
+[[headgear]]
+view = 567
+slot = "Head_Top"
+accname = "desert_prince"
+items = [5591]
+
+[[headgear]]
+view = 568
+slot = "Head_Mid"
+accname = "sigrun's_wing"
+items = [
+    5592,
+    15966,
+    18657,
+    19052,
+    19085,
+]
+
+[[headgear]]
+view = 569
+slot = "Head_Low"
+accname = "donut_in_mouth"
+items = [
+    5594,
+    18869,
+]
+
+[[headgear]]
+view = 570
+slot = "Head_Top"
+accname = "eye_of_juno"
+items = [
+    5595,
+    15832,
+]
+
+[[headgear]]
+view = 571
+slot = "Head_Low"
+accname = "4leaf_clover_in_mouth"
+items = [
+    5596,
+    18521,
+    18751,
+    420239,
+]
+
+[[headgear]]
+view = 572
+slot = "Head_Low"
+accname = "bubblegum_lower"
+items = [
+    5394,
+    5597,
+    5846,
+]
+
+[[headgear]]
+view = 573
+slot = "Head_Top"
+accname = "virgo_crown"
+items = [5598]
+
+[[headgear]]
+view = 574
+slot = "Head_Top"
+accname = "virgo_diadem"
+items = [
+    5599,
+    400116,
+]
+
+[[headgear]]
+view = 575
+slot = "Head_Top"
+accname = "br_twin_ribbon"
+items = [
+    5600,
+    5793,
+    410023,
+    410024,
+]
+
+[[headgear]]
+view = 576
+slot = "Head_Top"
+accname = "br_beret"
+items = [5601]
+
+[[headgear]]
+view = 577
+slot = "Head_Top"
+accname = "rtc_winner_only"
+items = [5603]
+
+[[headgear]]
+view = 578
+slot = "Head_Top"
+accname = "rtc_second_best"
+items = [5604]
+
+[[headgear]]
+view = 579
+slot = "Head_Top"
+accname = "rtc_third_best"
+items = [5605]
+
+[[headgear]]
+view = 580
+slot = "Head_Top"
+accname = "campume_hat"
+items = [5606]
+
+[[headgear]]
+view = 581
+slot = "Head_Top"
+accname = "lyria_doll_hat"
+items = [
+    5607,
+    19096,
+]
+
+[[headgear]]
+view = 582
+slot = "Head_Top"
+accname = "dorothy_doll_hat"
+items = [5608]
+
+[[headgear]]
+view = 583
+slot = "Head_Top"
+accname = "chung_hairband"
+items = [
+    5609,
+    18783,
+]
+
+[[headgear]]
+view = 584
+slot = "Head_Mid"
+accname = "ice_wing_ear"
+items = [5610]
+
+[[headgear]]
+view = 585
+slot = "Head_Top"
+accname = "turtle_hat"
+items = [
+    5611,
+    15927,
+]
+
+[[headgear]]
+view = 586
+slot = "Head_Top"
+accname = "darkness_helm_j"
+items = [5653]
+
+[[headgear]]
+view = 587
+slot = "Head_Top"
+accname = "holy_marching_hat_j"
+items = [5654]
+
+[[headgear]]
+view = 588
+slot = "Head_Top"
+accname = "scooter_hat_j"
+items = [5656]
+
+[[headgear]]
+view = 589
+slot = "Head_Top"
+accname = "imp_hat"
+items = [
+    5658,
+    400156,
+]
+
+[[headgear]]
+view = 590
+slot = "Head_Top"
+accname = "sleepr_hat"
+items = [
+    5659,
+    19400,
+]
+
+[[headgear]]
+view = 591
+slot = "Head_Top"
+accname = "gryphon_hat"
+items = [5660]
+
+[[headgear]]
+view = 592
+slot = "Head_Top"
+accname = "red_pirate_bandana"
+items = [5661]
+
+[[headgear]]
+view = 593
+slot = "Head_Top"
+accname = "libra_crown"
+items = [
+    5662,
+    400117,
+]
+
+[[headgear]]
+view = 594
+slot = "Head_Top"
+accname = "libra_diadem"
+items = [
+    5663,
+    19468,
+    400079,
+]
+
+[[headgear]]
+view = 595
+slot = "Head_Mid"
+accname = "filir_wing"
+items = [
+    5664,
+    5865,
+]
+
+[[headgear]]
+view = 596
+slot = "Head_Top"
+accname = "shaman_hat"
+items = [
+    5665,
+    5841,
+]
+
+[[headgear]]
+view = 597
+slot = "Head_Top"
+accname = "golden_crown"
+items = [
+    5666,
+    15823,
+]
+
+[[headgear]]
+view = 598
+slot = "Head_Top"
+accname = "skull_hood"
+items = [5667]
+
+[[headgear]]
+view = 599
+slot = "Head_Top"
+accname = "aniv_star_hat"
+items = [5670]
+
+[[headgear]]
+view = 600
+slot = "Head_Top"
+accname = "drooping_morocc_minion"
+items = [5671]
+
+[[headgear]]
+view = 601
+slot = "Head_Top"
+accname = "southern_cross"
+items = [
+    5672,
+    400470,
+]
+
+[[headgear]]
+view = 602
+slot = "Head_Top"
+accname = "home_cherry_blossom"
+items = [5673]
+
+[[headgear]]
+view = 603
+slot = "Head_Top"
+accname = "pig_moneybox"
+items = [5674]
+
+[[headgear]]
+view = 604
+slot = "Head_Low"
+accname = "poring_letter"
+items = [5675]
+
+[[headgear]]
+view = 605
+slot = "Head_Top"
+accname = "scorpio_crown"
+items = [
+    5676,
+    19471,
+]
+
+[[headgear]]
+view = 606
+slot = "Head_Top"
+accname = "scorpio_diadem"
+items = [
+    5677,
+    15960,
+    400059,
+    400262,
+]
+
+[[headgear]]
+view = 607
+slot = "Head_Top"
+accname = "notation_hairband"
+items = [5678]
+
+[[headgear]]
+view = 608
+slot = "Head_Top"
+accname = "engineer_cap"
+items = [
+    5679,
+    19364,
+]
+
+[[headgear]]
+view = 609
+slot = "Head_Mid"
+accname = "hawkeyes"
+items = [5680]
+
+[[headgear]]
+view = 610
+slot = "Head_Top"
+accname = "triangle_rune_cap"
+items = [
+    5682,
+    5790,
+]
+
+[[headgear]]
+view = 611
+slot = "Head_Top"
+accname = "2009love_daddy"
+items = [5688]
+
+[[headgear]]
+view = 612
+slot = "Head_Top"
+accname = "queen_ant_diadem"
+items = [5689]
+
+[[headgear]]
+view = 613
+slot = "Head_Top"
+accname = "red_wing_hat"
+items = [5690]
+
+[[headgear]]
+view = 614
+slot = "Head_Top"
+accname = "no_fear_p_headgear"
+items = [5694]
+
+[[headgear]]
+view = 615
+slot = "Head_Top"
+accname = "cactus_hat"
+items = [5737]
+
+[[headgear]]
+view = 616
+slot = "Head_Top"
+accname = "snowman_hat"
+items = [5738]
+
+[[headgear]]
+view = 617
+slot = "Head_Top"
+accname = "sagittarius_crown"
+items = [5739]
+
+[[headgear]]
+view = 618
+slot = "Head_Top"
+accname = "sagittarius_diadem"
+items = [
+    5740,
+    15964,
+    400061,
+    400261,
+]
+
+[[headgear]]
+view = 619
+slot = "Head_Top"
+accname = "rudolf_santa_hat"
+items = [5742]
+
+[[headgear]]
+view = 620
+slot = "Head_Top"
+accname = "orange_stem_hat"
+items = [5743]
+
+[[headgear]]
+view = 621
+slot = "Head_Top"
+accname = "capricon_crown"
+items = [
+    5744,
+    400120,
+]
+
+[[headgear]]
+view = 622
+slot = "Head_Top"
+accname = "capricon_diadem"
+items = [
+    5745,
+    400015,
+]
+
+[[headgear]]
+view = 623
+slot = "Head_Top"
+accname = "rune_circlet"
+items = [
+    5746,
+    18971,
+]
+
+[[headgear]]
+view = 624
+slot = "Head_Top"
+accname = "mitra"
+items = [
+    5747,
+    18972,
+]
+
+[[headgear]]
+view = 625
+slot = "Head_Top"
+accname = "sniper_goggle"
+items = [5748]
+
+[[headgear]]
+view = 626
+slot = "Head_Top"
+accname = "driver_band"
+items = [
+    5749,
+    18973,
+]
+
+[[headgear]]
+view = 627
+slot = "Head_Top"
+accname = "shadow_handicraft"
+items = [
+    5750,
+    18975,
+]
+
+[[headgear]]
+view = 628
+slot = "Head_Top"
+accname = "minstrel_song_hat"
+items = [
+    5751,
+    18976,
+]
+
+[[headgear]]
+view = 629
+slot = "Head_Top"
+accname = "midas_whisper"
+items = [
+    5752,
+    18977,
+]
+
+[[headgear]]
+view = 630
+slot = "Head_Top"
+accname = "magic_stone_hat"
+items = [
+    5753,
+    18978,
+]
+
+[[headgear]]
+view = 631
+slot = "Head_Top"
+accname = "blazing_soul"
+items = [
+    5754,
+    18979,
+]
+
+[[headgear]]
+view = 632
+slot = "Head_Top"
+accname = "silent_executer"
+items = [5755]
+
+[[headgear]]
+view = 633
+slot = "Head_Top"
+accname = "wind_whisper"
+items = [
+    5756,
+    18980,
+]
+
+[[headgear]]
+view = 634
+slot = "Head_Top"
+accname = "schmidt_helm"
+items = [5757]
+
+[[headgear]]
+view = 635
+slot = "Head_Top"
+accname = "dying_swan"
+items = [
+    5758,
+    18981,
+]
+
+[[headgear]]
+view = 636
+slot = "Head_Top"
+accname = "noah_hat"
+items = [5759]
+
+[[headgear]]
+view = 637
+slot = "Head_Top"
+accname = "driver_band_"
+items = [
+    5760,
+    18974,
+]
+
+[[headgear]]
+view = 638
+slot = "Head_Top"
+accname = "sloth_hat"
+items = [5761]
+
+[[headgear]]
+view = 639
+slot = "Head_Top"
+accname = "duneyrr_helm"
+items = [5762]
+
+[[headgear]]
+view = 640
+slot = "Head_Top"
+accname = "red_bunny_band"
+items = [5763]
+
+[[headgear]]
+view = 641
+slot = "Head_Top"
+accname = "buzzy_ball_board"
+items = [5845]
+
+[[headgear]]
+view = 642
+slot = "Head_Top"
+accname = "black_tail_ribbon"
+items = [5765]
+
+[[headgear]]
+view = 643
+slot = "Head_Top"
+accname = "amistr_cap"
+items = [5766]
+
+[[headgear]]
+view = 644
+slot = "Head_Low"
+accname = "samurai_mask"
+items = [5767]
+
+[[headgear]]
+view = 645
+slot = "Head_Top"
+accname = "sakura_coronet"
+items = [5768]
+
+[[headgear]]
+view = 646
+slot = "Head_Top"
+accname = "gold_angel_sculpture"
+items = [
+    5769,
+    15434,
+]
+
+[[headgear]]
+view = 647
+slot = "Head_Top"
+accname = "fools_day_helmet"
+items = [5847]
+
+[[headgear]]
+view = 648
+slot = "Head_Top"
+accname = "golden_savage_hat"
+items = [5850]
+
+[[headgear]]
+view = 649
+slot = "Head_Top"
+accname = "splash_hat"
+items = [5770]
+
+[[headgear]]
+view = 650
+slot = "Head_Top"
+accname = "family_hat"
+items = [5771]
+
+[[headgear]]
+view = 651
+slot = "Head_Top"
+accname = "red_navy_hat"
+items = [5772]
+
+[[headgear]]
+view = 652
+slot = "Head_Top"
+accname = "navy_beret"
+items = [5773]
+
+[[headgear]]
+view = 653
+slot = "Head_Low"
+accname = "choco_donut_in_mouth"
+items = [5775]
+
+[[headgear]]
+view = 654
+slot = "Head_Top"
+accname = "blazing_sun"
+items = [5776]
+
+[[headgear]]
+view = 655
+slot = "Head_Top"
+accname = "remover_hat"
+items = [5777]
+
+[[headgear]]
+view = 656
+slot = "Head_Top"
+accname = "blue_arara_hat"
+items = [5778]
+
+[[headgear]]
+view = 657
+slot = "Head_Top"
+accname = "drooping_boto"
+items = [5779]
+
+[[headgear]]
+view = 658
+slot = "Head_Top"
+accname = "tendrilion_hat"
+items = [5780]
+
+[[headgear]]
+view = 659
+slot = "Head_Top"
+accname = "persika"
+items = [5781]
+
+[[headgear]]
+view = 660
+slot = "Head_Top"
+accname = "hoplite_helmet"
+items = [
+    5782,
+    18637,
+]
+
+[[headgear]]
+view = 661
+slot = "Head_Mid"
+accname = "3d_glasses"
+items = [
+    5788,
+    5794,
+]
+
+[[headgear]]
+view = 662
+slot = "Head_Top"
+accname = "yellowbunny_hairband"
+items = [5783]
+
+[[headgear]]
+view = 663
+slot = "Head_Top"
+accname = "pinkbunny_hairband"
+items = [5784]
+
+[[headgear]]
+view = 664
+slot = "Head_Top"
+accname = "green_bunny_hairband"
+items = [5785]
+
+[[headgear]]
+view = 665
+slot = "Head_Mid"
+accname = "ancient_elven_ear"
+items = [
+    5786,
+    5973,
+]
+
+[[headgear]]
+view = 666
+slot = "Head_Top"
+accname = "tha_maero_mask"
+items = [
+    5787,
+    19141,
+    410332,
+    410333,
+    436000,
+    436005,
+]
+
+[[headgear]]
+view = 667
+slot = "Head_Top"
+accname = "thanatos_mal_mask"
+items = [
+    5789,
+    436002,
+    436003,
+]
+
+[[headgear]]
+view = 668
+slot = "Head_Top"
+accname = "tenkaippin_ramen"
+items = [5791]
+
+[[headgear]]
+view = 669
+slot = "Head_Top"
+accname = "fish_pin"
+items = [5792]
+
+[[headgear]]
+view = 670
+slot = "Head_Top"
+accname = "red_dress_hat"
+items = [5795]
+
+[[headgear]]
+view = 671
+slot = "Head_Top"
+accname = "passion_fb_hat"
+items = [5856]
+
+[[headgear]]
+view = 672
+slot = "Head_Top"
+accname = "cool_fb_hat"
+items = [5857]
+
+[[headgear]]
+view = 673
+slot = "Head_Top"
+accname = "victory_fb_hat"
+items = [5858]
+
+[[headgear]]
+view = 674
+slot = "Head_Top"
+accname = "glory_fb_hat"
+items = [5859]
+
+[[headgear]]
+view = 675
+slot = "Head_Low"
+accname = "umbala_spirit"
+items = [18505]
+
+[[headgear]]
+view = 676
+slot = "Head_Top"
+accname = "hattah_black"
+items = [18506]
+
+[[headgear]]
+view = 677
+slot = "Head_Top"
+accname = "garuda_hat"
+items = [18508]
+
+[[headgear]]
+view = 678
+slot = "Head_Top"
+accname = "rwc2010_indonesia"
+items = [18509]
+
+[[headgear]]
+view = 679
+slot = "Head_Top"
+accname = "blood_angel_hair_band"
+items = [18510]
+
+[[headgear]]
+view = 680
+slot = "Head_Mid"
+accname = "comp_diabolus_wing"
+items = [
+    15476,
+    18511,
+    19495,
+    410304,
+    410305,
+]
+
+[[headgear]]
+view = 681
+slot = "Head_Top"
+accname = "shining_sunflower"
+items = [18513]
+
+[[headgear]]
+view = 682
+slot = "Head_Top"
+accname = "para_team_hat2"
+items = [18514]
+
+[[headgear]]
+view = 683
+slot = "Head_Mid"
+accname = "rtc_winner_headgear"
+items = [18515]
+
+[[headgear]]
+view = 684
+slot = "Head_Mid"
+accname = "rtc_2nd_headgear"
+items = [18516]
+
+[[headgear]]
+view = 685
+slot = "Head_Mid"
+accname = "rtc_3rd_headgear"
+items = [18517]
+
+[[headgear]]
+view = 686
+slot = "Head_Top"
+accname = "jaty_c"
+items = [18520]
+
+[[headgear]]
+view = 687
+slot = "Head_Top"
+accname = "evil_marcher_hat"
+items = [18522]
+
+[[headgear]]
+view = 688
+slot = "Head_Top"
+accname = "super_scell"
+items = [
+    18523,
+    400442,
+]
+
+[[headgear]]
+view = 689
+slot = "Head_Top"
+accname = "dokkebi_mask"
+items = [18524]
+
+[[headgear]]
+view = 690
+slot = "Head_Top"
+accname = "watermelon_hat"
+items = [18525]
+
+[[headgear]]
+view = 691
+slot = "Head_Top"
+accname = "gloomy_pumpkin_hat"
+items = [18527]
+
+[[headgear]]
+view = 692
+slot = "Head_Top"
+accname = "tare_neko_cru"
+items = [18528]
+
+[[headgear]]
+view = 693
+slot = "Head_Top"
+accname = "tha_despero_mask"
+items = [
+    18530,
+    436001,
+    436004,
+]
+
+[[headgear]]
+view = 694
+slot = "Head_Top"
+accname = "drooping_permeter"
+items = [
+    18531,
+    18668,
+]
+
+[[headgear]]
+view = 695
+slot = "Head_Mid"
+accname = "butterfly_wing_ear_j"
+items = [18782]
+
+[[headgear]]
+view = 696
+slot = "Head_Mid"
+accname = "24_bolt"
+items = [18577]
+
+[[headgear]]
+view = 698
+slot = "Head_Mid"
+accname = "eyepatch_power_th"
+items = [
+    15948,
+    15949,
+    15950,
+    15951,
+]
+
+[[headgear]]
+view = 702
+slot = "Head_Top"
+accname = "humming_bird"
+items = [18568]
+
+[[headgear]]
+view = 704
+slot = "Head_Top"
+accname = "shang_rainbow_exe"
+items = [
+    15857,
+    19156,
+]
+
+[[headgear]]
+view = 705
+slot = "Head_Top"
+accname = "comp_cloud_buster_roc"
+items = [400443]
+
+[[headgear]]
+view = 707
+slot = "Head_Top"
+accname = "fancy_mini_crown"
+items = [18593]
+
+[[headgear]]
+view = 708
+slot = "Head_Top"
+accname = "heart_ribbon_band"
+items = [18532]
+
+[[headgear]]
+view = 709
+slot = "Head_Top"
+accname = "honeybee_hat"
+items = [18533]
+
+[[headgear]]
+view = 710
+slot = "Head_Top"
+accname = "fancy_phantom_mask"
+items = [
+    18534,
+    430003,
+]
+
+[[headgear]]
+view = 711
+slot = "Head_Low"
+accname = "foxtail"
+items = [
+    18536,
+    18627,
+]
+
+[[headgear]]
+view = 712
+slot = "Head_Mid"
+accname = "devil_whisper"
+items = [18538]
+
+[[headgear]]
+view = 713
+slot = "Head_Top"
+accname = "skull_cap"
+items = [
+    18539,
+    400275,
+]
+
+[[headgear]]
+view = 714
+slot = "Head_Top"
+accname = "evil_mask"
+items = [18540]
+
+[[headgear]]
+view = 715
+slot = "Head_Top"
+accname = "little_fhat"
+items = [18541]
+
+[[headgear]]
+view = 716
+slot = "Head_Top"
+accname = "love_guard_l"
+items = [
+    5953,
+    18542,
+]
+
+[[headgear]]
+view = 717
+slot = "Head_Top"
+accname = "witchs_hat"
+items = [
+    18543,
+    18656,
+    18810,
+]
+
+[[headgear]]
+view = 718
+slot = "Head_Top"
+accname = "blrabbit_hband"
+items = [18544]
+
+[[headgear]]
+view = 719
+slot = "Head_Top"
+accname = "whrabbit_hband"
+items = [18545]
+
+[[headgear]]
+view = 720
+slot = "Head_Low"
+accname = "lover_in_mouth"
+items = [
+    18546,
+    19080,
+    400018,
+]
+
+[[headgear]]
+view = 721
+slot = "Head_Top"
+accname = "campus_festival"
+items = [18547]
+
+[[headgear]]
+view = 722
+slot = "Head_Top"
+accname = "tiny_hat"
+items = [18548]
+
+[[headgear]]
+view = 723
+slot = "Head_Top"
+accname = "butterfly_hairpin"
+items = [18549]
+
+[[headgear]]
+view = 724
+slot = "Head_Top"
+accname = "asgard_blessing"
+items = [18550]
+
+[[headgear]]
+view = 725
+slot = "Head_Top"
+accname = "galaxy_circlet"
+items = [
+    18551,
+    400440,
+]
+
+[[headgear]]
+view = 726
+slot = "Head_Top"
+accname = "malangdo_hat"
+items = [18537]
+
+[[headgear]]
+view = 727
+slot = "Head_Top"
+accname = "mini_tree"
+items = [
+    18553,
+    18598,
+]
+
+[[headgear]]
+view = 728
+slot = "Head_Top"
+accname = "king_prawn_hat"
+items = [18554]
+
+[[headgear]]
+view = 729
+slot = "Head_Top"
+accname = "general_helmet"
+items = [
+    18555,
+    19263,
+]
+
+[[headgear]]
+view = 730
+slot = "Head_Top"
+accname = "sinsuncho_hat"
+items = [18558]
+
+[[headgear]]
+view = 731
+slot = "Head_Top"
+accname = "b_feather_beret"
+items = [
+    18561,
+    19409,
+]
+
+[[headgear]]
+view = 732
+slot = "Head_Top"
+accname = "bone_hat"
+items = [
+    18562,
+    18614,
+]
+
+[[headgear]]
+view = 733
+slot = "Head_Top"
+accname = "heart_wing_hairband"
+items = [
+    18563,
+    19283,
+]
+
+[[headgear]]
+view = 734
+slot = "Head_Low"
+accname = "love_piece"
+items = [18564]
+
+[[headgear]]
+view = 735
+slot = "Head_Top"
+accname = "st_pat_hat"
+items = [
+    18565,
+    19338,
+]
+
+[[headgear]]
+view = 736
+slot = "Head_Low"
+accname = "nut_donut_in_mouth"
+items = [18566]
+
+[[headgear]]
+view = 737
+slot = "Head_Top"
+accname = "stretched_nose"
+items = [
+    18567,
+    18759,
+]
+
+[[headgear]]
+view = 738
+slot = "Head_Top"
+accname = "soft_sheep_hat"
+items = [18569]
+
+[[headgear]]
+view = 739
+slot = "Head_Top"
+accname = "ancient_gold_deco"
+items = [18570]
+
+[[headgear]]
+view = 740
+slot = "Head_Top"
+accname = "lucky_hat"
+items = [18571]
+
+[[headgear]]
+view = 741
+slot = "Head_Top"
+accname = "white_feather"
+items = [18573]
+
+[[headgear]]
+view = 742
+slot = "Head_Top"
+accname = "lord_of_death"
+items = [
+    18574,
+    430008,
+]
+
+[[headgear]]
+view = 743
+slot = "Head_Top"
+accname = "wunderkammer"
+items = [18575]
+
+[[headgear]]
+view = 744
+slot = "Head_Mid"
+accname = "yinyang_earring"
+items = [18576]
+
+[[headgear]]
+view = 745
+slot = "Head_Top"
+accname = "9th_anni_hat"
+items = [18579]
+
+[[headgear]]
+view = 746
+slot = "Head_Top"
+accname = "yggdrasil_crown"
+items = [18580]
+
+[[headgear]]
+view = 747
+slot = "Head_Top"
+accname = "red_tiger_mask"
+items = [18581]
+
+[[headgear]]
+view = 748
+slot = "Head_Top"
+accname = "blue_tiger_mask"
+items = [18582]
+
+[[headgear]]
+view = 749
+slot = "Head_Top"
+accname = "navy_drooping_kitty"
+items = [18583]
+
+[[headgear]]
+view = 750
+slot = "Head_Top"
+accname = "brown_drooping_kitty"
+items = [18584]
+
+[[headgear]]
+view = 751
+slot = "Head_Top"
+accname = "orange_bunny_hairband"
+items = [18585]
+
+[[headgear]]
+view = 752
+slot = "Head_Top"
+accname = "violet_bunny_hairband"
+items = [18586]
+
+[[headgear]]
+view = 753
+slot = "Head_Top"
+accname = "blue_bunny_hairband"
+items = [18587]
+
+[[headgear]]
+view = 754
+slot = "Head_Top"
+accname = "silvah_bunny_hairband"
+items = [18588]
+
+[[headgear]]
+view = 755
+slot = "Head_Top"
+accname = "strawberry_hat"
+items = [18589]
+
+[[headgear]]
+view = 756
+slot = "Head_Top"
+accname = "nestea_hat"
+items = [18592]
+
+[[headgear]]
+view = 757
+slot = "Head_Top"
+accname = "horn_of_ancient"
+items = [
+    18595,
+    18784,
+]
+
+[[headgear]]
+view = 758
+slot = "Head_Top"
+accname = "sprout_hat"
+items = [18596]
+
+[[headgear]]
+view = 759
+slot = "Head_Top"
+accname = "mercury_helm"
+items = [18597]
+
+[[headgear]]
+view = 760
+slot = "Head_Mid"
+accname = "black_devil_mask"
+items = [
+    18599,
+    18603,
+]
+
+[[headgear]]
+view = 761
+slot = "Head_Top"
+accname = "cat_ears_beret"
+items = [18600]
+
+[[headgear]]
+view = 762
+slot = "Head_Top"
+accname = "red_bread_hat"
+items = [18601]
+
+[[headgear]]
+view = 763
+slot = "Head_Low"
+accname = "watermelon_slice"
+items = [18602]
+
+[[headgear]]
+view = 764
+slot = "Head_Top"
+accname = "rocket_helm1"
+items = [18622]
+
+[[headgear]]
+view = 765
+slot = "Head_Top"
+accname = "rocket_helm2"
+items = [18623]
+
+[[headgear]]
+view = 766
+slot = "Head_Top"
+accname = "dark_age"
+items = [18605]
+
+[[headgear]]
+view = 767
+slot = "Head_Top"
+accname = "tear_drop"
+items = [18606]
+
+[[headgear]]
+view = 768
+slot = "Head_Top"
+accname = "rocket_helm3"
+items = [18624]
+
+[[headgear]]
+view = 769
+slot = "Head_Top"
+accname = "rocket_helm_rwc"
+items = [18625]
+
+[[headgear]]
+view = 770
+slot = "Head_Top"
+accname = "white_musang_hat"
+items = [18612]
+
+[[headgear]]
+view = 771
+slot = "Head_Top"
+accname = "black_musang_hat"
+items = [18613]
+
+[[headgear]]
+view = 772
+slot = "Head_Mid"
+accname = "injured_eyepatch"
+items = [
+    18615,
+    19445,
+    19446,
+]
+
+[[headgear]]
+view = 773
+slot = "Head_Low"
+accname = "long_tongue"
+items = [18616]
+
+[[headgear]]
+view = 774
+slot = "Head_Low"
+accname = "onigiri_in_mouth"
+items = [18617]
+
+[[headgear]]
+view = 775
+slot = "Head_Top"
+accname = "airplane_hat"
+items = [
+    18618,
+    18904,
+]
+
+[[headgear]]
+view = 776
+slot = "Head_Top"
+accname = "thief_hood"
+items = [
+    5944,
+    18619,
+]
+
+[[headgear]]
+view = 777
+slot = "Head_Top"
+accname = "gelato_hat"
+items = [18626]
+
+[[headgear]]
+view = 778
+slot = "Head_Top"
+accname = "7th_anni_hat_b"
+items = [
+    18610,
+    18809,
+]
+
+[[headgear]]
+view = 779
+slot = "Head_Mid"
+accname = "heart_eyepatch"
+items = [18620]
+
+[[headgear]]
+view = 781
+slot = "Head_Top"
+accname = "tare_domovoi"
+items = [18628]
+
+[[headgear]]
+view = 782
+slot = "Head_Top"
+accname = "falcon_mask"
+items = [18604]
+
+[[headgear]]
+view = 783
+slot = "Head_Top"
+accname = "b_desert_wolf_hat"
+items = [18629]
+
+[[headgear]]
+view = 784
+slot = "Head_Top"
+accname = "alicel_drooping_doll"
+items = [18630]
+
+[[headgear]]
+view = 785
+slot = "Head_Top"
+accname = "ribbon_chef_hat"
+items = [18631]
+
+[[headgear]]
+view = 786
+slot = "Head_Top"
+accname = "yellow_poring_clip"
+items = [18632]
+
+[[headgear]]
+view = 787
+slot = "Head_Top"
+accname = "pink_poring_clip"
+items = [18633]
+
+[[headgear]]
+view = 788
+slot = "Head_Top"
+accname = "green_poring_clip"
+items = [18634]
+
+[[headgear]]
+view = 789
+slot = "Head_Top"
+accname = "blue_poring_clip"
+items = [18635]
+
+[[headgear]]
+view = 790
+slot = "Head_Top"
+accname = "bridal_ribbon"
+items = [18636]
+
+[[headgear]]
+view = 791
+slot = "Head_Top"
+accname = "citron_hat"
+items = [18638]
+
+[[headgear]]
+view = 792
+slot = "Head_Top"
+accname = "naval_officer_hat"
+items = [18639]
+
+[[headgear]]
+view = 793
+slot = "Head_Top"
+accname = "starfish_headband"
+items = [18640]
+
+[[headgear]]
+view = 794
+slot = "Head_Top"
+accname = "ribbon_magic_hat"
+items = [18641]
+
+[[headgear]]
+view = 795
+slot = "Head_Low"
+accname = "scissorhand_model"
+items = [
+    18642,
+    420389,
+]
+
+[[headgear]]
+view = 796
+slot = "Head_Low"
+accname = "rockhand_model"
+items = [
+    18643,
+    420390,
+]
+
+[[headgear]]
+view = 797
+slot = "Head_Low"
+accname = "paperhand_model"
+items = [
+    18644,
+    420391,
+]
+
+[[headgear]]
+view = 798
+slot = "Head_Top"
+accname = "sailor_hat"
+items = [18645]
+
+[[headgear]]
+view = 799
+slot = "Head_Top"
+accname = "cow_hat"
+items = [18646]
+
+[[headgear]]
+view = 800
+slot = "Head_Top"
+accname = "star_eyepatch"
+items = [
+    18647,
+    19443,
+    19444,
+]
+
+[[headgear]]
+view = 801
+slot = "Head_Low"
+accname = "tongue_charm"
+items = [18648]
+
+[[headgear]]
+view = 802
+slot = "Head_Top"
+accname = "lude_mask"
+items = [18649]
+
+[[headgear]]
+view = 803
+slot = "Head_Top"
+accname = "comp_ignis_capk"
+items = [
+    15963,
+    18651,
+    400022,
+    400266,
+]
+
+[[headgear]]
+view = 804
+slot = "Head_Top"
+accname = "vanargand_helm"
+items = [
+    18652,
+    400274,
+    430002,
+]
+
+[[headgear]]
+view = 805
+slot = "Head_Top"
+accname = "deviruchi_headphone"
+items = [18653]
+
+[[headgear]]
+view = 807
+slot = "Head_Mid"
+accname = "goedo_monocle"
+items = [18655]
+
+[[headgear]]
+view = 808
+slot = "Head_Top"
+accname = "boitata_hat"
+items = [
+    18659,
+    400109,
+]
+
+[[headgear]]
+view = 809
+slot = "Head_Top"
+accname = "indi_feather_band"
+items = [
+    18660,
+    18801,
+]
+
+[[headgear]]
+view = 810
+slot = "Head_Top"
+accname = "trident_helmet"
+items = [
+    18661,
+    18884,
+    19298,
+]
+
+[[headgear]]
+view = 811
+slot = "Head_Top"
+accname = "antler_fedora"
+items = [18662]
+
+[[headgear]]
+view = 812
+slot = "Head_Top"
+accname = "sunglasses_bball_hat"
+items = [18663]
+
+[[headgear]]
+view = 813
+slot = "Head_Mid"
+accname = "blind_glasses"
+items = [18664]
+
+[[headgear]]
+view = 814
+slot = "Head_Low"
+accname = "orange_in_mouth"
+items = [18665]
+
+[[headgear]]
+view = 815
+slot = "Head_Low"
+accname = "comp_cd_in_mouthk"
+items = [
+    15970,
+    18666,
+    420003,
+]
+
+[[headgear]]
+view = 816
+slot = "Head_Top"
+accname = "cat_lace_hairband"
+items = [
+    18667,
+    19242,
+]
+
+[[headgear]]
+view = 817
+slot = "Head_Top"
+accname = "tare_pope"
+items = [
+    18672,
+    18673,
+]
+
+[[headgear]]
+view = 818
+slot = "Head_Low"
+accname = "hankie_in_mouth"
+items = [
+    18670,
+    420064,
+]
+
+[[headgear]]
+view = 819
+slot = "Head_Top"
+accname = "kuken_hat_exe"
+items = [
+    15831,
+    18669,
+    19342,
+]
+
+[[headgear]]
+view = 820
+slot = "Head_Top"
+accname = "flying_helmet"
+items = [
+    5937,
+    18674,
+]
+
+[[headgear]]
+view = 821
+slot = "Head_Top"
+accname = "green_apple_hat"
+items = [18675]
+
+[[headgear]]
+view = 822
+slot = "Head_Mid"
+accname = "hexagon_spectacles"
+items = [18676]
+
+[[headgear]]
+view = 823
+slot = "Head_Low"
+accname = "red_cherry_blossom"
+items = [
+    5866,
+    18677,
+]
+
+[[headgear]]
+view = 824
+slot = "Head_Low"
+accname = "leek_in_mouth"
+items = [
+    18678,
+    19238,
+]
+
+[[headgear]]
+view = 825
+slot = "Head_Low"
+accname = "abacus_in_mouth"
+items = [18679]
+
+[[headgear]]
+view = 826
+slot = "Head_Top"
+accname = "tw_frog_hat"
+items = [18680]
+
+[[headgear]]
+view = 827
+slot = "Head_Top"
+accname = "puppy_ears_hat"
+items = [
+    18681,
+    19025,
+]
+
+[[headgear]]
+view = 828
+slot = "Head_Mid"
+accname = "teardrop"
+items = [18682]
+
+[[headgear]]
+view = 829
+slot = "Head_Low"
+accname = "carrot_in_mouth"
+items = [
+    18683,
+    19239,
+    19350,
+    420000,
+    420135,
+]
+
+[[headgear]]
+view = 830
+slot = "Head_Top"
+accname = "erron_hat_exe"
+items = [
+    15885,
+    18684,
+]
+
+[[headgear]]
+view = 831
+slot = "Head_Top"
+accname = "stardust_hairband"
+items = [18685]
+
+[[headgear]]
+view = 832
+slot = "Head_Top"
+accname = "2011_rmsc_1"
+items = [
+    18686,
+    18687,
+    18688,
+    18689,
+    19412,
+]
+
+[[headgear]]
+view = 836
+slot = "Head_Top"
+accname = "rudolf_hairband"
+items = [18671]
+
+[[headgear]]
+view = 837
+slot = "Head_Top"
+accname = "mike_hat"
+items = [18692]
+
+[[headgear]]
+view = 838
+slot = "Head_Top"
+accname = "hat_of_drowsy_cat"
+items = [
+    5867,
+    18693,
+]
+
+[[headgear]]
+view = 839
+slot = "Head_Top"
+accname = "red_hood"
+items = [18694]
+
+[[headgear]]
+view = 840
+slot = "Head_Top"
+accname = "phoenix_crown_j"
+items = [
+    15824,
+    18695,
+    400083,
+]
+
+[[headgear]]
+view = 841
+slot = "Head_Top"
+accname = "orange_hat"
+items = [18696]
+
+[[headgear]]
+view = 842
+slot = "Head_Low"
+accname = "toy_syringe"
+items = [
+    5978,
+    18697,
+    19240,
+]
+
+[[headgear]]
+view = 843
+slot = "Head_Low"
+accname = "cheesy_snack_in_mouth"
+items = [18698]
+
+[[headgear]]
+view = 844
+slot = "Head_Top"
+accname = "starving_fish_hat"
+items = [18699]
+
+[[headgear]]
+view = 845
+slot = "Head_Top"
+accname = "rabbit_ribbon"
+items = [18700]
+
+[[headgear]]
+view = 846
+slot = "Head_Top"
+accname = "ancient_civil_man"
+items = [18701]
+
+[[headgear]]
+view = 847
+slot = "Head_Low"
+accname = "shaving_cream"
+items = [18702]
+
+[[headgear]]
+view = 848
+slot = "Head_Low"
+accname = "stem_in_mouth"
+items = [
+    18703,
+    19299,
+    420017,
+    420018,
+    420019,
+    420020,
+    420021,
+    420022,
+    420106,
+]
+
+[[headgear]]
+view = 850
+slot = "Head_Top"
+accname = "drosera_hairpin"
+items = [18704]
+
+[[headgear]]
+view = 851
+slot = "Head_Top"
+accname = "can_hat"
+items = [18706]
+
+[[headgear]]
+view = 852
+slot = "Head_Top"
+accname = "maneater_flower_hat"
+items = [
+    18707,
+    19042,
+]
+
+[[headgear]]
+view = 853
+slot = "Head_Top"
+accname = "candy_hat"
+items = [18708]
+
+[[headgear]]
+view = 854
+slot = "Head_Top"
+accname = "black_knitted_hat"
+items = [
+    18709,
+    19171,
+]
+
+[[headgear]]
+view = 855
+slot = "Head_Low"
+accname = "sugared_fruit_stick"
+items = [18710]
+
+[[headgear]]
+view = 856
+slot = "Head_Mid"
+accname = "electric_sunglass"
+items = [
+    18711,
+    18813,
+    19181,
+    19284,
+]
+
+[[headgear]]
+view = 857
+slot = "Head_Low"
+accname = "fan_in_mouth"
+items = [
+    18712,
+    420055,
+]
+
+[[headgear]]
+view = 858
+slot = "Head_Top"
+accname = "monkey_on_fur_hat"
+items = [18713]
+
+[[headgear]]
+view = 859
+slot = "Head_Top"
+accname = "hippo_hat"
+items = [18714]
+
+[[headgear]]
+view = 860
+slot = "Head_Top"
+accname = "helm_of_thoth"
+items = [18715]
+
+[[headgear]]
+view = 861
+slot = "Head_Low"
+accname = "strawberry_in_mouth"
+items = [
+    18716,
+    19137,
+]
+
+[[headgear]]
+view = 862
+slot = "Head_Top"
+accname = "fliphat"
+items = [18705]
+
+[[headgear]]
+view = 863
+slot = "Head_Top"
+accname = "rising_black_dragon"
+items = [18691]
+
+[[headgear]]
+view = 864
+slot = "Head_Top"
+accname = "rose_hairband"
+items = [
+    18718,
+    18864,
+]
+
+[[headgear]]
+view = 865
+slot = "Head_Top"
+accname = "valentineyellowheart"
+items = [
+    18854,
+    18873,
+]
+
+[[headgear]]
+view = 867
+slot = "Head_Top"
+accname = "rabbit_ear_knit_hat"
+items = [18725]
+
+[[headgear]]
+view = 868
+slot = "Head_Top"
+accname = "sky_helm"
+items = [18726]
+
+[[headgear]]
+view = 869
+slot = "Head_Top"
+accname = "sedora_hat"
+items = [18727]
+
+[[headgear]]
+view = 870
+slot = "Head_Top"
+accname = "egir_helm"
+items = [
+    18728,
+    19026,
+    400097,
+]
+
+[[headgear]]
+view = 871
+slot = "Head_Top"
+accname = "mvp_basketball"
+items = [18729]
+
+[[headgear]]
+view = 872
+slot = "Head_Top"
+accname = "cryptura_academy_hat"
+items = [18730]
+
+[[headgear]]
+view = 873
+slot = "Head_Mid"
+accname = "shadow_booster"
+items = [
+    5864,
+    18720,
+    19126,
+    19241,
+]
+
+[[headgear]]
+view = 875
+slot = "Head_Mid"
+accname = "drooping_elven_ears"
+items = [
+    18735,
+    19039,
+]
+
+[[headgear]]
+view = 876
+slot = "Head_Mid"
+accname = "fortier_mask"
+items = [
+    18737,
+    410018,
+]
+
+[[headgear]]
+view = 877
+slot = "Head_Top"
+accname = "white_boys_hat"
+items = [18738]
+
+[[headgear]]
+view = 878
+slot = "Head_Top"
+accname = "carnation_hairband"
+items = [18739]
+
+[[headgear]]
+view = 880
+slot = "Head_Low"
+accname = "willothewisp"
+items = [19307]
+
+[[headgear]]
+view = 882
+slot = "Head_Top"
+accname = "spirit_of_chung_e"
+items = [
+    19135,
+    19136,
+    420013,
+]
+
+[[headgear]]
+view = 884
+slot = "Head_Low"
+accname = "choco_stick_in_mouth"
+items = [18745]
+
+[[headgear]]
+view = 885
+slot = "Head_Low"
+accname = "chilly_breath"
+items = [18746]
+
+[[headgear]]
+view = 886
+slot = "Head_Mid"
+accname = "eyes_of_ifrit"
+items = [18747]
+
+[[headgear]]
+view = 887
+slot = "Head_Top"
+accname = "gold_ingot_poring_hat"
+items = [18748]
+
+[[headgear]]
+view = 888
+slot = "Head_Top"
+accname = "majoruros_horn"
+items = [18749]
+
+[[headgear]]
+view = 889
+slot = "Head_Low"
+accname = "poker_card_in_mouth"
+items = [
+    18750,
+    420138,
+]
+
+[[headgear]]
+view = 890
+slot = "Head_Top"
+accname = "cursed_book"
+items = [18752]
+
+[[headgear]]
+view = 891
+slot = "Head_Top"
+accname = "brabery_hat"
+items = [19036]
+
+[[headgear]]
+view = 892
+slot = "Head_Top"
+accname = "tw_rice_ball"
+items = [18753]
+
+[[headgear]]
+view = 893
+slot = "Head_Low"
+accname = "blood_sucker"
+items = [18754]
+
+[[headgear]]
+view = 894
+slot = "Head_Top"
+accname = "black_shiba_inu_hat"
+items = [18756]
+
+[[headgear]]
+view = 896
+slot = "Head_Top"
+accname = "hat_of_scrat"
+items = [18758]
+
+[[headgear]]
+view = 897
+slot = "Head_Top"
+accname = "aladdin_lamp"
+items = [18777]
+
+[[headgear]]
+view = 898
+slot = "Head_Top"
+accname = "pink_bunny_band_j"
+items = [18778]
+
+[[headgear]]
+view = 899
+slot = "Head_Top"
+accname = "poison_spore_hat"
+items = [18789]
+
+[[headgear]]
+view = 900
+slot = "Head_Top"
+accname = "rainbow_poring_hat"
+items = [18790]
+
+[[headgear]]
+view = 901
+slot = "Head_Top"
+accname = "idn_sakkat"
+items = [18792]
+
+[[headgear]]
+view = 902
+slot = "Head_Top"
+accname = "rwc_champ_crown_red"
+items = [
+    18779,
+    400646,
+]
+
+[[headgear]]
+view = 903
+slot = "Head_Top"
+accname = "rwc_champ_crown_blue"
+items = [
+    18780,
+    400647,
+]
+
+[[headgear]]
+view = 904
+slot = "Head_Top"
+accname = "rwc_champ_crown_black"
+items = [
+    18781,
+    400648,
+]
+
+[[headgear]]
+view = 905
+slot = "Head_Top"
+accname = "king_poring_hat"
+items = [18785]
+
+[[headgear]]
+view = 906
+slot = "Head_Mid"
+accname = "anemos_mask"
+items = [
+    18786,
+    410020,
+]
+
+[[headgear]]
+view = 907
+slot = "Head_Top"
+accname = "fallen_angel_feather"
+items = [400043]
+
+[[headgear]]
+view = 908
+slot = "Head_Top"
+accname = "magaleta_ribbon_exe"
+items = [
+    15822,
+    15977,
+    15978,
+    18791,
+]
+
+[[headgear]]
+view = 911
+slot = "Head_Top"
+accname = "sorc_night_cap"
+items = [18793]
+
+[[headgear]]
+view = 912
+slot = "Head_Top"
+accname = "ceryne_hat_exe"
+items = [15827]
+
+[[headgear]]
+view = 913
+slot = "Head_Top"
+accname = "pale_moon_hat"
+items = [19102]
+
+[[headgear]]
+view = 914
+slot = "Head_Top"
+accname = "rwc_champ_crown_qf"
+items = [18796]
+
+[[headgear]]
+view = 915
+slot = "Head_Top"
+accname = "deep_angel_hairband"
+items = [
+    18797,
+    400417,
+]
+
+[[headgear]]
+view = 916
+slot = "Head_Top"
+accname = "pink_angel_hairband"
+items = [18798]
+
+[[headgear]]
+view = 917
+slot = "Head_Mid"
+accname = "nero_mask"
+items = [
+    18799,
+    410019,
+]
+
+[[headgear]]
+view = 919
+slot = "Head_Top"
+accname = "boss_hat"
+items = [18802]
+
+[[headgear]]
+view = 920
+slot = "Head_Top"
+accname = "rose_cascade"
+items = [18803]
+
+[[headgear]]
+view = 921
+slot = "Head_Top"
+accname = "thornbush_hairband"
+items = [18804]
+
+[[headgear]]
+view = 922
+slot = "Head_Top"
+accname = "eclipse_hat"
+items = [18805]
+
+[[headgear]]
+view = 923
+slot = "Head_Top"
+accname = "black_rabbit_hat"
+items = [18806]
+
+[[headgear]]
+view = 924
+slot = "Head_Top"
+accname = "yellow_yuzu_hat"
+items = [18807]
+
+[[headgear]]
+view = 925
+slot = "Head_Mid"
+accname = "wing_form_spectacle"
+items = [18808]
+
+[[headgear]]
+view = 927
+slot = "Head_Top"
+accname = "angel_school_cap"
+items = [18814]
+
+[[headgear]]
+view = 928
+slot = "Head_Top"
+accname = "devil_school_cap"
+items = [18815]
+
+[[headgear]]
+view = 929
+slot = "Head_Top"
+accname = "adv_angel_school_cap"
+items = [18816]
+
+[[headgear]]
+view = 930
+slot = "Head_Top"
+accname = "adv_devil_school_cap"
+items = [18817]
+
+[[headgear]]
+view = 931
+slot = "Head_Low"
+accname = "red_pencil_mouth"
+items = [
+    5945,
+    18818,
+]
+
+[[headgear]]
+view = 932
+slot = "Head_Low"
+accname = "blue_pencil_in_mouth"
+items = [18819]
+
+[[headgear]]
+view = 933
+slot = "Head_Top"
+accname = "elder_crown"
+items = [
+    18812,
+    400486,
+]
+
+[[headgear]]
+view = 934
+slot = "Head_Top"
+accname = "rainbow_feather_deco"
+items = [18821]
+
+[[headgear]]
+view = 935
+slot = "Head_Mid"
+accname = "imperial_feather"
+items = [18823]
+
+[[headgear]]
+view = 936
+slot = "Head_Top"
+accname = "mask_of_bankrupt"
+items = [18824]
+
+[[headgear]]
+view = 937
+slot = "Head_Top"
+accname = "money_lost_spirit"
+items = [18825]
+
+[[headgear]]
+view = 940
+slot = "Head_Top"
+accname = "valkyrie_circlet"
+items = [18827]
+
+[[headgear]]
+view = 941
+slot = "Head_Top"
+accname = "gray_helmet"
+items = [18820]
+
+[[headgear]]
+view = 942
+slot = "Head_Top"
+accname = "2012rmscno1"
+items = [18828]
+
+[[headgear]]
+view = 943
+slot = "Head_Top"
+accname = "2012rmscno2"
+items = [18829]
+
+[[headgear]]
+view = 944
+slot = "Head_Top"
+accname = "2012rmscno3"
+items = [18830]
+
+[[headgear]]
+view = 945
+slot = "Head_Top"
+accname = "2012rmscno4"
+items = [18831]
+
+[[headgear]]
+view = 946
+slot = "Head_Top"
+accname = "rolf_von_gigue_666"
+items = [18832]
+
+[[headgear]]
+view = 948
+slot = "Head_Top"
+accname = "marin_crown"
+items = [18833]
+
+[[headgear]]
+view = 949
+slot = "Head_Top"
+accname = "sakura_hairband"
+items = [18834]
+
+[[headgear]]
+view = 952
+slot = "Head_Low"
+accname = "cheering_whistle_j"
+items = [
+    5880,
+    420194,
+]
+
+[[headgear]]
+view = 953
+slot = "Head_Top"
+accname = "angeling_woolly_hat"
+items = [
+    18838,
+    19047,
+]
+
+[[headgear]]
+view = 954
+slot = "Head_Mid"
+accname = "poring_sunglasses_j"
+items = [
+    5879,
+    18839,
+    19117,
+    19118,
+]
+
+[[headgear]]
+view = 955
+slot = "Head_Top"
+accname = "small_poring_band"
+items = [18841]
+
+[[headgear]]
+view = 956
+slot = "Head_Top"
+accname = "hat_of_girl"
+items = [18842]
+
+[[headgear]]
+view = 957
+slot = "Head_Top"
+accname = "small_deviling_hat"
+items = [18843]
+
+[[headgear]]
+view = 958
+slot = "Head_Low"
+accname = "blue_poring_bubble"
+items = [18844]
+
+[[headgear]]
+view = 959
+slot = "Head_Low"
+accname = "banshee_master_kiss"
+items = [18845]
+
+[[headgear]]
+view = 960
+slot = "Head_Mid"
+accname = "c_guard_of_neptune"
+items = [18846]
+
+[[headgear]]
+view = 962
+slot = "Head_Top"
+accname = "jolly_roger"
+items = [18847]
+
+[[headgear]]
+view = 963
+slot = "Head_Top"
+accname = "lush_rose"
+items = [18848]
+
+[[headgear]]
+view = 966
+slot = "Head_Top"
+accname = "polar_bear_cap"
+items = [
+    18850,
+    18922,
+    19018,
+]
+
+[[headgear]]
+view = 967
+slot = "Head_Top"
+accname = "celines_ribbon"
+items = [18849]
+
+[[headgear]]
+view = 968
+slot = "Head_Top"
+accname = "d_strawberry_hat"
+items = [
+    18852,
+    18853,
+]
+
+[[headgear]]
+view = 972
+slot = "Head_Top"
+accname = "aviator_hat"
+items = [18855]
+
+[[headgear]]
+view = 973
+slot = "Head_Top"
+accname = "w_king_tiger_doll_hat"
+items = [18856]
+
+[[headgear]]
+view = 974
+slot = "Head_Top"
+accname = "curupira_hat"
+items = [18857]
+
+[[headgear]]
+view = 975
+slot = "Head_Low"
+accname = "comp_pink_angel_b"
+items = [
+    15967,
+    18858,
+]
+
+[[headgear]]
+view = 976
+slot = "Head_Low"
+accname = "angeling_bubble"
+items = [18859]
+
+[[headgear]]
+view = 977
+slot = "Head_Top"
+accname = "preschool_hat"
+items = [18860]
+
+[[headgear]]
+view = 981
+slot = "Head_Top"
+accname = "sword_master_crown"
+items = [18865]
+
+[[headgear]]
+view = 983
+slot = "Head_Low"
+accname = "vajra"
+items = [18867]
+
+[[headgear]]
+view = 984
+slot = "Head_Top"
+accname = "assassin_skull_mask"
+items = [18868]
+
+[[headgear]]
+view = 986
+slot = "Head_Top"
+accname = "snake_hat"
+items = [18872]
+
+[[headgear]]
+view = 989
+slot = "Head_Mid"
+accname = "baron_evil_eye"
+items = [18877]
+
+[[headgear]]
+view = 991
+slot = "Head_Top"
+accname = "palace_guard_cap"
+items = [18878]
+
+[[headgear]]
+view = 995
+slot = "Head_Top"
+accname = "angry_scorpion_hat"
+items = [18879]
+
+[[headgear]]
+view = 996
+slot = "Head_Top"
+accname = "blackdeathking_golden"
+items = [18880]
+
+[[headgear]]
+view = 997
+slot = "Head_Top"
+accname = "yggdrasil_hat"
+items = [
+    18881,
+    18898,
+]
+
+[[headgear]]
+view = 999
+slot = "Head_Top"
+accname = "mimic_egg_shell"
+items = [
+    5869,
+    19341,
+]
+
+[[headgear]]
+view = 1000
+slot = "Head_Top"
+accname = "bunny_egg_shell"
+items = [5870]
+
+[[headgear]]
+view = 1001
+slot = "Head_Top"
+accname = "picky_egg_shell"
+items = [5871]
+
+[[headgear]]
+view = 1003
+slot = "Head_Top"
+accname = "kannam_on_head"
+items = [18882]
+
+[[headgear]]
+view = 1004
+slot = "Head_Low"
+accname = "bushy_moustache"
+items = [5868]
+
+[[headgear]]
+view = 1006
+slot = "Head_Top"
+accname = "black_witch_hat"
+items = [18883]
+
+[[headgear]]
+view = 1008
+slot = "Head_Mid"
+accname = "8_type_purgatorialwing"
+items = [
+    5936,
+    18895,
+]
+
+[[headgear]]
+view = 1009
+slot = "Head_Mid"
+accname = "pterios_fins"
+items = [
+    18896,
+    19034,
+]
+
+[[headgear]]
+view = 1010
+slot = "Head_Mid"
+accname = "azure_diadem"
+items = [18897]
+
+[[headgear]]
+view = 1011
+slot = "Head_Top"
+accname = "jejecap"
+items = [
+    18885,
+    19453,
+]
+
+[[headgear]]
+view = 1012
+slot = "Head_Top"
+accname = "aqua_bunny_band"
+items = [18887]
+
+[[headgear]]
+view = 1013
+slot = "Head_Top"
+accname = "maroon_bunny_band"
+items = [18888]
+
+[[headgear]]
+view = 1014
+slot = "Head_Top"
+accname = "golden_bunny_band"
+items = [18889]
+
+[[headgear]]
+view = 1015
+slot = "Head_Top"
+accname = "gray_bunny_band"
+items = [18890]
+
+[[headgear]]
+view = 1016
+slot = "Head_Top"
+accname = "husky_hat"
+items = [18891]
+
+[[headgear]]
+view = 1017
+slot = "Head_Top"
+accname = "ufo_poring_hat"
+items = [18892]
+
+[[headgear]]
+view = 1018
+slot = "Head_Top"
+accname = "dragon_claw_helm"
+items = [
+    18893,
+    19329,
+]
+
+[[headgear]]
+view = 1019
+slot = "Head_Mid"
+accname = "rainbow_star"
+items = [
+    18894,
+    410009,
+]
+
+[[headgear]]
+view = 1022
+slot = "Head_Low"
+accname = "weisswurst"
+items = [18900]
+
+[[headgear]]
+view = 1023
+slot = "Head_Top"
+accname = "seppl_hat"
+items = [18901]
+
+[[headgear]]
+view = 1024
+slot = "Head_Top"
+accname = "shovel_hat"
+items = [
+    18902,
+    400477,
+]
+
+[[headgear]]
+view = 1025
+slot = "Head_Low"
+accname = "frozen_land_rose"
+items = [
+    18903,
+    420310,
+]
+
+[[headgear]]
+view = 1027
+slot = "Head_Top"
+accname = "butterfly_barrettes"
+items = [18905]
+
+[[headgear]]
+view = 1028
+slot = "Head_Low"
+accname = "holy_rosario"
+items = [18906]
+
+[[headgear]]
+view = 1030
+slot = "Head_Top"
+accname = "isabella_red_ear"
+items = [18908]
+
+[[headgear]]
+view = 1031
+slot = "Head_Top"
+accname = "isabella_brown_ear"
+items = [18909]
+
+[[headgear]]
+view = 1032
+slot = "Head_Top"
+accname = "isabella_blue_ear"
+items = [18910]
+
+[[headgear]]
+view = 1034
+slot = "Head_Top"
+accname = "bell_pigeon"
+items = [
+    18912,
+    19321,
+    410342,
+]
+
+[[headgear]]
+view = 1035
+slot = "Head_Mid"
+accname = "gossip_raven"
+items = [
+    18913,
+    410136,
+    410137,
+]
+
+[[headgear]]
+view = 1036
+slot = "Head_Mid"
+accname = "kid_deviling"
+items = [
+    18914,
+    19028,
+]
+
+[[headgear]]
+view = 1037
+slot = "Head_Mid"
+accname = "blood_buffterfly"
+items = [
+    18915,
+    19037,
+]
+
+[[headgear]]
+view = 1038
+slot = "Head_Low"
+accname = "bear_balloon"
+items = [18916]
+
+[[headgear]]
+view = 1039
+slot = "Head_Low"
+accname = "lovelove_balloon"
+items = [18917]
+
+[[headgear]]
+view = 1040
+slot = "Head_Low"
+accname = "long_octopus_balloon"
+items = [18918]
+
+[[headgear]]
+view = 1041
+slot = "Head_Low"
+accname = "jack_castle_bat"
+items = [
+    18919,
+    19101,
+]
+
+[[headgear]]
+view = 1042
+slot = "Head_Top"
+accname = "fez_of_gentle"
+items = [18924]
+
+[[headgear]]
+view = 1043
+slot = "Head_Top"
+accname = "bork"
+items = [18920]
+
+[[headgear]]
+view = 1045
+slot = "Head_Low"
+accname = "nezuko_bamboo_exe"
+items = [15884]
+
+[[headgear]]
+view = 1047
+slot = "Head_Top"
+accname = "2020maypay_02"
+items = [400084]
+
+[[headgear]]
+view = 1049
+slot = "Head_Top"
+accname = "peco_warrior_hat_us"
+items = [400667]
+
+[[headgear]]
+view = 1050
+slot = "Head_Low"
+accname = "comp_faceworm_breath"
+items = [
+    15958,
+    19268,
+]
+
+[[headgear]]
+view = 1051
+slot = "Head_Low"
+accname = "godofwinds_fan"
+items = [
+    18925,
+    420130,
+    420131,
+]
+
+[[headgear]]
+view = 1055
+slot = "Head_Top"
+accname = "helmet_of_siegfried"
+items = [
+    5873,
+    15956,
+    15957,
+    19285,
+]
+
+[[headgear]]
+view = 1056
+slot = "Head_Top"
+accname = "circlet_of_kriemhild"
+items = [
+    5874,
+    19343,
+    400070,
+    400472,
+    400473,
+]
+
+[[headgear]]
+view = 1057
+slot = "Head_Top"
+accname = "diadem_of_bruenhild"
+items = [
+    5875,
+    400455,
+    400456,
+]
+
+[[headgear]]
+view = 1058
+slot = "Head_Low"
+accname = "green_foxtail"
+items = [18926]
+
+[[headgear]]
+view = 1064
+slot = "Head_Low"
+accname = "miracle_blue_rose"
+items = [5878]
+
+[[headgear]]
+view = 1065
+slot = "Head_Top"
+accname = "elephant_model_hat"
+items = [18929]
+
+[[headgear]]
+view = 1066
+slot = "Head_Top"
+accname = "gorilla_model_hat"
+items = [18930]
+
+[[headgear]]
+view = 1067
+slot = "Head_Top"
+accname = "lion_model_hat"
+items = [18931]
+
+[[headgear]]
+view = 1068
+slot = "Head_Top"
+accname = "rhino_model_hat"
+items = [18932]
+
+[[headgear]]
+view = 1069
+slot = "Head_Top"
+accname = "mechanical_plant_hat"
+items = [18933]
+
+[[headgear]]
+view = 1070
+slot = "Head_Top"
+accname = "fox_ears_bell_ribbon"
+items = [
+    18934,
+    400441,
+]
+
+[[headgear]]
+view = 1071
+slot = "Head_Top"
+accname = "black_cat_ears_beret"
+items = [18939]
+
+[[headgear]]
+view = 1072
+slot = "Head_Mid"
+accname = "memories_of_lovers"
+items = [18937]
+
+[[headgear]]
+view = 1073
+slot = "Head_Top"
+accname = "astro_circle"
+items = [18938]
+
+[[headgear]]
+view = 1075
+slot = "Head_Top"
+accname = "10_gallon_hat_of_flame"
+items = [18940]
+
+[[headgear]]
+view = 1077
+slot = "Head_Top"
+accname = "knit_cap_of_water"
+items = [
+    18942,
+    400295,
+]
+
+[[headgear]]
+view = 1078
+slot = "Head_Top"
+accname = "silk_hat_of_earth"
+items = [
+    18943,
+    400279,
+]
+
+[[headgear]]
+view = 1079
+slot = "Head_Top"
+accname = "weissbier_hat"
+items = [5881]
+
+[[headgear]]
+view = 1081
+slot = "Head_Low"
+accname = "golden_fish"
+items = [18936]
+
+[[headgear]]
+view = 1085
+slot = "Head_Top"
+accname = "pretty_rabbit_hood"
+items = [19030]
+
+[[headgear]]
+view = 1087
+slot = "Head_Top"
+accname = "piamette_hood"
+items = [19098]
+
+[[headgear]]
+view = 1088
+slot = "Head_Low"
+accname = "pipe_of_jiraiya"
+items = [18947]
+
+[[headgear]]
+view = 1089
+slot = "Head_Low"
+accname = "mask_of_orochimaru"
+items = [
+    18948,
+    420031,
+]
+
+[[headgear]]
+view = 1090
+slot = "Head_Low"
+accname = "scroll_of_tsunade"
+items = [18949]
+
+[[headgear]]
+view = 1091
+slot = "Head_Top"
+accname = "there_is_something"
+items = [18935]
+
+[[headgear]]
+view = 1092
+slot = "Head_Top"
+accname = "gerhard_von_devi"
+items = [18950]
+
+[[headgear]]
+view = 1093
+slot = "Head_Mid"
+accname = "angel_earing"
+items = [
+    5890,
+    15984,
+    19451,
+    19452,
+]
+
+[[headgear]]
+view = 1095
+slot = "Head_Top"
+accname = "rabbit_head_dress"
+items = [18954]
+
+[[headgear]]
+view = 1102
+slot = "Head_Top"
+accname = "old_pink_poo_hat"
+items = [
+    18959,
+    400412,
+]
+
+[[headgear]]
+view = 1103
+slot = "Head_Top"
+accname = "motaro_horn_exe"
+items = [
+    15848,
+    19011,
+]
+
+[[headgear]]
+view = 1104
+slot = "Head_Top"
+accname = "love_daddy_2013"
+items = [
+    18960,
+    19221,
+]
+
+[[headgear]]
+view = 1105
+slot = "Head_Top"
+accname = "black_cat_hat"
+items = [5891]
+
+[[headgear]]
+view = 1106
+slot = "Head_Top"
+accname = "rcc2013_1st_crown"
+items = [
+    5892,
+    400105,
+]
+
+[[headgear]]
+view = 1107
+slot = "Head_Top"
+accname = "rcc2013_2nd_crown"
+items = [
+    5893,
+    400106,
+    400642,
+]
+
+[[headgear]]
+view = 1108
+slot = "Head_Top"
+accname = "rcc2013_3rd_crown"
+items = [
+    5894,
+    400107,
+    400399,
+    400643,
+]
+
+[[headgear]]
+view = 1109
+slot = "Head_Top"
+accname = "rcc2013_anv_hat"
+items = [5895]
+
+[[headgear]]
+view = 1110
+slot = "Head_Low"
+accname = "chocolate_bomb"
+items = [18956]
+
+[[headgear]]
+view = 1114
+slot = "Head_Top"
+accname = "eggtart_hat"
+items = [5896]
+
+[[headgear]]
+view = 1115
+slot = "Head_Low"
+accname = "panda_balloon"
+items = [
+    18962,
+    420250,
+]
+
+[[headgear]]
+view = 1116
+slot = "Head_Low"
+accname = "chatty_parrot"
+items = [5972]
+
+[[headgear]]
+view = 1117
+slot = "Head_Top"
+accname = "12th_crown"
+items = [
+    19038,
+    19469,
+]
+
+[[headgear]]
+view = 1118
+slot = "Head_Top"
+accname = "ascendant_crown_"
+items = [
+    5897,
+    19426,
+    400658,
+    400659,
+]
+
+[[headgear]]
+view = 1119
+slot = "Head_Top"
+accname = "autumn_headband"
+items = [
+    5898,
+    15828,
+]
+
+[[headgear]]
+view = 1120
+slot = "Head_Top"
+accname = "black_ribbon_"
+items = [
+    5899,
+    15826,
+]
+
+[[headgear]]
+view = 1121
+slot = "Head_Top"
+accname = "divine_guard_hat_"
+items = [5900]
+
+[[headgear]]
+view = 1122
+slot = "Head_Top"
+accname = "focus_beret_"
+items = [5901]
+
+[[headgear]]
+view = 1123
+slot = "Head_Top"
+accname = "harvester_hat_"
+items = [5902]
+
+[[headgear]]
+view = 1124
+slot = "Head_Top"
+accname = "hitaikakushi_"
+items = [5903]
+
+[[headgear]]
+view = 1125
+slot = "Head_Top"
+accname = "inconspicuous_hat_"
+items = [5904]
+
+[[headgear]]
+view = 1126
+slot = "Head_Top"
+accname = "lyrica_hat_"
+items = [5905]
+
+[[headgear]]
+view = 1127
+slot = "Head_Top"
+accname = "oni_horns_"
+items = [
+    5906,
+    15830,
+    400498,
+    400499,
+]
+
+[[headgear]]
+view = 1128
+slot = "Head_Top"
+accname = "sea_captain_hat_"
+items = [
+    5907,
+    15829,
+    400676,
+    400677,
+]
+
+[[headgear]]
+view = 1129
+slot = "Head_Low"
+accname = "shaving_foam"
+items = [18965]
+
+[[headgear]]
+view = 1131
+slot = "Head_Mid"
+accname = "711_headphone"
+items = [
+    410002,
+    410003,
+]
+
+[[headgear]]
+view = 1133
+slot = "Head_Low"
+accname = "jinn_marin_balloon"
+items = [18968]
+
+[[headgear]]
+view = 1134
+slot = "Head_Top"
+accname = "boss_beret"
+items = [
+    18969,
+    19189,
+    19190,
+    19191,
+    19192,
+    19193,
+    19194,
+    19195,
+    19196,
+    19197,
+    19198,
+    19199,
+    19200,
+    19201,
+    19202,
+    19203,
+    19204,
+    19205,
+    19396,
+    19397,
+]
+
+[[headgear]]
+view = 1137
+slot = "Head_Top"
+accname = "escarlate_hat_br"
+items = [400528]
+
+[[headgear]]
+view = 1140
+slot = "Head_Top"
+accname = "old_protect_of_crown"
+items = [18983]
+
+[[headgear]]
+view = 1141
+slot = "Head_Top"
+accname = "old_circlet_of_bone"
+items = [18982]
+
+[[headgear]]
+view = 1142
+slot = "Head_Top"
+accname = "old_camo_rabbithood"
+items = [18984]
+
+[[headgear]]
+view = 1143
+slot = "Head_Low"
+accname = "falconer_flute"
+items = [
+    18985,
+    19398,
+    420030,
+]
+
+[[headgear]]
+view = 1149
+slot = "Head_Top"
+accname = "rwc13_jormungandr_hat"
+items = [
+    18987,
+    400052,
+]
+
+[[headgear]]
+view = 1150
+slot = "Head_Top"
+accname = "accessory_of_ascetic"
+items = [
+    5908,
+    5940,
+]
+
+[[headgear]]
+view = 1155
+slot = "Head_Top"
+accname = "new_year_hairpin"
+items = [18992]
+
+[[headgear]]
+view = 1162
+slot = "Head_Mid"
+accname = "female_poring_earmuff"
+items = [15127]
+
+[[headgear]]
+view = 1169
+slot = "Head_Mid"
+accname = "exosrcist_glass"
+items = [
+    5916,
+    410079,
+    410080,
+]
+
+[[headgear]]
+view = 1170
+slot = "Head_Low"
+accname = "yellow_scarf"
+items = [5917]
+
+[[headgear]]
+view = 1172
+slot = "Head_Top"
+accname = "flower_hat"
+items = [18993]
+
+[[headgear]]
+view = 1173
+slot = "Head_Top"
+accname = "black_veil_j"
+items = [19460]
+
+[[headgear]]
+view = 1183
+slot = "Head_Low"
+accname = "happy_balloon"
+items = [19004]
+
+[[headgear]]
+view = 1185
+slot = "Head_Mid"
+accname = "victory_ear_accessary"
+items = [
+    19006,
+    400001,
+    400002,
+    400113,
+    400114,
+]
+
+[[headgear]]
+view = 1186
+slot = "Head_Mid"
+accname = "14_rainbowwing"
+items = [
+    19045,
+    410346,
+    410347,
+]
+
+[[headgear]]
+view = 1199
+slot = "Head_Top"
+accname = "aegis_400660"
+items = [400660]
+
+[[headgear]]
+view = 1201
+slot = "Head_Top"
+accname = "riot_chip_j"
+items = [
+    5965,
+    18997,
+]
+
+[[headgear]]
+view = 1202
+slot = "Head_Mid"
+accname = "gambler_seal"
+items = [
+    5918,
+    15880,
+    410004,
+    410232,
+    410233,
+]
+
+[[headgear]]
+view = 1203
+slot = "Head_Top"
+accname = "camellia_hair_pin"
+items = [5919]
+
+[[headgear]]
+view = 1210
+slot = "Head_Mid"
+accname = "gravekeeper_blinker"
+items = [19014]
+
+[[headgear]]
+view = 1218
+slot = "Head_Mid"
+accname = "monster_fish_gill"
+items = [5921]
+
+[[headgear]]
+view = 1219
+slot = "Head_Top"
+accname = "elemental_crown"
+items = [
+    19019,
+    19177,
+    19178,
+]
+
+[[headgear]]
+view = 1220
+slot = "Head_Top"
+accname = "survive_circlet"
+items = [
+    19020,
+    19266,
+    400154,
+]
+
+[[headgear]]
+view = 1221
+slot = "Head_Top"
+accname = "gigant_helm"
+items = [
+    19021,
+    400500,
+    400501,
+]
+
+[[headgear]]
+view = 1227
+slot = "Head_Mid"
+accname = "dragonknight_eyepatch"
+items = [5924]
+
+[[headgear]]
+view = 1230
+slot = "Head_Top"
+accname = "floating_stone_of_int"
+items = [19022]
+
+[[headgear]]
+view = 1231
+slot = "Head_Top"
+accname = "q_scaraba_crown"
+items = [
+    19023,
+    400511,
+]
+
+[[headgear]]
+view = 1232
+slot = "Head_Mid"
+accname = "protect_feathers"
+items = [
+    19024,
+    400291,
+]
+
+[[headgear]]
+view = 1237
+slot = "Head_Mid"
+accname = "10_type_glasses"
+items = [19027]
+
+[[headgear]]
+view = 1250
+slot = "Head_Mid"
+accname = "fallen_angel_blessing"
+items = [
+    19031,
+    19176,
+]
+
+[[headgear]]
+view = 1251
+slot = "Head_Top"
+accname = "angel_of_happiness_j"
+items = [
+    19269,
+    400344,
+    400345,
+]
+
+[[headgear]]
+view = 1254
+slot = "Head_Mid"
+accname = "aegis_410587"
+items = [
+    410587,
+    410588,
+    410589,
+    410590,
+    410591,
+    410592,
+]
+
+[[headgear]]
+view = 1261
+slot = "Head_Low"
+accname = "charm_of_flame_heart_br"
+items = [15920]
+
+[[headgear]]
+view = 1262
+slot = "Head_Low"
+accname = "charm_of_frozen_br"
+items = [
+    15922,
+    15923,
+    19408,
+]
+
+[[headgear]]
+view = 1264
+slot = "Head_Low"
+accname = "charm_of_nature_br"
+items = [
+    15921,
+    420369,
+    420370,
+]
+
+[[headgear]]
+view = 1266
+slot = "Head_Mid"
+accname = "exp_processor"
+items = [
+    410012,
+    410013,
+]
+
+[[headgear]]
+view = 1267
+slot = "Head_Low"
+accname = "subject_aura"
+items = [19439]
+
+[[headgear]]
+view = 1270
+slot = "Head_Mid"
+accname = "wishingtree"
+items = [
+    410334,
+    410335,
+]
+
+[[headgear]]
+view = 1279
+slot = "Head_Top"
+accname = "magical_feather"
+items = [
+    5930,
+    19211,
+]
+
+[[headgear]]
+view = 1285
+slot = "Head_Top"
+accname = "niflheim_bunny_hat"
+items = [5931]
+
+[[headgear]]
+view = 1286
+slot = "Head_Top"
+accname = "heaven_cage"
+items = [
+    5932,
+    400410,
+    400411,
+]
+
+[[headgear]]
+view = 1287
+slot = "Head_Mid"
+accname = "crow_tengu_mask"
+items = [
+    5933,
+    19388,
+    410269,
+]
+
+[[headgear]]
+view = 1289
+slot = "Head_Low"
+accname = "happy_balloon_j"
+items = [
+    5934,
+    19095,
+]
+
+[[headgear]]
+view = 1291
+slot = "Head_Low"
+accname = "tatoo_brush_br"
+items = [
+    15924,
+    420129,
+]
+
+[[headgear]]
+view = 1294
+slot = "Head_Top"
+accname = "amistr_beret"
+items = [
+    19308,
+    400123,
+]
+
+[[headgear]]
+view = 1296
+slot = "Head_Top"
+accname = "tw_cock_hat"
+items = [19217]
+
+[[headgear]]
+view = 1301
+slot = "Head_Top"
+accname = "spell_circuit"
+items = [19249]
+
+[[headgear]]
+view = 1304
+slot = "Head_Top"
+accname = "loki_nidhogg_hat"
+items = [19050]
+
+[[headgear]]
+view = 1308
+slot = "Head_Top"
+accname = "moon_cat_magic"
+items = [
+    18970,
+    19051,
+    19053,
+]
+
+[[headgear]]
+view = 1309
+slot = "Head_Low"
+accname = "aat_magic_th"
+items = [
+    15981,
+    15982,
+    15983,
+]
+
+[[headgear]]
+view = 1310
+slot = "Head_Top"
+accname = "blackhand_of_fate"
+items = [19185]
+
+[[headgear]]
+view = 1318
+slot = "Head_Mid"
+accname = "love_cheek_tw"
+items = [410090]
+
+[[headgear]]
+view = 1323
+slot = "Head_Top"
+accname = "owlviscount_silk_hat"
+items = [
+    5943,
+    400064,
+]
+
+[[headgear]]
+view = 1334
+slot = "Head_Top"
+accname = "roz_bijou_hat_str"
+items = [
+    400574,
+    400575,
+    400576,
+    400577,
+    400578,
+    400579,
+]
+
+[[headgear]]
+view = 1335
+slot = "Head_Top"
+accname = "drama_clockwork"
+items = [5946]
+
+[[headgear]]
+view = 1343
+slot = "Head_Top"
+accname = "beelzebub_crown_k"
+items = [400110]
+
+[[headgear]]
+view = 1347
+slot = "Head_Top"
+accname = "wing_headphone"
+items = [5963]
+
+[[headgear]]
+view = 1348
+slot = "Head_Top"
+accname = "mobile_beginnermark"
+items = [19256]
+
+[[headgear]]
+view = 1349
+slot = "Head_Low"
+accname = "dwarf_beard_j"
+items = [19320]
+
+[[headgear]]
+view = 1350
+slot = "Head_Top"
+accname = "beelzebub_hat"
+items = [19319]
+
+[[headgear]]
+view = 1355
+slot = "Head_Mid"
+accname = "crimson_booster"
+items = [19245]
+
+[[headgear]]
+view = 1356
+slot = "Head_Top"
+accname = "faceworm_egg_shell"
+items = [19081]
+
+[[headgear]]
+view = 1357
+slot = "Head_Mid"
+accname = "karduiear"
+items = [
+    5966,
+    19252,
+]
+
+[[headgear]]
+view = 1358
+slot = "Head_Low"
+accname = "flyinggalapago"
+items = [
+    5967,
+    420137,
+    420139,
+]
+
+[[headgear]]
+view = 1359
+slot = "Head_Top"
+accname = "dvangelnursecap"
+items = [5968]
+
+[[headgear]]
+view = 1360
+slot = "Head_Top"
+accname = "queenanzrevenge"
+items = [5969]
+
+[[headgear]]
+view = 1361
+slot = "Head_Top"
+accname = "runehelm"
+items = [
+    5970,
+    400178,
+    400179,
+]
+
+[[headgear]]
+view = 1366
+slot = "Head_Mid"
+accname = "bio_protector"
+items = [19082]
+
+[[headgear]]
+view = 1367
+slot = "Head_Mid"
+accname = "mask_of_hero"
+items = [19083]
+
+[[headgear]]
+view = 1368
+slot = "Head_Top"
+accname = "parfait_v_hat"
+items = [19084]
+
+[[headgear]]
+view = 1370
+slot = "Head_Mid"
+accname = "moon_eyepatch"
+items = [5971]
+
+[[headgear]]
+view = 1376
+slot = "Head_Top"
+accname = "zherlthsh_doll"
+items = [5975]
+
+[[headgear]]
+view = 1381
+slot = "Head_Top"
+accname = "classical_fhat"
+items = [19296]
+
+[[headgear]]
+view = 1403
+slot = "Head_Low"
+accname = "ribbon_piamat_k"
+items = [19097]
+
+[[headgear]]
+view = 1409
+slot = "Head_Mid"
+accname = "noble_mask"
+items = [5985]
+
+[[headgear]]
+view = 1412
+slot = "Head_Top"
+accname = "kings_crown"
+items = [19103]
+
+[[headgear]]
+view = 1413
+slot = "Head_Mid"
+accname = "ydragon_skywing"
+items = [19104]
+
+[[headgear]]
+view = 1414
+slot = "Head_Low"
+accname = "explosion_gum"
+items = [19105]
+
+[[headgear]]
+view = 1415
+slot = "Head_Top"
+accname = "jack_head"
+items = [19175]
+
+[[headgear]]
+view = 1416
+slot = "Head_Low"
+accname = "booster_scarf_a"
+items = [420153]
+
+[[headgear]]
+view = 1417
+slot = "Head_Mid"
+accname = "chain_of_seal"
+items = [
+    410093,
+    410094,
+]
+
+[[headgear]]
+view = 1420
+slot = "Head_Top"
+accname = "magicstone_of_grace"
+items = [19106]
+
+[[headgear]]
+view = 1421
+slot = "Head_Top"
+accname = "mad_hatter"
+items = [19107]
+
+[[headgear]]
+view = 1422
+slot = "Head_Top"
+accname = "wild_poring_rider"
+items = [19108]
+
+[[headgear]]
+view = 1423
+slot = "Head_Mid"
+accname = "valhalla_idol"
+items = [
+    19109,
+    19110,
+]
+
+[[headgear]]
+view = 1424
+slot = "Head_Top"
+accname = "laser_of_eagle"
+items = [19111]
+
+[[headgear]]
+view = 1426
+slot = "Head_Low"
+accname = "poring_balloon"
+items = [19143]
+
+[[headgear]]
+view = 1427
+slot = "Head_Low"
+accname = "drops_balloon"
+items = [19147]
+
+[[headgear]]
+view = 1428
+slot = "Head_Low"
+accname = "santaporing_balloon"
+items = [19148]
+
+[[headgear]]
+view = 1429
+slot = "Head_Low"
+accname = "poporing_balloon"
+items = [19149]
+
+[[headgear]]
+view = 1430
+slot = "Head_Low"
+accname = "marin_balloon"
+items = [19146]
+
+[[headgear]]
+view = 1431
+slot = "Head_Low"
+accname = "metaling_balloon"
+items = [19150]
+
+[[headgear]]
+view = 1434
+slot = "Head_Low"
+accname = "deviling_balloon"
+items = [19151]
+
+[[headgear]]
+view = 1435
+slot = "Head_Low"
+accname = "angeling_balloon"
+items = [
+    19152,
+    420065,
+]
+
+[[headgear]]
+view = 1436
+slot = "Head_Low"
+accname = "ghostring_balloon"
+items = [19153]
+
+[[headgear]]
+view = 1437
+slot = "Head_Low"
+accname = "archangeling_balloon"
+items = [19154]
+
+[[headgear]]
+view = 1440
+slot = "Head_Low"
+accname = "moroc_slave_tw"
+items = [420236]
+
+[[headgear]]
+view = 1442
+slot = "Head_Top"
+accname = "khalitz_helm_br"
+items = [
+    400619,
+    400750,
+    400753,
+]
+
+[[headgear]]
+view = 1444
+slot = "Head_Top"
+accname = "droop_gunslinger_j"
+items = [
+    19142,
+    19157,
+]
+
+[[headgear]]
+view = 1445
+slot = "Head_Low"
+accname = "tengu_scroll"
+items = [
+    19112,
+    420247,
+]
+
+[[headgear]]
+view = 1450
+slot = "Head_Low"
+accname = "reaper_of_tomb"
+items = [420368]
+
+[[headgear]]
+view = 1456
+slot = "Head_Mid"
+accname = "gemini_eyes"
+items = [19113]
+
+[[headgear]]
+view = 1457
+slot = "Head_Top"
+accname = "sting_silk_ribbon"
+items = [19114]
+
+[[headgear]]
+view = 1458
+slot = "Head_Top"
+accname = "republic_hat"
+items = [19115]
+
+[[headgear]]
+view = 1463
+slot = "Head_Top"
+accname = "red_baby_dragon"
+items = [
+    19116,
+    19295,
+]
+
+[[headgear]]
+view = 1470
+slot = "Head_Top"
+accname = "purewhite_marching_hat"
+items = [15165]
+
+[[headgear]]
+view = 1471
+slot = "Head_Low"
+accname = "necklace_rosary"
+items = [
+    15166,
+    19244,
+]
+
+[[headgear]]
+view = 1475
+slot = "Head_Top"
+accname = "fullfaith_crown_us"
+items = [400697]
+
+[[headgear]]
+view = 1477
+slot = "Head_Top"
+accname = "cylinder_hairband_br"
+items = [
+    15369,
+    18941,
+    19125,
+    400286,
+]
+
+[[headgear]]
+view = 1478
+slot = "Head_Low"
+accname = "whistle"
+items = [
+    19145,
+    400000,
+]
+
+[[headgear]]
+view = 1486
+slot = "Head_Top"
+accname = "squirrel_ear_hat"
+items = [
+    19140,
+    19316,
+]
+
+[[headgear]]
+view = 1487
+slot = "Head_Mid"
+accname = "seraphimcoronet"
+items = [19138]
+
+[[headgear]]
+view = 1488
+slot = "Head_Low"
+accname = "surviveorb"
+items = [
+    19139,
+    19267,
+    420066,
+]
+
+[[headgear]]
+view = 1489
+slot = "Head_Top"
+accname = "felock_cap_"
+items = [19144]
+
+[[headgear]]
+view = 1490
+slot = "Head_Mid"
+accname = "demons_eye"
+items = [
+    19155,
+    410306,
+]
+
+[[headgear]]
+view = 1492
+slot = "Head_Low"
+accname = "comp_blue_rear_ribbon"
+items = [
+    15947,
+    19243,
+]
+
+[[headgear]]
+view = 1498
+slot = "Head_Top"
+accname = "barrel_helm"
+items = [19159]
+
+[[headgear]]
+view = 1501
+slot = "Head_Low"
+accname = "booster_scarf_c"
+items = [420155]
+
+[[headgear]]
+view = 1527
+slot = "Head_Top"
+accname = "catharinapawnbrad60"
+items = [19163]
+
+[[headgear]]
+view = 1529
+slot = "Head_Top"
+accname = "para_team_hat100"
+items = [19164]
+
+[[headgear]]
+view = 1530
+slot = "Head_Top"
+accname = "para_team_hat160"
+items = [19165]
+
+[[headgear]]
+view = 1541
+slot = "Head_Top"
+accname = "rocelebrationhat"
+items = [
+    19166,
+    400371,
+]
+
+[[headgear]]
+view = 1552
+slot = "Head_Top"
+accname = "guardian_processor"
+items = [
+    19170,
+    410016,
+    410017,
+]
+
+[[headgear]]
+view = 1553
+slot = "Head_Top"
+accname = "pope_osuwari_head"
+items = [19172]
+
+[[headgear]]
+view = 1561
+slot = "Head_Mid"
+accname = "memoriald_assistant"
+items = [
+    15385,
+    19174,
+]
+
+[[headgear]]
+view = 1562
+slot = "Head_Low"
+accname = "luwmin_ice"
+items = [19173]
+
+[[headgear]]
+view = 1568
+slot = "Head_Low"
+accname = "mob_scarf"
+items = [
+    28502,
+    420089,
+    420308,
+]
+
+[[headgear]]
+view = 1569
+slot = "Head_Top"
+accname = "kiwawa_cowboy_br"
+items = [400597]
+
+[[headgear]]
+view = 1587
+slot = "Head_Top"
+accname = "malangdo_pirate"
+items = [19212]
+
+[[headgear]]
+view = 1594
+slot = "Head_Top"
+accname = "clinging_doram_1"
+items = [
+    19347,
+    400086,
+]
+
+[[headgear]]
+view = 1596
+slot = "Head_Top"
+accname = "jp_ev12"
+items = [19219]
+
+[[headgear]]
+view = 1598
+slot = "Head_Top"
+accname = "egg_crispinette"
+items = [
+    19339,
+    400512,
+    400513,
+]
+
+[[headgear]]
+view = 1601
+slot = "Head_Top"
+accname = "dog_officer"
+items = [
+    19300,
+    400122,
+]
+
+[[headgear]]
+view = 1629
+slot = "Head_Low"
+accname = "royalguard_necklace"
+items = [
+    19246,
+    19318,
+]
+
+[[headgear]]
+view = 1643
+slot = "Head_Low"
+accname = "soda_in_mouth"
+items = [
+    19277,
+    420074,
+]
+
+[[headgear]]
+view = 1644
+slot = "Head_Top"
+accname = "jirant_circlet"
+items = [19262]
+
+[[headgear]]
+view = 1645
+slot = "Head_Top"
+accname = "goldfish_hat"
+items = [
+    19264,
+    400155,
+]
+
+[[headgear]]
+view = 1646
+slot = "Head_Top"
+accname = "smoky_transformhat"
+items = [
+    19265,
+    400152,
+    400273,
+]
+
+[[headgear]]
+view = 1650
+slot = "Head_Top"
+accname = "2017rtcsymbole"
+items = [19261]
+
+[[headgear]]
+view = 1653
+slot = "Head_Top"
+accname = "garden_of_eden"
+items = [19272]
+
+[[headgear]]
+view = 1654
+slot = "Head_Mid"
+accname = "gemini_redeyes"
+items = [19273]
+
+[[headgear]]
+view = 1655
+slot = "Head_Low"
+accname = "openair_headset"
+items = [19274]
+
+[[headgear]]
+view = 1661
+slot = "Head_Low"
+accname = "ia_choker"
+items = [19286]
+
+[[headgear]]
+view = 1667
+slot = "Head_Top"
+accname = "return_tw_1th_hat"
+items = [19276]
+
+[[headgear]]
+view = 1677
+slot = "Head_Top"
+accname = "harvest_festa_hat"
+items = [19406]
+
+[[headgear]]
+view = 1679
+slot = "Head_Low"
+accname = "joker_card_exe"
+items = [
+    15878,
+    19306,
+    420210,
+]
+
+[[headgear]]
+view = 1688
+slot = "Head_Top"
+accname = "white_bird_rose"
+items = [19415]
+
+[[headgear]]
+view = 1689
+slot = "Head_Low"
+accname = "cat_in_mouth_j"
+items = [19462]
+
+[[headgear]]
+view = 1695
+slot = "Head_Top"
+accname = "greater_dracul_horn"
+items = [19311]
+
+[[headgear]]
+view = 1696
+slot = "Head_Mid"
+accname = "neev_barrette"
+items = [
+    19312,
+    19313,
+]
+
+[[headgear]]
+view = 1697
+slot = "Head_Low"
+accname = "royal_mantle"
+items = [19314]
+
+[[headgear]]
+view = 1704
+slot = "Head_Low"
+accname = "feather_of_seraphim"
+items = [19327]
+
+[[headgear]]
+view = 1711
+slot = "Head_Top"
+accname = "spider_temp_tw"
+items = [19328]
+
+[[headgear]]
+view = 1717
+slot = "Head_Low"
+accname = "love_feeling_tw"
+items = [420005]
+
+[[headgear]]
+view = 1721
+slot = "Head_Top"
+accname = "hat_of_goggle"
+items = [19337]
+
+[[headgear]]
+view = 1727
+slot = "Head_Top"
+accname = "cherry_blossom_hat_yl"
+items = [19465]
+
+[[headgear]]
+view = 1728
+slot = "Head_Top"
+accname = "comp_stripe_hat"
+items = [
+    15965,
+    400049,
+    400264,
+]
+
+[[headgear]]
+view = 1729
+slot = "Head_Low"
+accname = "many_starsj"
+items = [19402]
+
+[[headgear]]
+view = 1730
+slot = "Head_Low"
+accname = "floating_gioia"
+items = [19411]
+
+[[headgear]]
+view = 1734
+slot = "Head_Low"
+accname = "c_bearballoon_tw"
+items = [19353]
+
+[[headgear]]
+view = 1746
+slot = "Head_Low"
+accname = "c_baphoj_parachute_tw"
+items = [19371]
+
+[[headgear]]
+view = 1747
+slot = "Head_Low"
+accname = "sparkler_stick_th"
+items = [
+    19373,
+    420251,
+    420312,
+]
+
+[[headgear]]
+view = 1758
+slot = "Head_Top"
+accname = "kings_mini_melon"
+items = [19410]
+
+[[headgear]]
+view = 1759
+slot = "Head_Top"
+accname = "striking_hat"
+items = [
+    19379,
+    400011,
+    400445,
+]
+
+[[headgear]]
+view = 1760
+slot = "Head_Mid"
+accname = "floating_ball"
+items = [
+    19380,
+    410298,
+]
+
+[[headgear]]
+view = 1761
+slot = "Head_Low"
+accname = "protect_cloth"
+items = [19381]
+
+[[headgear]]
+view = 1763
+slot = "Head_Top"
+accname = "pop_popcorn_hat"
+items = [19382]
+
+[[headgear]]
+view = 1765
+slot = "Head_Top"
+accname = "areias_helm_br"
+items = [400614]
+
+[[headgear]]
+view = 1768
+slot = "Head_Top"
+accname = "exa_goat_cap"
+items = [19387]
+
+[[headgear]]
+view = 1776
+slot = "Head_Low"
+accname = "booster_scarf_b"
+items = [420154]
+
+[[headgear]]
+view = 1777
+slot = "Head_Top"
+accname = "comp_clock_casket_rd"
+items = [
+    15961,
+    400021,
+    400267,
+]
+
+[[headgear]]
+view = 1779
+slot = "Head_Mid"
+accname = "eyes_of_illusion"
+items = [
+    19391,
+    410010,
+]
+
+[[headgear]]
+view = 1787
+slot = "Head_Top"
+accname = "gothic_heart_wing_tw"
+items = [19401]
+
+[[headgear]]
+view = 1788
+slot = "Head_Low"
+accname = "wl_security_drone_th"
+items = [420342]
+
+[[headgear]]
+view = 1792
+slot = "Head_Mid"
+accname = "autumnal_flavor"
+items = [19405]
+
+[[headgear]]
+view = 1793
+slot = "Head_Top"
+accname = "work_cap"
+items = [19407]
+
+[[headgear]]
+view = 1806
+slot = "Head_Top"
+accname = "master_cat"
+items = [19425]
+
+[[headgear]]
+view = 1809
+slot = "Head_Low"
+accname = "rabbitfamilyballoon"
+items = [19427]
+
+[[headgear]]
+view = 1811
+slot = "Head_Top"
+accname = "comp_l_sorcerer_crown"
+items = [
+    15962,
+    400054,
+    400263,
+]
+
+[[headgear]]
+view = 1823
+slot = "Head_Top"
+accname = "resonatetaego_tw"
+items = [
+    19433,
+    410000,
+]
+
+[[headgear]]
+view = 1825
+slot = "Head_Top"
+accname = "poringberet_tw"
+items = [19435]
+
+[[headgear]]
+view = 1827
+slot = "Head_Top"
+accname = "vesperheadgear"
+items = [
+    19436,
+    400111,
+]
+
+[[headgear]]
+view = 1830
+slot = "Head_Mid"
+accname = "comp_littlegarden"
+items = [
+    15985,
+    19437,
+]
+
+[[headgear]]
+view = 1831
+slot = "Head_Low"
+accname = "zilantnecklace"
+items = [19438]
+
+[[headgear]]
+view = 1865
+slot = "Head_Low"
+accname = "twin_canon_th"
+items = [
+    15969,
+    420032,
+    420324,
+]
+
+[[headgear]]
+view = 1868
+slot = "Head_Top"
+accname = "boina_sustenida_br"
+items = [400476]
+
+[[headgear]]
+view = 1869
+slot = "Head_Top"
+accname = "eat_coin"
+items = [21201]
+
+[[headgear]]
+view = 1877
+slot = "Head_Top"
+accname = "aegis_410349"
+items = [410349]
+
+[[headgear]]
+view = 1878
+slot = "Head_Top"
+accname = "melon_cap"
+items = [19463]
+
+[[headgear]]
+view = 1880
+slot = "Head_Mid"
+accname = "clown_smiling"
+items = [
+    410344,
+    410345,
+]
+
+[[headgear]]
+view = 1882
+slot = "Head_Low"
+accname = "scarfofhero_j"
+items = [420110]
+
+[[headgear]]
+view = 1884
+slot = "Head_Low"
+accname = "nine_tail_fox_hair"
+items = [420004]
+
+[[headgear]]
+view = 1885
+slot = "Head_Top"
+accname = "gothic_skull_ribbon"
+items = [400050]
+
+[[headgear]]
+view = 1886
+slot = "Head_Top"
+accname = "golden_violet"
+items = [400051]
+
+[[headgear]]
+view = 1887
+slot = "Head_Mid"
+accname = "orange_rabbit_th"
+items = [15968]
+
+[[headgear]]
+view = 1892
+slot = "Head_Top"
+accname = "s_circlet_of_time_rk"
+items = [
+    19474,
+    19475,
+    19476,
+    19477,
+    19478,
+    19479,
+    19480,
+    19481,
+    19482,
+    19483,
+    19484,
+    19485,
+    19486,
+    19487,
+    19488,
+    19489,
+    19490,
+    19491,
+    19492,
+]
+
+[[headgear]]
+view = 1897
+slot = "Head_Mid"
+accname = "nezuko_eyes_exe"
+items = [15883]
+
+[[headgear]]
+view = 1899
+slot = "Head_Top"
+accname = "comp_phantom_cap"
+items = [
+    15959,
+    400044,
+    400265,
+]
+
+[[headgear]]
+view = 1900
+slot = "Head_Mid"
+accname = "citrusribbon"
+items = [
+    19498,
+    410007,
+]
+
+[[headgear]]
+view = 1901
+slot = "Head_Low"
+accname = "fortunetellinsealed"
+items = [19499]
+
+[[headgear]]
+view = 1908
+slot = "Head_Low"
+accname = "2019rtc_celeaura_tw"
+items = [400014]
+
+[[headgear]]
+view = 1924
+slot = "Head_Low"
+accname = "cons_of_wind_j"
+items = [420174]
+
+[[headgear]]
+view = 1947
+slot = "Head_Top"
+accname = "runaway_accelerator"
+items = [400047]
+
+[[headgear]]
+view = 1948
+slot = "Head_Top"
+accname = "gift_of_panagia"
+items = [400048]
+
+[[headgear]]
+view = 1949
+slot = "Head_Mid"
+accname = "phalanx"
+items = [
+    410001,
+    410008,
+    410348,
+]
+
+[[headgear]]
+view = 1952
+slot = "Head_Top"
+accname = "c_pierced_apple"
+items = [400045]
+
+[[headgear]]
+view = 1982
+slot = "Head_Low"
+accname = "cons_of_earth_j"
+items = [420160]
+
+[[headgear]]
+view = 1984
+slot = "Head_Top"
+accname = "cat_ff_hat2"
+items = [400759]
+
+[[headgear]]
+view = 1985
+slot = "Head_Top"
+accname = "cat_ff_hat"
+items = [400758]
+
+[[headgear]]
+view = 1991
+slot = "Head_Top"
+accname = "nut_cracker"
+items = [21205]
+
+[[headgear]]
+view = 1996
+slot = "Head_Mid"
+accname = "magic_heir_j"
+items = [
+    410025,
+    410026,
+]
+
+[[headgear]]
+view = 2005
+slot = "Head_Low"
+accname = "20th_anniversary_tw"
+items = [420186]
+
+[[headgear]]
+view = 2009
+slot = "Head_Top"
+accname = "2020rtc_imp_tw"
+items = [400082]
+
+[[headgear]]
+view = 2012
+slot = "Head_Top"
+accname = "2020rtc_01"
+items = [400088]
+
+[[headgear]]
+view = 2013
+slot = "Head_Top"
+accname = "2020rtc_02"
+items = [400089]
+
+[[headgear]]
+view = 2014
+slot = "Head_Top"
+accname = "2020rtc_03"
+items = [400090]
+
+[[headgear]]
+view = 2016
+slot = "Head_Top"
+accname = "gatesofnetherworld"
+items = [400101]
+
+[[headgear]]
+view = 2017
+slot = "Head_Mid"
+accname = "cor_core_headset"
+items = [
+    410014,
+    410015,
+    410091,
+    410092,
+]
+
+[[headgear]]
+view = 2018
+slot = "Head_Low"
+accname = "vassalage_necklace_th"
+items = [
+    15932,
+    420006,
+    420076,
+]
+
+[[headgear]]
+view = 2020
+slot = "Head_Low"
+accname = "curse_eats_the_world"
+items = [420105]
+
+[[headgear]]
+view = 2023
+slot = "Head_Low"
+accname = "aegis_420248"
+items = [
+    420248,
+    420249,
+]
+
+[[headgear]]
+view = 2055
+slot = "Head_Mid"
+accname = "wonder_egg_basket_th"
+items = [
+    15980,
+    410027,
+    410028,
+]
+
+[[headgear]]
+view = 2056
+slot = "Head_Low"
+accname = "imperial_glory"
+items = [
+    420028,
+    420256,
+    420257,
+]
+
+[[headgear]]
+view = 2077
+slot = "Head_Top"
+accname = "ep18_mini_elly"
+items = [400127]
+
+[[headgear]]
+view = 2087
+slot = "Head_Top"
+accname = "choco_banana"
+items = [400257]
+
+[[headgear]]
+view = 2088
+slot = "Head_Mid"
+accname = "yinyang_earring_y"
+items = [
+    410057,
+    410058,
+]
+
+[[headgear]]
+view = 2089
+slot = "Head_Top"
+accname = "thanos_helm_2"
+items = [400141]
+
+[[headgear]]
+view = 2090
+slot = "Head_Top"
+accname = "thanos_helm2_lt"
+items = [400142]
+
+[[headgear]]
+view = 2091
+slot = "Head_Top"
+accname = "rose_crispinette"
+items = [400268]
+
+[[headgear]]
+view = 2093
+slot = "Head_Top"
+accname = "morcegos_br"
+items = [
+    420238,
+    420315,
+]
+
+[[headgear]]
+view = 2098
+slot = "Head_Top"
+accname = "mountain_helmet"
+items = [15891]
+
+[[headgear]]
+view = 2099
+slot = "Head_Top"
+accname = "themis_helm"
+items = [
+    15892,
+    400631,
+    400632,
+]
+
+[[headgear]]
+view = 2102
+slot = "Head_Top"
+accname = "thanos_helm3_lt"
+items = [400145]
+
+[[headgear]]
+view = 2103
+slot = "Head_Top"
+accname = "thanos_helm_3"
+items = [400146]
+
+[[headgear]]
+view = 2104
+slot = "Head_Top"
+accname = "thanos_helm4_lt"
+items = [400151]
+
+[[headgear]]
+view = 2105
+slot = "Head_Top"
+accname = "thanos_helm_4"
+items = [400150]
+
+[[headgear]]
+view = 2116
+slot = "Head_Mid"
+accname = "diving_goggles"
+items = [
+    410064,
+    410065,
+]
+
+[[headgear]]
+view = 2118
+slot = "Head_Mid"
+accname = "professor_miniglass"
+items = [
+    410066,
+    410067,
+]
+
+[[headgear]]
+view = 2120
+slot = "Head_Top"
+accname = "rebirth_circlet"
+items = [15897]
+
+[[headgear]]
+view = 2121
+slot = "Head_Top"
+accname = "kings_crown_a"
+items = [15898]
+
+[[headgear]]
+view = 2127
+slot = "Head_Mid"
+accname = "demons_familiar"
+items = [
+    410070,
+    410071,
+]
+
+[[headgear]]
+view = 2128
+slot = "Head_Low"
+accname = "lord_of_royals"
+items = [420068]
+
+[[headgear]]
+view = 2129
+slot = "Head_Mid"
+accname = "melon_headphone_j_"
+items = [
+    410084,
+    410085,
+]
+
+[[headgear]]
+view = 2130
+slot = "Head_Low"
+accname = "arbitrator_shawl_us"
+items = [420246]
+
+[[headgear]]
+view = 2132
+slot = "Head_Top"
+accname = "northern_cross"
+items = [
+    15906,
+    400467,
+]
+
+[[headgear]]
+view = 2134
+slot = "Head_Mid"
+accname = "2021rtc_headset_tw"
+items = [400164]
+
+[[headgear]]
+view = 2148
+slot = "Head_Mid"
+accname = "supplement_p_income"
+items = [
+    410088,
+    410089,
+]
+
+[[headgear]]
+view = 2149
+slot = "Head_Top"
+accname = "fafnir_helm"
+items = [
+    400177,
+    400180,
+    400181,
+]
+
+[[headgear]]
+view = 2152
+slot = "Head_Mid"
+accname = "pope_ribbon_r"
+items = [
+    410096,
+    410097,
+]
+
+[[headgear]]
+view = 2153
+slot = "Head_Top"
+accname = "purple_cat_ears_beret"
+items = [400187]
+
+[[headgear]]
+view = 2156
+slot = "Head_Mid"
+accname = "exiled_ninja_us"
+items = [410362]
+
+[[headgear]]
+view = 2157
+slot = "Head_Mid"
+accname = "2021rtc_headset_1_tw"
+items = [410100]
+
+[[headgear]]
+view = 2158
+slot = "Head_Top"
+accname = "viva_adul_hat_ab1"
+items = [
+    400189,
+    400190,
+]
+
+[[headgear]]
+view = 2159
+slot = "Head_Top"
+accname = "viva_adul_hat_sc1"
+items = [
+    400191,
+    400192,
+]
+
+[[headgear]]
+view = 2160
+slot = "Head_Mid"
+accname = "2021rtc_headset_2_tw"
+items = [410101]
+
+[[headgear]]
+view = 2161
+slot = "Head_Mid"
+accname = "2021rtc_headset_3_tw"
+items = [410102]
+
+[[headgear]]
+view = 2162
+slot = "Head_Top"
+accname = "nostalgiacherryblossom"
+items = [400194]
+
+[[headgear]]
+view = 2171
+slot = "Head_Mid"
+accname = "aegis_410207"
+items = [410207]
+
+[[headgear]]
+view = 2173
+slot = "Head_Top"
+accname = "viva_adul_hat_lg1"
+items = [
+    400200,
+    400201,
+]
+
+[[headgear]]
+view = 2174
+slot = "Head_Top"
+accname = "viva_adul_hat_ra1"
+items = [
+    400198,
+    400199,
+]
+
+[[headgear]]
+view = 2177
+slot = "Head_Top"
+accname = "wolf_officer_hat"
+items = [400203]
+
+[[headgear]]
+view = 2178
+slot = "Head_Mid"
+accname = "fluffy_lovely_fox"
+items = [
+    410109,
+    410110,
+]
+
+[[headgear]]
+view = 2198
+slot = "Head_Top"
+accname = "faith_of_yggdrasil"
+items = [
+    400213,
+    400401,
+]
+
+[[headgear]]
+view = 2199
+slot = "Head_Mid"
+accname = "guardian_helm"
+items = [
+    410119,
+    410120,
+]
+
+[[headgear]]
+view = 2200
+slot = "Head_Low"
+accname = "einherial_mantle"
+items = [420093]
+
+[[headgear]]
+view = 2202
+slot = "Head_Top"
+accname = "viva_adul_hat_gc1"
+items = [
+    400216,
+    400217,
+]
+
+[[headgear]]
+view = 2203
+slot = "Head_Top"
+accname = "viva_adul_hat_so1"
+items = [
+    400218,
+    400219,
+]
+
+[[headgear]]
+view = 2207
+slot = "Head_Top"
+accname = "viva_adul_hat_rk1"
+items = [
+    400226,
+    400227,
+]
+
+[[headgear]]
+view = 2208
+slot = "Head_Top"
+accname = "viva_adul_hat_wm1"
+items = [
+    400228,
+    400229,
+]
+
+[[headgear]]
+view = 2209
+slot = "Head_Top"
+accname = "viva_adul_hat_nc1"
+items = [
+    400230,
+    400231,
+]
+
+[[headgear]]
+view = 2210
+slot = "Head_Top"
+accname = "viva_adul_hat_gn1"
+items = [
+    400233,
+    400234,
+]
+
+[[headgear]]
+view = 2212
+slot = "Head_Mid"
+accname = "grisly_soul"
+items = [
+    410124,
+    410125,
+    410215,
+]
+
+[[headgear]]
+view = 2217
+slot = "Head_Top"
+accname = "viva_adul_hat_ko1"
+items = [
+    400235,
+    400236,
+]
+
+[[headgear]]
+view = 2218
+slot = "Head_Top"
+accname = "viva_adul_hat_rl1"
+items = [
+    400237,
+    400238,
+]
+
+[[headgear]]
+view = 2219
+slot = "Head_Top"
+accname = "viva_adul_hat_sp1"
+items = [
+    400239,
+    400240,
+]
+
+[[headgear]]
+view = 2220
+slot = "Head_Top"
+accname = "viva_adul_hat_sj1"
+items = [
+    400241,
+    400242,
+]
+
+[[headgear]]
+view = 2221
+slot = "Head_Top"
+accname = "viva_adul_hat_su1"
+items = [
+    400243,
+    400244,
+]
+
+[[headgear]]
+view = 2226
+slot = "Head_Mid"
+accname = "phantom_ear"
+items = [
+    410129,
+    410130,
+]
+
+[[headgear]]
+view = 2227
+slot = "Head_Low"
+accname = "guardian_claus"
+items = [420112]
+
+[[headgear]]
+view = 2249
+slot = "Head_Top"
+accname = "aegis_400488"
+items = [
+    400488,
+    400489,
+    400715,
+    410139,
+    410140,
+]
+
+[[headgear]]
+view = 2250
+slot = "Head_Mid"
+accname = "gorgoncoronet"
+items = [
+    410141,
+    410142,
+    410336,
+    410337,
+]
+
+[[headgear]]
+view = 2260
+slot = "Head_Top"
+accname = "legacy_of_wise_one_j"
+items = [400287]
+
+[[headgear]]
+view = 2264
+slot = "Head_Low"
+accname = "yesterday_once_more"
+items = [420158]
+
+[[headgear]]
+view = 2265
+slot = "Head_Mid"
+accname = "magic_celestial_globe"
+items = [
+    410158,
+    410159,
+]
+
+[[headgear]]
+view = 2268
+slot = "Head_Top"
+accname = "ally_of_the_demons"
+items = [400307]
+
+[[headgear]]
+view = 2272
+slot = "Head_Low"
+accname = "republic_scarf_br"
+items = [
+    420253,
+    420258,
+]
+
+[[headgear]]
+view = 2277
+slot = "Head_Low"
+accname = "sleep_redsheep"
+items = [420164]
+
+[[headgear]]
+view = 2284
+slot = "Head_Top"
+accname = "20th_anniversary_hat_tw"
+items = [400368]
+
+[[headgear]]
+view = 2288
+slot = "Head_Mid"
+accname = "aegis_410270"
+items = [
+    410270,
+    410271,
+    410272,
+    410273,
+    410274,
+    410275,
+]
+
+[[headgear]]
+view = 2289
+slot = "Head_Mid"
+accname = "rebel_pocket_watch"
+items = [
+    410185,
+    410186,
+]
+
+[[headgear]]
+view = 2316
+slot = "Head_Mid"
+accname = "little_abyss_dragon"
+items = [
+    410210,
+    410211,
+    410291,
+    410294,
+    410303,
+]
+
+[[headgear]]
+view = 2317
+slot = "Head_Low"
+accname = "eis_spinne"
+items = [
+    420180,
+    420329,
+]
+
+[[headgear]]
+view = 2318
+slot = "Head_Mid"
+accname = "ear_of_bloody"
+items = [410213]
+
+[[headgear]]
+view = 2322
+slot = "Head_Mid"
+accname = "ear_of_abyss"
+items = [410216]
+
+[[headgear]]
+view = 2325
+slot = "Head_Top"
+accname = "tiger_glass_br"
+items = [400622]
+
+[[headgear]]
+view = 2327
+slot = "Head_Low"
+accname = "book_of_sorcery"
+items = [420182]
+
+[[headgear]]
+view = 2332
+slot = "Head_Top"
+accname = "goodnevil_circlet_dk"
+items = [
+    400374,
+    400375,
+    400376,
+    400377,
+    400378,
+    400379,
+    400380,
+    400381,
+    400382,
+    400383,
+    400384,
+    400385,
+    400386,
+    400387,
+    400388,
+    400389,
+    400390,
+    400391,
+    400392,
+    400393,
+    400394,
+    400395,
+]
+
+[[headgear]]
+view = 2335
+slot = "Head_Low"
+accname = "white_fox_us"
+items = [420314]
+
+[[headgear]]
+view = 2337
+slot = "Head_Low"
+accname = "sacred_lapel"
+items = [420187]
+
+[[headgear]]
+view = 2338
+slot = "Head_Top"
+accname = "ghost_whisper"
+items = [400396]
+
+[[headgear]]
+view = 2339
+slot = "Head_Top"
+accname = "red_baby_dragon_lt"
+items = [400400]
+
+[[headgear]]
+view = 2350
+slot = "Head_Top"
+accname = "clockwise"
+items = [400408]
+
+[[headgear]]
+view = 2351
+slot = "Head_Low"
+accname = "sanctus"
+items = [420198]
+
+[[headgear]]
+view = 2352
+slot = "Head_Top"
+accname = "wild_beast"
+items = [400409]
+
+[[headgear]]
+view = 2353
+slot = "Head_Low"
+accname = "ghost_fire"
+items = [420199]
+
+[[headgear]]
+view = 2358
+slot = "Head_Top"
+accname = "dragon_circlet"
+items = [400420]
+
+[[headgear]]
+view = 2359
+slot = "Head_Top"
+accname = "two_tone_cap"
+items = [400421]
+
+[[headgear]]
+view = 2363
+slot = "Head_Low"
+accname = "book_of_destruction"
+items = [420356]
+
+[[headgear]]
+view = 2371
+slot = "Head_Top"
+accname = "squirrel_ear_hat_w"
+items = [400416]
+
+[[headgear]]
+view = 2372
+slot = "Head_Top"
+accname = "gothic_hw_tw_lt"
+items = [400433]
+
+[[headgear]]
+view = 2374
+slot = "Head_Low"
+accname = "spade_ace_melee"
+items = [420213]
+
+[[headgear]]
+view = 2375
+slot = "Head_Mid"
+accname = "handiness_telescope"
+items = [410235]
+
+[[headgear]]
+view = 2380
+slot = "Head_Top"
+accname = "chic_peony"
+items = [400437]
+
+[[headgear]]
+view = 2381
+slot = "Head_Top"
+accname = "wildcat_knit_cap_w"
+items = [400438]
+
+[[headgear]]
+view = 2383
+slot = "Head_Low"
+accname = "diamond_ace_range"
+items = [420220]
+
+[[headgear]]
+view = 2391
+slot = "Head_Top"
+accname = "striking_hat_a"
+items = [400453]
+
+[[headgear]]
+view = 2392
+slot = "Head_Top"
+accname = "khalitzburg_kn_helm_w"
+items = [400454]
+
+[[headgear]]
+view = 2393
+slot = "Head_Top"
+accname = "poenetentia_b_crown"
+items = [
+    400447,
+    401056,
+]
+
+[[headgear]]
+view = 2394
+slot = "Head_Top"
+accname = "poenetentia_v_crown"
+items = [400457]
+
+[[headgear]]
+view = 2395
+slot = "Head_Mid"
+accname = "wanderer_grim_reaper"
+items = [
+    410243,
+    410244,
+]
+
+[[headgear]]
+view = 2396
+slot = "Head_Low"
+accname = "consecrate_f_aureola"
+items = [420223]
+
+[[headgear]]
+view = 2401
+slot = "Head_Low"
+accname = "octopus_leg_in_mouth"
+items = [420225]
+
+[[headgear]]
+view = 2402
+slot = "Head_Top"
+accname = "poenetentia_d_crown"
+items = [400469]
+
+[[headgear]]
+view = 2403
+slot = "Head_Mid"
+accname = "lightning_savage"
+items = [410247]
+
+[[headgear]]
+view = 2408
+slot = "Head_Top"
+accname = "remorse_crown"
+items = [400474]
+
+[[headgear]]
+view = 2414
+slot = "Head_Low"
+accname = "mobile_support_systems"
+items = [420235]
+
+[[headgear]]
+view = 2415
+slot = "Head_Top"
+accname = "flash_of_lightning"
+items = [
+    400481,
+    400608,
+    400609,
+    400610,
+    400628,
+    400629,
+    400630,
+    400650,
+    400651,
+    400652,
+    400661,
+    400662,
+    400663,
+    400673,
+    400674,
+    400675,
+    400694,
+    400695,
+    400696,
+]
+
+[[headgear]]
+view = 2416
+slot = "Head_Top"
+accname = "poenetentia_h_crown"
+items = [400482]
+
+[[headgear]]
+view = 2425
+slot = "Head_Top"
+accname = "stripedribbonhat"
+items = [400505]
+
+[[headgear]]
+view = 2426
+slot = "Head_Top"
+accname = "altair_hat"
+items = [400506]
+
+[[headgear]]
+view = 2439
+slot = "Head_Low"
+accname = "red_bat_us"
+items = [420422]
+
+[[headgear]]
+view = 2441
+slot = "Head_Top"
+accname = "time_dm_r_crown_dk"
+items = [
+    400529,
+    400530,
+    400531,
+    400532,
+    400533,
+    400534,
+    400535,
+    400536,
+    400537,
+    400538,
+    400539,
+    400540,
+    400541,
+    400542,
+    400543,
+    400544,
+    400545,
+    400546,
+]
+
+[[headgear]]
+view = 2442
+slot = "Head_Top"
+accname = "2023seppay_02"
+items = [400547]
+
+[[headgear]]
+view = 2443
+slot = "Head_Top"
+accname = "2023seppay_03"
+items = [400548]
+
+[[headgear]]
+view = 2444
+slot = "Head_Top"
+accname = "2023seppay_04"
+items = [400549]
+
+[[headgear]]
+view = 2445
+slot = "Head_Top"
+accname = "2023seppay_05"
+items = [400550]
+
+[[headgear]]
+view = 2446
+slot = "Head_Top"
+accname = "2023seppay_06"
+items = [400551]
+
+[[headgear]]
+view = 2447
+slot = "Head_Top"
+accname = "inquisitor_veil"
+items = [400556]
+
+[[headgear]]
+view = 2448
+slot = "Head_Low"
+accname = "clover_ace_defense"
+items = [420269]
+
+[[headgear]]
+view = 2449
+slot = "Head_Top"
+accname = "awaking_bloom"
+items = [400566]
+
+[[headgear]]
+view = 2450
+slot = "Head_Mid"
+accname = "evileye_of_falsegods"
+items = [
+    410284,
+    410285,
+]
+
+[[headgear]]
+view = 2483
+slot = "Head_Low"
+accname = "sound_of_catbell"
+items = [420302]
+
+[[headgear]]
+view = 2484
+slot = "Head_Top"
+accname = "passion_rabbit_ribbon"
+items = [400581]
+
+[[headgear]]
+view = 2487
+slot = "Head_Top"
+accname = "wolf_rayet"
+items = [400582]
+
+[[headgear]]
+view = 2495
+slot = "Head_Top"
+accname = "yellowkitty_headphone"
+items = [400592]
+
+[[headgear]]
+view = 2496
+slot = "Head_Top"
+accname = "pgstone_knit_hat_gr"
+items = [400593]
+
+[[headgear]]
+view = 2497
+slot = "Head_Low"
+accname = "twincannon_lt_tw"
+items = [
+    420316,
+    420392,
+]
+
+[[headgear]]
+view = 2500
+slot = "Head_Top"
+accname = "stardust_crown_sv"
+items = [401055]
+
+[[headgear]]
+view = 2503
+slot = "Head_Mid"
+accname = "wisdom_core_headphones"
+items = [410302]
+
+[[headgear]]
+view = 2504
+slot = "Head_Top"
+accname = "steamroller"
+items = [400601]
+
+[[headgear]]
+view = 2505
+slot = "Head_Top"
+accname = "white_fox_bamboo_hat"
+items = [400602]
+
+[[headgear]]
+view = 2506
+slot = "Head_Top"
+accname = "stardust_crown_vi"
+items = [401057]
+
+[[headgear]]
+view = 2509
+slot = "Head_Top"
+accname = "white_cat_witch_hat"
+items = [400624]
+
+[[headgear]]
+view = 2519
+slot = "Head_Top"
+accname = "soul_mastery_crown"
+items = [400644]
+
+[[headgear]]
+view = 2521
+slot = "Head_Top"
+accname = "garden_of_heaven"
+items = [400645]
+
+[[headgear]]
+view = 2522
+slot = "Head_Low"
+accname = "cat_ears_cape_blue"
+items = [420327]
+
+[[headgear]]
+view = 2523
+slot = "Head_Top"
+accname = "satanic_crown"
+items = [400649]
+
+[[headgear]]
+view = 2529
+slot = "Head_Mid"
+accname = "interdimensional_rift"
+items = [
+    410322,
+    410323,
+    410340,
+    410341,
+]
+
+[[headgear]]
+view = 2530
+slot = "Head_Low"
+accname = "queen_of_calamity"
+items = [420334]
+
+[[headgear]]
+view = 2543
+slot = "Head_Top"
+accname = "marin_pattern_hat"
+items = [400672]
+
+[[headgear]]
+view = 2544
+slot = "Head_Mid"
+accname = "handiness_telescope_lt"
+items = [410339]
+
+[[headgear]]
+view = 2545
+slot = "Head_Low"
+accname = "rescue_whistle_lt"
+items = [420343]
+
+[[headgear]]
+view = 2556
+slot = "Head_Top"
+accname = "magma_ignis_cap"
+items = [400688]
+
+[[headgear]]
+view = 2565
+slot = "Head_Top"
+accname = "astraea_helm_lt"
+items = [400699]
+
+[[headgear]]
+view = 2575
+slot = "Head_Top"
+accname = "many_flowers_love"
+items = [400711]
+
+[[headgear]]
+view = 2582
+slot = "Head_Top"
+accname = "sakura_witch_hat_w"
+items = [400721]
+
+[[headgear]]
+view = 2583
+slot = "Head_Top"
+accname = "m_plant_hat_w"
+items = [400722]
+
+[[headgear]]
+view = 2591
+slot = "Head_Top"
+accname = "yorscalp_p_circlet"
+items = [400723]
+
+[[headgear]]
+view = 2592
+slot = "Head_Top"
+accname = "yorscalp_m_circlet"
+items = [400724]
+
+[[headgear]]
+view = 2594
+slot = "Head_Low"
+accname = "atque_poenitentia"
+items = [420381]
+
+[[headgear]]
+view = 2608
+slot = "Head_Top"
+accname = "leviathan_helm"
+items = [400742]
+
+[[headgear]]
+view = 2645
+slot = "Head_Low"
+accname = "mob_scarf_lt"
+items = [420425]
+
+[[headgear]]
+view = 2659
+slot = "Head_Top"
+accname = "mech_feather_hairband_b"
+items = [400766]
+
+[[headgear]]
+view = 2663
+slot = "Head_Top"
+accname = "blue_astrologer_hat"
+items = [400787]
+
+[[headgear]]
+view = 2692
+slot = "Head_Top"
+accname = "sky_rune_crown_ig"
+items = [
+    401058,
+    401059,
+    401060,
+    401115,
+    401116,
+    401117,
+    401118,
+    401119,
+    401120,
+]
+
+[[headgear]]
+view = 2733
+slot = "Head_Top"
+accname = "frontier_r_crown_dk"
+items = [
+    400975,
+    400976,
+    400977,
+    400978,
+    400979,
+    400980,
+    400981,
+    400982,
+    400983,
+    400984,
+    400985,
+    400986,
+    400987,
+    400988,
+    400989,
+    400990,
+    400991,
+    400992,
+]

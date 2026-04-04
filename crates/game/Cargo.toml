@@ -1,0 +1,9 @@
+[package]
+name = "game"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version="0.18"}
+bevy_ro_sprites = { path = "../bevy_ro_sprites" }
+bevy_ro_maps = { path = "../bevy_ro_maps" }

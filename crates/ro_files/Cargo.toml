@@ -1,0 +1,12 @@
+[package]
+name = "ro_files"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+flate2 = "1"
+encoding_rs = "0.8"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+log = "0.4"

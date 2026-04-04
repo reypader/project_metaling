@@ -1,0 +1,41 @@
+# Extraction bundle definitions for grf-extract.
+#
+# Usage:
+#   grf-extract data.grf --extract sprite
+#   grf-extract data.grf --extract sprite,map
+#
+# Each bundle matches GRF entries by path prefix OR extension (union of all rules).
+# Omit --extract to extract everything (default behaviour).
+#
+# The --bundles flag controls which file to load (default: bundles.toml).
+
+[[bundle]]
+name = "sprite"
+translate = true
+e_prefix = false
+# Sprite sheets (.spr) and animation data (.act) live under data/sprite/.
+# IMF anchor files live under data/imf/ (flat directory, one level up from sprite/).
+# The single co-located .imf under data/sprite/ is a GRF duplicate artifact; the
+# canonical copies are all in data/imf/.
+# Palettes (.pal) live under data/palette/ and are used to recolor body/head sprites.
+path_prefixes = ["data/sprite/", "data/imf/", "data/palette/"]
+
+[[bundle]]
+name = "map"
+translate = true
+e_prefix = true
+# Map geometry and world-space metadata files (matched by extension).
+# .gat = altitude/walkability grid; .gnd = ground mesh; .rsw = world (model placements,
+# water, lights). These live directly in data/ (e.g. data/prontera.gat).
+extensions = ["gat", "gnd", "rsw"]
+# Textures referenced by ground meshes and water surfaces.
+# 3D prop models (.rsm, .rsm2, .gr2) placed on maps via .rsw world files.
+path_prefixes = ["data/texture/", "data/model/"]
+
+[[bundle]]
+name = "sound"
+translate = true
+# Sound effects for skills, monsters, and environmental events.
+# Flat and data/wav/effect/ subdirectory; all .wav plus a handful of .mp3.
+# BGM is not inside the GRF (it lives in the game's bgm/ folder on disk).
+path_prefixes = ["data/wav/"]
