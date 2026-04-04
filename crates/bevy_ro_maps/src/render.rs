@@ -1,12 +1,13 @@
+use crate::assets::RoMapAsset;
 use bevy::{
     asset::{LoadState, RenderAssetUsages},
     mesh::{Indices, PrimitiveTopology},
+    picking::Pickable,
     prelude::*,
 };
 use bevy_ro_models::RsmAsset;
-use ro_files::{ModelInstance, RswObject};
-
-use crate::assets::RoMapAsset;
+use ro_files::TerrainType::Blocked;
+use ro_files::{GatFile, GatTile, ModelInstance, RswObject, TerrainType};
 
 /// Vertex data accumulated per texture group while building mesh geometry.
 type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<u32>);
@@ -35,6 +36,153 @@ pub struct RoMapRoot {
     /// Set to `true` by the plugin once mesh children have been spawned. Prevents re-spawning
     /// on subsequent frames.
     pub spawned: bool,
+}
+
+#[derive(Component)]
+pub struct NavMesh {
+    pub terrain_width: f32,
+    pub terrain_height: f32,
+    pub nav_width: u32,
+    pub nav_height: u32,
+    /// Row-major: index = row * width + col.
+    pub tiles: Vec<GatTile>,
+}
+
+impl NavMesh {
+    pub fn tile(&self, col: u32, row: u32) -> Option<&GatTile> {
+        if col < self.nav_width && row < self.nav_height {
+            self.tiles.get((row * self.nav_width + col) as usize)
+        } else {
+            None
+        }
+    }
+
+    pub fn terrain_at(&self, scale: f32, world_x: f32, world_z: f32) -> TerrainType {
+        let cx = self.nav_width as f32 * scale * 0.5;
+        let cz = self.nav_height as f32 * scale * 0.5;
+
+        let col = ((world_x + cx) / scale).floor() as i32;
+        // NW edge of tile row y is at centered Z = cz - (y+1)*scale;
+        // SW edge at cz - y*scale. Row = ceil((cz - world_z) / scale).
+        let row = ((cz - world_z) / scale).ceil() as i32;
+
+        if col < 0 || col >= self.nav_width as i32 || row < 0 || row >= self.nav_height as i32 {
+            return TerrainType::Blocked;
+        }
+
+        self.tile(col as u32, row as u32)
+            .map(|t| t.terrain_type)
+            .unwrap_or(TerrainType::Blocked)
+    }
+
+    pub fn to_map_tile(&self, world_x: f32, world_z: f32) -> (Vec3, TerrainType) {
+        let width = self.nav_width;
+        let height = self.nav_height;
+        let scale_x = self.terrain_width / width as f32;
+        let scale_z = self.terrain_height / height as f32;
+        let offset_w = -(width as f32 * 0.5 * scale_x);
+        let offset_h = height as f32 * 0.5 * scale_z;
+
+        // Column: X runs left-to-right from -cx to +cx.
+        let tile_x = (world_x - offset_w) / scale_x;
+        let col = tile_x.floor() as i32;
+
+        let fx = tile_x.fract();
+
+        // Row: NW edge of tile row y is at centered Z = cz - (y+1)*scale,
+        //      SW edge is at cz - y*scale (higher Z value).
+        // Given world_z, find row using: row = ceil((cz - world_z) / scale).
+        // fz = row - (cz - world_z)/scale  gives 0 at NW edge, 1 at SW edge.
+        let u = (offset_h - world_z) / scale_z;
+        let row = u.ceil() as i32;
+        let fz = (row as f32 - u).clamp(0.0, 1.0);
+        // println!("querying height of {:?},{:?}", col, row);
+        // println!("self dimension {:?},{:?}", self.width, self.height);
+
+        if col < 0 || col >= self.nav_width as i32 {
+            return (Vec3::new(world_x, 0.0, world_z), Blocked);
+        }
+        if row < 0 || row >= self.nav_height as i32 {
+            return (Vec3::new(world_x, 0.0, world_z), Blocked);
+        }
+
+        let Some(tile) = self.tile(col as u32, row as u32) else {
+            return (Vec3::new(world_x, 0.0, world_z), Blocked);
+        };
+        // println!("found {:?}", tile.terrain_type);
+        let sw = -tile.altitude_sw;
+        let se = -tile.altitude_se;
+        let nw = -tile.altitude_nw;
+        let ne = -tile.altitude_ne;
+
+        // println!(
+        //     "nw={:?},ne={:?},sw={:?},se={:?}...fx={:?},fz={:?}",
+        //     nw, ne, sw, se, fx, fz
+        // );
+        // Bilinear interpolation: fz=0 samples the NW/NE edge, fz=1 samples the SW/SE edge.
+        let north = nw + (ne - nw) * fx;
+        let south = sw + (se - sw) * fx;
+
+        (
+            Vec3::new(
+                world_x,                    // offset_w + (scale_x * col as f32),
+                (north + (south - north) * fz), // * scale_x.max(scale_z).ceil(),
+                world_z,                    // offset_h - (scale_z * row as f32),
+            ),
+            tile.terrain_type,
+        )
+    }
+
+    pub fn height_at(&self, world_x: f32, world_z: f32) -> f32 {
+        let width = self.nav_width;
+        let height = self.nav_height;
+        let scale_x = self.terrain_width / width as f32;
+        let scale_z = self.terrain_height / height as f32;
+
+        let offset_w = -(width as f32 * 0.5 * scale_x);
+        let offset_h = height as f32 * 0.5 * scale_z;
+
+        // Column: X runs left-to-right from -cx to +cx.
+        let tile_x = (world_x - offset_w) / scale_x;
+        let col = tile_x.floor() as i32;
+
+        let fx = tile_x.fract();
+
+        // Row: NW edge of tile row y is at centered Z = cz - (y+1)*scale,
+        //      SW edge is at cz - y*scale (higher Z value).
+        // Given world_z, find row using: row = ceil((cz - world_z) / scale).
+        // fz = row - (cz - world_z)/scale  gives 0 at NW edge, 1 at SW edge.
+        let u = (offset_h - world_z) / scale_z;
+        let row = u.ceil() as i32;
+        let fz = (row as f32 - u).clamp(0.0, 1.0);
+        // println!("querying height of {:?},{:?}", col, row);
+        // println!("self dimension {:?},{:?}", self.width, self.height);
+
+        if col < 0 || col >= self.nav_width as i32 {
+            return 0.0;
+        }
+        if row < 0 || row >= self.nav_height as i32 {
+            return 0.0;
+        }
+
+        let Some(tile) = self.tile(col as u32, row as u32) else {
+            return 0.0;
+        };
+        // println!("found {:?}", tile.terrain_type);
+        let sw = -tile.altitude_sw;
+        let se = -tile.altitude_se;
+        let nw = -tile.altitude_nw;
+        let ne = -tile.altitude_ne;
+
+        // println!(
+        //     "nw={:?},ne={:?},sw={:?},se={:?}...fx={:?},fz={:?}",
+        //     nw, ne, sw, se, fx, fz
+        // );
+        // Bilinear interpolation: fz=0 samples the NW/NE edge, fz=1 samples the SW/SE edge.
+        let north = nw + (ne - nw) * fx;
+        let south = sw + (se - sw) * fx;
+        (north + (south - north) * fz) // * scale_x.max(scale_z).ceil(),
+    }
 }
 
 /// Map grid dimensions in world units, derived once from the GND header.
@@ -85,6 +233,14 @@ pub(crate) fn spawn_map_meshes(
 
         let gnd = &map.gnd;
         let scale = gnd.scale;
+
+        commands.entity(root_entity).insert(NavMesh {
+            terrain_width: gnd.width as f32 * scale,
+            terrain_height: gnd.height as f32 * scale,
+            nav_width: map.gat.width,
+            nav_height: map.gat.height,
+            tiles: map.gat.tiles.clone(),
+        });
 
         // Half-extents used for the centering Transform applied to the root entity below,
         // and for converting model instance positions from BrowEdit3 world space.
@@ -227,6 +383,10 @@ pub(crate) fn spawn_map_meshes(
                     MeshMaterial3d(material),
                     Transform::default(),
                     RoMapMesh,
+                    Pickable {
+                        should_block_lower: false,
+                        is_hoverable: true,
+                    },
                 ))
                 .id();
             children.push(child);
@@ -547,21 +707,21 @@ fn build_model_children(
 
     let non_empty = groups.iter().filter(|(p, _, _, _)| !p.is_empty()).count();
     let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
-    info!(
-        "[RoModel] spawning '{}' — {} mesh(es), {} tex group(s), {} total verts, bb {:?}..{:?}, rsw_pos {:?}, rsw_scale {:?}, translation {:?}, rotation {:?}, real_bbrange [{:.2},{:.2}]",
-        inst.model_file,
-        rsm.meshes.len(),
-        non_empty,
-        total_verts,
-        rsm.bbmin,
-        rsm.bbmax,
-        inst.pos,
-        inst.scale,
-        translation,
-        rotation,
-        real_bbrange_x,
-        real_bbrange_z
-    );
+    // info!(
+    //     "[RoModel] spawning '{}' — {} mesh(es), {} tex group(s), {} total verts, bb {:?}..{:?}, rsw_pos {:?}, rsw_scale {:?}, translation {:?}, rotation {:?}, real_bbrange [{:.2},{:.2}]",
+    //     inst.model_file,
+    //     rsm.meshes.len(),
+    //     non_empty,
+    //     total_verts,
+    //     rsm.bbmin,
+    //     rsm.bbmax,
+    //     inst.pos,
+    //     inst.scale,
+    //     translation,
+    //     rotation,
+    //     real_bbrange_x,
+    //     real_bbrange_z
+    // );
 
     let instance_root = commands
         .spawn(
@@ -589,15 +749,15 @@ fn build_model_children(
         mesh.insert_indices(Indices::U32(face_indices));
 
         let tex_name = rsm.textures.get(tex_idx).map(|s| s.as_str()).unwrap_or("");
-        info!(
-            "[RoModel]   tex group {} — {} verts, texture: {}",
-            tex_idx, vert_count, tex_name
-        );
+        // info!(
+        //     "[RoModel]   tex group {} — {} verts, texture: {}",
+        //     tex_idx, vert_count, tex_name
+        // );
 
         let texture: Handle<Image> = asset_server.load(tex_name.to_string());
         let material = materials.add(StandardMaterial {
             base_color_texture: Some(texture),
-            double_sided: true,
+            double_sided: false,
             cull_mode: None,
             ..default()
         });

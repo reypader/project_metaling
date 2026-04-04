@@ -1,20 +1,13 @@
 mod assets;
-mod heightmap;
 mod loader;
-mod navmap;
 mod render;
 
 pub use assets::RoMapAsset;
-pub use heightmap::height_at;
 pub use loader::RoMapLoader;
-pub use navmap::{is_walkable, terrain_at};
-pub use render::{RoMapMesh, RoMapRoot};
+pub use render::{NavMesh, RoMapMesh, RoMapRoot};
 
 pub mod prelude {
-    pub use crate::{
-        height_at, is_walkable, terrain_at, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot,
-        RoMapsPlugin,
-    };
+    pub use crate::{NavMesh, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
     pub use ro_files::TerrainType;
 }
 

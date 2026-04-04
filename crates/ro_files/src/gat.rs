@@ -82,11 +82,4 @@ impl GatFile {
             .with_context(|| format!("GAT v{major}.{minor} (implementation covers v1.2-v1.3)"))
     }
 
-    pub fn tile(&self, col: u32, row: u32) -> Option<&GatTile> {
-        if col < self.width && row < self.height {
-            self.tiles.get((row * self.width + col) as usize)
-        } else {
-            None
-        }
-    }
 }

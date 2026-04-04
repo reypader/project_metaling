@@ -1,10 +1,12 @@
 mod camera_orbit;
+mod map_interaction;
 
 use crate::camera_orbit::{OrbitCamera, OrbitCameraPlugin};
+use crate::map_interaction::{MapInteractionPlugin, MapMarker};
 use bevy::color::palettes::css::OLD_LACE;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
-use bevy_ro_maps::{RoMapRoot, RoMapsPlugin};
+use bevy_ro_maps::{NavMesh, RoMapRoot, RoMapsPlugin};
 use bevy_ro_sprites::prelude::*;
 use std::f32::consts::PI;
 use std::ops::DerefMut;
@@ -16,9 +18,12 @@ fn main() {
             ..default()
         }))
         .add_plugins(OrbitCameraPlugin)
+        // .add_plugins(DefaultPickingPlugins)
         .add_systems(Startup, setup)
         .add_plugins(RoSpritePlugin)
         .add_plugins(RoMapsPlugin)
+        .add_plugins(MeshPickingPlugin)
+        .add_plugins(MapInteractionPlugin)
         .add_systems(PostStartup, attach_composite)
         .add_systems(Update, (select_action, update_composite_tag, move_player))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
@@ -31,14 +36,32 @@ fn main() {
         .run();
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
     commands.spawn((
         RoMapRoot {
-            asset: asset_server.load("maps/prontera/prontera.gnd"),
+            asset: asset_server.load("maps/prt_fild08/prt_fild08.gnd"),
+            // asset: asset_server.load("maps/payon/payon.gnd"),
+            // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
+            // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
             spawned: false,
         },
         Transform::default(),
         Visibility::default(),
+    ));
+
+    commands.spawn((
+        MapMarker,
+        Mesh3d(meshes.add(Cylinder::new(5.0, 2.0))),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color: Color::srgb(1.0, 0.1, 0.1),
+            ..default()
+        })),
+        Transform::from_xyz(0.0, -100.0, 0.0),
     ));
 
     // Actor — body.spr + head 17.spr, composited in one quad
@@ -102,7 +125,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             maximum_distance: 10.0,
             ..default()
         }
-            .build(),
+        .build(),
     ));
 
     // ambient light
@@ -167,33 +190,37 @@ fn move_player(
     mut orbit_cam: ResMut<OrbitCamera>,
     time: Res<Time>,
     mut q: Single<(&mut Transform, &mut ActorState, &mut ActorDirection), With<PlayerControl>>,
+    navmesh: Single<&NavMesh>,
 ) {
-    let mut transform = Vec3::ZERO;
+    let speed = 100.0 * time.delta_secs();
+    let mut z = 0.0;
     if keys.pressed(KeyCode::KeyW) {
-        transform.z -= 1.0;
+        z -= 1.0;
     }
     if keys.pressed(KeyCode::KeyS) {
-        transform.z += 1.0;
+        z += 1.0;
     }
+
+    let mut x = 0.0;
     if keys.pressed(KeyCode::KeyA) {
-        transform.x -= 1.0;
+        x -= 1.0;
     }
     if keys.pressed(KeyCode::KeyD) {
-        transform.x += 1.0;
-    }
-    if keys.pressed(KeyCode::ArrowUp) {
-        transform.y += 1.0;
-    }
-    if keys.pressed(KeyCode::ArrowDown) {
-        transform.y -= 1.0;
+        x += 1.0;
     }
     let (tf, state, direction) = q.deref_mut();
 
-    if transform != Vec3::ZERO {
-        tf.translation += transform * 1000.0 * time.delta_secs();
+    let d = Vec2::new(x,z);
+    let x = tf.translation.x + x*speed;
+    let z = tf.translation.z + z*speed;
+    let y = navmesh.height_at(x, z);
+
+    let transform = Vec3::new(x, y, z);
+    if d != Vec2::ZERO {
+        tf.translation = transform;
         orbit_cam.focus = tf.translation;
         state.action = Action::Walk;
-        direction.0 = transform.xz();
+        direction.0 = d;
     } else {
         state.action = Action::Idle;
     }
