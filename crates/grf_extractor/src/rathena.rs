@@ -1,6 +1,6 @@
+use encoding_rs::EUC_KR;
 use std::collections::HashMap;
 use std::path::Path;
-use encoding_rs::EUC_KR;
 
 /// Parse `idnum2itemresnametable.txt` (CP949, extracted from GRF as raw bytes).
 /// Format per line: `ID#KoreanResName#` or `ID#KoreanResName#AltName#`
@@ -52,13 +52,14 @@ pub fn parse_rathena_item_db(path: &Path) -> HashMap<u32, String> {
             let id_str = rest.split('#').next().unwrap_or("").trim();
             current_id = id_str.parse::<u32>().ok();
         } else if let Some(rest) = s.strip_prefix("AegisName:")
-            && let Some(id) = current_id {
-                let aegis = rest.trim().trim_matches('"').to_string();
-                if !aegis.is_empty() {
-                    map.insert(id, aegis);
-                }
-                current_id = None; // only capture the first AegisName per entry
+            && let Some(id) = current_id
+        {
+            let aegis = rest.trim().trim_matches('"').to_string();
+            if !aegis.is_empty() {
+                map.insert(id, aegis);
             }
+            current_id = None; // only capture the first AegisName per entry
+        }
     }
 
     map

@@ -42,30 +42,30 @@ impl ImfFile {
         let version = read_f32(&mut cursor)?;
 
         (|| -> anyhow::Result<ImfFile> {
-        let _checksum = read_i32(&mut cursor)?;
-        let max_layer = read_u32(&mut cursor)? as usize;
+            let _checksum = read_i32(&mut cursor)?;
+            let max_layer = read_u32(&mut cursor)? as usize;
 
-        let mut layers = Vec::with_capacity(max_layer + 1);
-        for _ in 0..=max_layer {
-            let num_actions = read_u32(&mut cursor)? as usize;
-            let mut actions = Vec::with_capacity(num_actions);
-            for _ in 0..num_actions {
-                let num_frames = read_u32(&mut cursor)? as usize;
-                let mut frames = Vec::with_capacity(num_frames);
-                for _ in 0..num_frames {
-                    let priority = read_i32(&mut cursor)?;
-                    let _cx = read_i32(&mut cursor)?;
-                    let _cy = read_i32(&mut cursor)?;
-                    frames.push(priority);
+            let mut layers = Vec::with_capacity(max_layer + 1);
+            for _ in 0..=max_layer {
+                let num_actions = read_u32(&mut cursor)? as usize;
+                let mut actions = Vec::with_capacity(num_actions);
+                for _ in 0..num_actions {
+                    let num_frames = read_u32(&mut cursor)? as usize;
+                    let mut frames = Vec::with_capacity(num_frames);
+                    for _ in 0..num_frames {
+                        let priority = read_i32(&mut cursor)?;
+                        let _cx = read_i32(&mut cursor)?;
+                        let _cy = read_i32(&mut cursor)?;
+                        frames.push(priority);
+                    }
+                    actions.push(frames);
                 }
-                actions.push(frames);
+                layers.push(actions);
             }
-            layers.push(actions);
-        }
 
-        Ok(ImfFile { version, layers })
+            Ok(ImfFile { version, layers })
         })()
-        .with_context(|| format!("IMF v{version}"))
+            .with_context(|| format!("IMF v{version}"))
     }
 
     /// Returns the priority for the given layer/action/frame, or `None` if out of bounds.

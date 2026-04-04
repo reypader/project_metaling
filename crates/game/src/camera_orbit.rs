@@ -10,7 +10,6 @@ use bevy::math::Vec3;
 use bevy::prelude::{
     EulerRot, KeyCode, MouseButton, Quat, Res, ResMut, Resource, Single, Time, Transform, With,
 };
-use std::f32::consts::{FRAC_1_PI, FRAC_PI_3};
 
 pub struct OrbitCameraPlugin;
 impl Plugin for OrbitCameraPlugin {
@@ -58,7 +57,7 @@ fn camera_orbit(
 
     let (yaw, pitch, roll) = camera.rotation.to_euler(EulerRot::YXZ);
 
-    let pitch = (pitch + delta_pitch);//.clamp(-FRAC_PI_3, -FRAC_1_PI);
+    let pitch = pitch + delta_pitch; //.clamp(-FRAC_PI_3, -FRAC_1_PI);
     let yaw = yaw + delta_yaw;
     camera.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
 

@@ -70,12 +70,12 @@ When `--rathena-db` is provided, three additional things happen automatically:
 The `--rathena-db` path should point to the rAthena `db/` directory, which
 contains subdirectories `re/` and `pre-re/`. The following files are read:
 
-| File | Purpose |
-|---|---|
-| `re/item_db_equip.yml` | Equipment items (armor, weapons, garments, headgear) |
-| `re/item_db_usable.yml` | Usable/consumable items |
-| `re/item_db_etc.yml` | Miscellaneous items |
-| `pre-re/item_db_equip.yml` | Pre-renewal equipment (fallback) |
+| File                       | Purpose                                              |
+|----------------------------|------------------------------------------------------|
+| `re/item_db_equip.yml`     | Equipment items (armor, weapons, garments, headgear) |
+| `re/item_db_usable.yml`    | Usable/consumable items                              |
+| `re/item_db_etc.yml`       | Miscellaneous items                                  |
+| `pre-re/item_db_equip.yml` | Pre-renewal equipment (fallback)                     |
 
 rAthena source: https://github.com/rathena/rathena
 
@@ -104,11 +104,11 @@ Bundles are defined in `bundles.toml` next to the binary. Each bundle matches
 GRF entries by path prefix, file extension, or both (union). Two bundles ship
 by default:
 
-| Bundle | Matches |
-|--------|---------|
+| Bundle   | Matches                                                                                     |
+|----------|---------------------------------------------------------------------------------------------|
 | `sprite` | `data/sprite/`, `data/imf/`, and `data/palette/` (sprites, IMF anchors, body/head palettes) |
-| `map` | `data/texture/`, `data/model/` prefixes and `.gat`, `.gnd`, `.rsw` extensions |
-| `sound` | `data/wav/` (skill, monster, and environmental sound effects; BGM is not in the GRF) |
+| `map`    | `data/texture/`, `data/model/` prefixes and `.gat`, `.gnd`, `.rsw` extensions               |
+| `sound`  | `data/wav/` (skill, monster, and environmental sound effects; BGM is not in the GRF)        |
 
 Omitting `--extract` extracts everything (the default).
 

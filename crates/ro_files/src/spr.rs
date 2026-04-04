@@ -127,13 +127,13 @@ impl SprFile {
                 rgba_images,
             })
         })()
-        .with_context(|| {
-            format!(
-                "SPR v{}.{} (implementation covers v1.0-v2.1)",
-                version >> 8,
-                version & 0xFF
-            )
-        })
+            .with_context(|| {
+                format!(
+                    "SPR v{}.{} (implementation covers v1.0-v2.1)",
+                    version >> 8,
+                    version & 0xFF
+                )
+            })
     }
 
     pub fn get_image(&self, spr_id: i32, spr_type: i32) -> Option<&RawImage> {

@@ -78,8 +78,12 @@ fn build_shuffle_table() -> [u8; 256] {
         *v = i as u8;
     }
     let swaps: [(u8, u8); 7] = [
-        (0x00, 0x2b), (0x6c, 0x80), (0x01, 0x68),
-        (0x48, 0x77), (0x60, 0xff), (0xb9, 0xc0),
+        (0x00, 0x2b),
+        (0x6c, 0x80),
+        (0x01, 0x68),
+        (0x48, 0x77),
+        (0x60, 0xff),
+        (0xb9, 0xc0),
         (0xfe, 0xeb),
     ];
     for (a, b) in swaps {
@@ -134,8 +138,7 @@ fn expansion(b: &mut [u8; 8]) {
 fn substitution_box(b: &mut [u8; 8]) {
     let mut tmp = [0u8; 8];
     for i in 0..4 {
-        tmp[i] = (SBOX[i][b[i * 2] as usize] & 0xf0)
-            | (SBOX[i][b[i * 2 + 1] as usize] & 0x0f);
+        tmp[i] = (SBOX[i][b[i * 2] as usize] & 0xf0) | (SBOX[i][b[i * 2 + 1] as usize] & 0x0f);
     }
     *b = tmp;
 }
@@ -170,8 +173,14 @@ fn decrypt_block(b: &mut [u8; 8]) {
 
 fn shuffle_dec(b: &mut [u8; 8], table: &[u8; 256]) {
     let tmp = [
-        b[3], b[4], b[6], b[0],
-        b[1], b[2], b[5], table[b[7] as usize],
+        b[3],
+        b[4],
+        b[6],
+        b[0],
+        b[1],
+        b[2],
+        b[5],
+        table[b[7] as usize],
     ];
     *b = tmp;
 }

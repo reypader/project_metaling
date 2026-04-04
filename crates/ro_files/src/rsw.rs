@@ -223,7 +223,7 @@ impl RswFile {
                 objects,
             })
         })()
-        .with_context(|| format!("RSW v{major}.{minor} (implementation covers v1.9-v2.6)"))
+            .with_context(|| format!("RSW v{major}.{minor} (implementation covers v1.9-v2.6)"))
     }
 }
 

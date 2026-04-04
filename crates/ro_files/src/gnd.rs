@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
-use std::io::{Cursor, Read, Seek, SeekFrom};
 use std::collections::{BTreeSet, HashMap};
+use std::io::{Cursor, Read, Seek, SeekFrom};
 
 use crate::translate::translate_cp949_path;
 use crate::util::{check_magic, rf32, ri16, ri32, ru8};
@@ -211,7 +211,7 @@ impl GndFile {
                 water,
             })
         })()
-        .with_context(|| format!("GND v{major}.{minor} (implementation covers v1.7-v1.9)"))
+            .with_context(|| format!("GND v{major}.{minor} (implementation covers v1.7-v1.9)"))
     }
 
     pub fn cube(&self, col: i32, row: i32) -> Option<&GndCube> {
@@ -222,8 +222,6 @@ impl GndFile {
         }
     }
 }
-
-
 
 /// Translate texture paths in a GND file's binary content.
 ///

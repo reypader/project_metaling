@@ -12,14 +12,14 @@ pub mod zorder;
 pub use act::{ActAction, ActFile, ActFrame, ActSprite, AttachPoint};
 pub use composite::{compute_bounds, render_frame, render_frame_tight, PixelBuffer};
 pub use imf::ImfFile;
+pub use rsm::{RsmFace, RsmFile, RsmFrame, RsmMesh, ShadeType};
 pub use spr::{Color, RawImage, SprFile};
 pub use zorder::{z_order, SpriteKind};
-pub use rsm::{RsmFace, RsmFile, RsmFrame, RsmMesh, ShadeType};
 pub mod gat;
 pub mod gnd;
 pub mod rsw;
 pub mod translate;
-pub use translate::{TranslationsFile};
+pub use translate::TranslationsFile;
 
 pub use gat::{GatFile, GatTile, TerrainType};
 pub use gnd::{GndCube, GndFile, GndLightmapSlice, GndSurface, GndWaterPlane};

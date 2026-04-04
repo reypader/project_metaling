@@ -5,9 +5,9 @@ mod scan;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 use ro_files::act::ActFile;
 use ro_files::SprFile;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "idavoll-resource-asset_importer")]
@@ -22,10 +22,11 @@ enum Command {
     /// Batch copy sprites from a manifest TOML into the structured output layout
     Batch {
         /// Path to the manifest TOML file
+        #[arg(short, long, default_value = "target/manifest.toml")]
         manifest: PathBuf,
 
         /// Override the output directory from the manifest
-        #[arg(short, long)]
+        #[arg(short, long, default_value = "target/assets")]
         output: Option<PathBuf>,
 
         /// Sprite types to process (comma-separated).
@@ -37,25 +38,30 @@ enum Command {
         /// Path to translations.toml for Korean path segment translation (map type only).
         /// When provided, GND texture paths and RSW model paths are translated and the
         /// texture/ and model/ directories are copied with translated names.
-        #[arg(long, value_name = "PATH", default_value="config/translations.toml")]
+        #[arg(long, value_name = "PATH", default_value = "config/translations.toml")]
         translations: Option<PathBuf>,
     },
 
     /// Scan a GRF extraction and generate a manifest TOML file
     Scan {
         /// GRF data root directory (the "data" folder inside the GRF extraction)
+        #[arg(long, value_name = "DATA_ROOT", default_value = "target/tmp/data")]
         data_root: PathBuf,
 
         /// Path to headgear_slots.toml (required when scanning headgear)
-        #[arg(long, value_name = "PATH")]
+        #[arg(
+            long,
+            value_name = "PATH",
+            default_value = "config/headgear_slots.toml"
+        )]
         slots: Option<PathBuf>,
 
         /// Path to weapon_types.toml (required when scanning weapons)
-        #[arg(long, value_name = "PATH")]
+        #[arg(long, value_name = "PATH", default_value = "config/weapon_types.toml")]
         weapon_types: Option<PathBuf>,
 
         /// Output manifest file path
-        #[arg(short, long, default_value = "output/manifest.toml")]
+        #[arg(short, long, default_value = "target/manifest.toml")]
         output: PathBuf,
 
         /// Sprite types to include (comma-separated).
@@ -88,17 +94,44 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     match args.command {
-        Command::Batch { manifest, output, types, translations } => {
+        Command::Batch {
+            manifest,
+            output,
+            types,
+            translations,
+        } => {
             let types = parse_types(types.as_deref())?;
-            batch::batch(&manifest, output.as_deref(), types.as_deref(), translations.as_deref())?;
+            batch::batch(
+                &manifest,
+                output.as_deref(),
+                types.as_deref(),
+                translations.as_deref(),
+            )?;
         }
 
-        Command::Scan { data_root, slots, weapon_types, output, types } => {
+        Command::Scan {
+            data_root,
+            slots,
+            weapon_types,
+            output,
+            types,
+        } => {
             let types = parse_types(types.as_deref())?;
-            scan::scan(&data_root, slots.as_deref(), weapon_types.as_deref(), &output, types.as_deref())?;
+            scan::scan(
+                &data_root,
+                slots.as_deref(),
+                weapon_types.as_deref(),
+                &output,
+                types.as_deref(),
+            )?;
         }
 
-        Command::Dump { act, spr, actions, scan } => {
+        Command::Dump {
+            act,
+            spr,
+            actions,
+            scan,
+        } => {
             let act_data = std::fs::read(&act)?;
             let act = ActFile::parse(&act_data)?;
 
@@ -110,11 +143,9 @@ fn main() -> Result<()> {
                 None => None,
             };
 
-            let action_filter: Option<Vec<usize>> = actions.as_deref().map(|s| {
-                s.split(',')
-                    .filter_map(|n| n.trim().parse().ok())
-                    .collect()
-            });
+            let action_filter: Option<Vec<usize>> = actions
+                .as_deref()
+                .map(|s| s.split(',').filter_map(|n| n.trim().parse().ok()).collect());
 
             if scan {
                 dump::scan(&act);
@@ -128,7 +159,15 @@ fn main() -> Result<()> {
 }
 
 const VALID_TYPES: &[&str] = &[
-    "body", "head", "headgear", "garment", "weapon", "shield", "shadow", "projectile", "map",
+    "body",
+    "head",
+    "headgear",
+    "garment",
+    "weapon",
+    "shield",
+    "shadow",
+    "projectile",
+    "map",
     "sound",
 ];
 

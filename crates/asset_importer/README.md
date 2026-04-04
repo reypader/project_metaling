@@ -120,6 +120,7 @@ Directory names under `sprite/` are bundle boundaries. Everything under
 bundle for all heads and headgears of that gender.
 
 When `--translations` is provided:
+
 - GND files are rewritten so texture paths use translated names (e.g.
   `texture/유저인터페이스/map/prontera.bmp` becomes `texture/user_interface/map/prontera.bmp`).
 - RSW files are rewritten so model paths use translated names with a `model/` prefix.

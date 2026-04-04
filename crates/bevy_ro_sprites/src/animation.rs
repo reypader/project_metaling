@@ -89,7 +89,7 @@ impl<M: Material + RenderAnimation> RenderAnimation for MeshMaterial3d<M> {
     }
 }
 
-pub fn render_animation<T: RenderAnimation + Component<Mutability = Mutable>>(
+pub fn render_animation<T: RenderAnimation + Component<Mutability=Mutable>>(
     mut animations: Query<(&RoAnimation, &mut T, &RoAnimationState)>,
     atlases: Res<Assets<RoAtlas>>,
     mut extra: <T as RenderAnimation>::Extra<'_>,
@@ -187,9 +187,7 @@ pub fn update_ro_animation(
             let next = state.current_frame + 1;
             let new_frame = if next > *range.end() {
                 match animation.animation.repeat {
-                    AnimationRepeat::Loop => {
-                        *range.start()
-                    }
+                    AnimationRepeat::Loop => *range.start(),
                     AnimationRepeat::Count(ref mut n) if *n > 0 => {
                         *n -= 1;
                         *range.start()

@@ -1,8 +1,8 @@
+use crate::manifest::Manifest;
 use anyhow::{Context, Result};
+use ro_files::{gnd, rsm, rsw, translate};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use ro_files::{gnd, rsm, rsw, translate};
-use crate::manifest::Manifest;
 
 pub fn batch(
     manifest_path: &Path,
@@ -129,7 +129,11 @@ pub fn batch(
             let act_path = data_root.join(&entry.act);
             let export_name = entry.slot.as_str();
             let out_dir = if let Some(merc_type) = entry.job.strip_suffix("_mercenary") {
-                sprite_root.join("mercenary").join("body").join(merc_type).join("weapon")
+                sprite_root
+                    .join("mercenary")
+                    .join("body")
+                    .join(merc_type)
+                    .join("weapon")
             } else {
                 sprite_root
                     .join(format!("human_{}_{}", entry.gender, entry.job))
@@ -192,7 +196,12 @@ pub fn batch(
             let act_path = data_root.join(&entry.act);
             let out_dir = sprite_root.join("projectile");
             if let Some(reason) = missing(&spr_path, &act_path) {
-                log_skip(&mut skip_log, "projectile", &toml::to_string(entry)?, &reason);
+                log_skip(
+                    &mut skip_log,
+                    "projectile",
+                    &toml::to_string(entry)?,
+                    &reason,
+                );
                 skipped += 1;
                 continue;
             }
@@ -279,12 +288,18 @@ pub fn batch(
 
     if !miss_log.is_empty() {
         let miss_path = out_root.join("translation_misses.toml");
-        let mut content = String::from("# Translation misses — add entries to translations.toml [known] and re-run\n[known]\n");
+        let mut content = String::from(
+            "# Translation misses — add entries to translations.toml [known] and re-run\n[known]\n",
+        );
         for term in &miss_log {
             content.push_str(&format!("{term:?} = \"\"\n"));
         }
         std::fs::write(&miss_path, &content)?;
-        println!("Translation misses ({}): {}", miss_log.len(), miss_path.display());
+        println!(
+            "Translation misses ({}): {}",
+            miss_log.len(),
+            miss_path.display()
+        );
     }
 
     Ok(())
@@ -415,8 +430,7 @@ fn bmp_to_png_name(name: &str) -> String {
 }
 
 fn convert_bmp_to_png(src: &Path, dst: &Path) -> Result<()> {
-    let img = image::open(src)
-        .with_context(|| format!("opening BMP {}", src.display()))?;
+    let img = image::open(src).with_context(|| format!("opening BMP {}", src.display()))?;
 
     // 2. Convert to RGBA8 (gives us the alpha channel)
     let mut rgba_img = img.to_rgba8();
@@ -427,14 +441,16 @@ fn convert_bmp_to_png(src: &Path, dst: &Path) -> Result<()> {
     // 3. Iterate over pixels and set alpha to 0 for the target color
     for pixel in rgba_img.pixels_mut() {
         // pixel.0 is the [r, g, b, a] array
-        if pixel.0[0] == target_color[0] &&
-            pixel.0[1] == target_color[1] &&
-            pixel.0[2] == target_color[2] {
+        if pixel.0[0] == target_color[0]
+            && pixel.0[1] == target_color[1]
+            && pixel.0[2] == target_color[2]
+        {
             pixel.0[3] = 0; // Set alpha to transparent
         }
     }
 
-    rgba_img.save(dst)
+    rgba_img
+        .save(dst)
         .with_context(|| format!("saving PNG {}", dst.display()))?;
     Ok(())
 }

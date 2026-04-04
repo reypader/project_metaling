@@ -8,11 +8,11 @@ use bevy::{
     render::{
         render_asset::RenderAssets,
         render_resource::{
-            binding_types::{sampler, storage_buffer_read_only_sized, texture_2d},
-            AsBindGroup, AsBindGroupError, BindGroupEntry, BindGroupLayout,
-            BindGroupLayoutDescriptor, BindGroupLayoutEntries, BindGroupLayoutEntry,
-            BindingResource, BindingResources, BufferInitDescriptor, BufferUsages, PipelineCache,
-            PreparedBindGroup, SamplerBindingType, ShaderStages, TextureSampleType,
+            binding_types::{sampler, storage_buffer_read_only_sized, texture_2d}, AsBindGroup, AsBindGroupError, BindGroupEntry,
+            BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntries,
+            BindGroupLayoutEntry, BindingResource, BindingResources, BufferInitDescriptor, BufferUsages,
+            PipelineCache, PreparedBindGroup, SamplerBindingType, ShaderStages,
+            TextureSampleType,
             UnpreparedBindGroup,
         },
         renderer::RenderDevice,
@@ -182,7 +182,7 @@ impl AsBindGroup for RoCompositeMaterial {
                 ),
             ),
         )
-        .to_vec()
+            .to_vec()
     }
 
     fn bind_group_data(&self) -> Self::Data {}
@@ -217,9 +217,13 @@ pub enum SpriteRole {
     Body,
     Head,
     /// `slot` 0–3 maps to upper/middle/lower/extra headgear slots.
-    Headgear { slot: u8 },
+    Headgear {
+        slot: u8,
+    },
     /// `slot` 0 = main weapon, `slot` 1 = slash/glow overlay.
-    Weapon { slot: u8 },
+    Weapon {
+        slot: u8,
+    },
     Shield,
     /// Garment z-order is per-item/action/frame in Lua tables; 35 is the always-on-top fallback.
     Garment,
@@ -231,11 +235,17 @@ impl SpriteRole {
     pub fn z_order(self, top_left: bool, head_behind: bool) -> i32 {
         match self {
             SpriteRole::Shadow => -1,
-            SpriteRole::Body => if top_left { 15 } else { 10 },
+            SpriteRole::Body => {
+                if top_left {
+                    15
+                } else {
+                    10
+                }
+            }
             SpriteRole::Head => match (top_left, head_behind) {
-                (true,  true)  => 14,
-                (true,  false) => 20,
-                (false, true)  =>  9,
+                (true, true) => 14,
+                (true, false) => 20,
+                (false, true) => 9,
                 (false, false) => 15,
             },
             SpriteRole::Headgear { slot } => {
@@ -246,7 +256,13 @@ impl SpriteRole {
                 let base = if top_left { 28 } else { 23 };
                 base + slot as i32
             }
-            SpriteRole::Shield => if top_left { 10 } else { 30 },
+            SpriteRole::Shield => {
+                if top_left {
+                    10
+                } else {
+                    30
+                }
+            }
             SpriteRole::Garment => 35,
         }
     }
@@ -365,28 +381,28 @@ pub fn update_ro_composite(
         if composite.playing {
             let speed = composite.speed.max(0.0);
             composite.elapsed += Duration::from_secs_f32(time.delta_secs() * speed);
-            if let Some(dur) = frame_dur {
-                if composite.elapsed >= dur {
-                    composite.elapsed = Duration::ZERO;
-                    let next = composite.current_frame + 1;
-                    let new_frame = if next > *tag_range.end() {
-                        *tag_range.start()
-                    } else {
-                        next
-                    };
-                    composite.current_frame = new_frame;
+            if let Some(dur) = frame_dur
+                && composite.elapsed >= dur
+            {
+                composite.elapsed = Duration::ZERO;
+                let next = composite.current_frame + 1;
+                let new_frame = if next > *tag_range.end() {
+                    *tag_range.start()
+                } else {
+                    next
+                };
+                composite.current_frame = new_frame;
 
-                    // Emit ACT frame events from the body atlas (the animation driver).
-                    let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
-                    if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h)) {
-                        if let Some(Some(event)) = atlas.frame_events.get(new_frame as usize) {
-                            commands.trigger(SpriteFrameEvent {
-                                entity,
-                                event: event.clone(),
-                                tag: composite.tag.clone(),
-                            });
-                        }
-                    }
+                // Emit ACT frame events from the body atlas (the animation driver).
+                let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
+                if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h))
+                    && let Some(Some(event)) = atlas.frame_events.get(new_frame as usize)
+                {
+                    commands.trigger(SpriteFrameEvent {
+                        entity,
+                        event: event.clone(),
+                        tag: composite.tag.clone(),
+                    });
                 }
             }
         }
@@ -410,7 +426,11 @@ pub fn update_ro_composite(
 
         // Direction from the current tag suffix ("idle_nw" → top_left = true).
         // Drives the z-order table: topLeft (W/NW/N/NE) vs bottomRight (S/SW/E/SE).
-        let is_top_left = composite.tag.as_deref().map(tag_is_top_left).unwrap_or(false);
+        let is_top_left = composite
+            .tag
+            .as_deref()
+            .map(tag_is_top_left)
+            .unwrap_or(false);
 
         // Anchor attach point and IMF head-behind flag both come from the body atlas.
         let body_atlas = atlases.get(&composite.layers[body_idx].atlas);
@@ -451,9 +471,7 @@ pub fn update_ro_composite(
             let mapped_frame = tag_name
                 .as_deref()
                 .and_then(|t| atlas.tags.get(t))
-                .map(|m| {
-                    (*m.range.start() + rel_frame).min(*m.range.end()) as usize
-                })
+                .map(|m| (*m.range.start() + rel_frame).min(*m.range.end()) as usize)
                 .unwrap_or(frame);
 
             let atlas_idx = atlas.get_atlas_index(mapped_frame);
@@ -578,7 +596,7 @@ fn tag_is_top_left(tag: &str) -> bool {
 /// `action` is the animation name (e.g. `"idle"`, `"walk"`) and `dir` is the
 /// 0-7 direction index from [`direction_index`].
 pub fn composite_tag(action: &str, dir: u8) -> String {
-    const DIRS: &[&str] = &[ "e", "se","s", "sw", "w", "nw", "n", "ne"];
+    const DIRS: &[&str] = &["e", "se", "s", "sw", "w", "nw", "n", "ne"];
     format!("{}_{}", action, DIRS[dir as usize % 8])
 }
 

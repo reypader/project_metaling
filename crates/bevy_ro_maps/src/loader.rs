@@ -22,7 +22,8 @@ impl AssetLoader for RoMapLoader {
         // Read the primary .gnd file
         let mut gnd_bytes = Vec::new();
         reader.read_to_end(&mut gnd_bytes).await?;
-        let gnd = GndFile::parse(&gnd_bytes).inspect_err(|e| error!("{e:#}"))
+        let gnd = GndFile::parse(&gnd_bytes)
+            .inspect_err(|e| error!("{e:#}"))
             .with_context(|| format!("parsing {}", load_context.path()))?;
 
         // Co-load .gat and .rsw from the same base path
@@ -50,4 +51,3 @@ impl AssetLoader for RoMapLoader {
         &["gnd"]
     }
 }
-

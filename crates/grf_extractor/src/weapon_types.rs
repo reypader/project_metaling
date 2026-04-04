@@ -128,7 +128,14 @@ pub fn build_weapon_types(weapon_map: BTreeMap<String, Vec<u32>>) -> Vec<WeaponT
             continue;
         };
         item_ids.sort_unstable();
-        by_id.insert(type_id, WeaponTypeEntry { id: type_id, name: name.to_string(), items: item_ids });
+        by_id.insert(
+            type_id,
+            WeaponTypeEntry {
+                id: type_id,
+                name: name.to_string(),
+                items: item_ids,
+            },
+        );
     }
 
     by_id.into_values().collect()
@@ -136,7 +143,9 @@ pub fn build_weapon_types(weapon_map: BTreeMap<String, Vec<u32>>) -> Vec<WeaponT
 
 /// Serialize and write the weapon types file.
 pub fn write_weapon_types(entries: Vec<WeaponTypeEntry>, path: &Path) -> Result<()> {
-    let file = WeaponTypesFile { weapon_type: entries };
+    let file = WeaponTypesFile {
+        weapon_type: entries,
+    };
     let text = toml::to_string_pretty(&file)?;
     std::fs::write(path, text)?;
     Ok(())

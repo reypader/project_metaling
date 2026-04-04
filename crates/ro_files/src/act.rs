@@ -176,13 +176,13 @@ impl ActFile {
                 events,
             })
         })()
-        .with_context(|| {
-            format!(
-                "ACT v{}.{} (implementation covers v1.0-v2.5)",
-                version >> 8,
-                version & 0xFF
-            )
-        })
+            .with_context(|| {
+                format!(
+                    "ACT v{}.{} (implementation covers v1.0-v2.5)",
+                    version >> 8,
+                    version & 0xFF
+                )
+            })
     }
 }
 

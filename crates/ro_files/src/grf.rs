@@ -55,7 +55,9 @@ impl<R: Read + Seek> Grf<R> {
     pub fn open(mut reader: R) -> Result<Self> {
         // --- Read header (46 bytes) ---
         let mut sig = [0u8; 15];
-        reader.read_exact(&mut sig).context("reading GRF signature")?;
+        reader
+            .read_exact(&mut sig)
+            .context("reading GRF signature")?;
         if sig != SIGNATURE[..15] {
             bail!("not a GRF file: bad signature");
         }
@@ -76,13 +78,17 @@ impl<R: Read + Seek> Grf<R> {
 
         // --- Read file table ---
         let table_abs = HEADER_SIZE + table_offset as u64;
-        reader.seek(SeekFrom::Start(table_abs)).context("seeking to file table")?;
+        reader
+            .seek(SeekFrom::Start(table_abs))
+            .context("seeking to file table")?;
 
         let pack_size = read_u32_le(&mut reader)? as usize;
         let real_size = read_u32_le(&mut reader)? as usize;
 
         let mut compressed = vec![0u8; pack_size];
-        reader.read_exact(&mut compressed).context("reading compressed file table")?;
+        reader
+            .read_exact(&mut compressed)
+            .context("reading compressed file table")?;
 
         let table_bytes = inflate(&compressed, real_size).context("decompressing file table")?;
 
@@ -105,7 +111,11 @@ impl<R: Read + Seek> Grf<R> {
 
         // Decrypt if needed.
         if entry.is_encrypted_mixed() {
-            decrypt::decode_full(&mut buf, entry.length_aligned as usize, entry.pack_size as usize);
+            decrypt::decode_full(
+                &mut buf,
+                entry.length_aligned as usize,
+                entry.pack_size as usize,
+            );
         } else if entry.is_encrypted_header() {
             decrypt::decode_header(&mut buf, entry.length_aligned as usize);
         }

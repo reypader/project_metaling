@@ -122,4 +122,3 @@ pub struct MapEntry {
     /// GAT path relative to data_root (collision/height data, self-contained).
     pub gat: String,
 }
-

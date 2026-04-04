@@ -127,16 +127,15 @@ impl AssetLoader for RoAtlasLoader {
                 // IMF priority(layer=1, action, frame) == 1 → head renders behind body.
                 frame_head_behind.push(
                     imf.as_ref()
-                        .and_then(|f| f.priority(1, action_idx, frame_idx)) == Some(1),
+                        .and_then(|f| f.priority(1, action_idx, frame_idx))
+                        == Some(1),
                 );
 
-                frame_events.push(
-                    if frame.event_id >= 0 {
-                        act.events.get(frame.event_id as usize).cloned()
-                    } else {
-                        None
-                    },
-                );
+                frame_events.push(if frame.event_id >= 0 {
+                    act.events.get(frame.event_id as usize).cloned()
+                } else {
+                    None
+                });
 
                 match render_frame_tight(&spr, frame, pad) {
                     Some((buf, origin_x, origin_y)) => {

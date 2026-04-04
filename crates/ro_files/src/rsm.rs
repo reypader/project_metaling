@@ -1,6 +1,6 @@
-use anyhow::{bail, anyhow, Context, Result};
-use std::io::Cursor;
+use anyhow::{anyhow, bail, Context, Result};
 use std::collections::{BTreeSet, HashMap};
+use std::io::Cursor;
 
 use crate::translate::{strip_data_prefix, translate_cp949_path};
 use crate::util::{
@@ -102,10 +102,10 @@ impl RsmFile {
         } else {
             parse_rsm1(&mut c, version)
         }
-        .with_context(|| {
-            let (major, minor) = (version >> 8, version & 0xff);
-            format!("RSM v{major}.{minor}")
-        })
+            .with_context(|| {
+                let (major, minor) = (version >> 8, version & 0xff);
+                format!("RSM v{major}.{minor}")
+            })
     }
 }
 
@@ -142,7 +142,10 @@ fn parse_rsm1(c: &mut Cursor<&[u8]>, version: u16) -> Result<RsmFile> {
     // Volume boxes — skip.
     let vol_count = ri32(c)?;
     if vol_count != 0 {
-        log::warn!("[RoModel] {} volume box(es) in RSM1 file; skipping", vol_count);
+        log::warn!(
+            "[RoModel] {} volume box(es) in RSM1 file; skipping",
+            vol_count
+        );
     }
 
     let (bbmin, bbmax, bbrange) = compute_bounding_box(&meshes);
@@ -150,7 +153,12 @@ fn parse_rsm1(c: &mut Cursor<&[u8]>, version: u16) -> Result<RsmFile> {
     let (major, minor) = (version >> 8, version & 0xff);
     log::info!(
         "[RoModel] RSM v{}.{} — {} mesh(es), {} texture(s), bb {:?}..{:?}",
-        major, minor, meshes.len(), textures.len(), bbmin, bbmax
+        major,
+        minor,
+        meshes.len(),
+        textures.len(),
+        bbmin,
+        bbmax
     );
 
     Ok(RsmFile {
@@ -213,7 +221,10 @@ fn parse_rsm1_mesh(c: &mut Cursor<&[u8]>, version: u16) -> Result<RsmMesh> {
         let y = rf32(c)?;
         let z = rf32(c)?;
         let w = rf32(c)?;
-        frames.push(RsmFrame { time, quaternion: [x, y, z, w] });
+        frames.push(RsmFrame {
+            time,
+            quaternion: [x, y, z, w],
+        });
     }
 
     Ok(RsmMesh {
@@ -240,7 +251,13 @@ fn parse_rsm1_face(c: &mut Cursor<&[u8]>) -> Result<RsmFace> {
     let _padding = ru16(c)?;
     let two_sided = ri32(c)? != 0;
     let smooth_group = ri32(c)?;
-    Ok(RsmFace { vertex_ids, texcoord_ids, texture_id, two_sided, smooth_group })
+    Ok(RsmFace {
+        vertex_ids,
+        texcoord_ids,
+        texture_id,
+        two_sided,
+        smooth_group,
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -276,7 +293,12 @@ fn parse_rsm2(c: &mut Cursor<&[u8]>, version: u16) -> Result<RsmFile> {
     let (major, minor) = (version >> 8, version & 0xff);
     log::info!(
         "[RoModel] RSM v{}.{} — {} mesh(es), {} texture(s), bb {:?}..{:?}",
-        major, minor, meshes.len(), textures.len(), bbmin, bbmax
+        major,
+        minor,
+        meshes.len(),
+        textures.len(),
+        bbmin,
+        bbmax
     );
 
     Ok(RsmFile {
@@ -347,7 +369,13 @@ fn parse_rsm2_mesh(c: &mut Cursor<&[u8]>, shared_textures: &mut Vec<String>) -> 
         if remaining > 0 {
             skip(c, remaining)?;
         }
-        faces.push(RsmFace { vertex_ids, texcoord_ids, texture_id, two_sided, smooth_group });
+        faces.push(RsmFace {
+            vertex_ids,
+            texcoord_ids,
+            texture_id,
+            two_sided,
+            smooth_group,
+        });
     }
 
     // Position keyframes — skip.
@@ -365,7 +393,10 @@ fn parse_rsm2_mesh(c: &mut Cursor<&[u8]>, shared_textures: &mut Vec<String>) -> 
         let y = rf32(c)?;
         let z = rf32(c)?;
         let w = rf32(c)?;
-        frames.push(RsmFrame { time, quaternion: [x, y, z, w] });
+        frames.push(RsmFrame {
+            time,
+            quaternion: [x, y, z, w],
+        });
     }
 
     // Unknown section 1: count × 20 bytes.
@@ -466,9 +497,6 @@ fn compute_bounding_box(meshes: &[RsmMesh]) -> ([f32; 3], [f32; 3], [f32; 3]) {
     (bbmin, bbmax, bbrange)
 }
 
-
-
-
 /// Translate texture filenames in an RSM file's texture array.
 ///
 /// RSM1 (version < 2.0): textures are stored as a top-level array of 40-byte fixed-width
@@ -512,9 +540,9 @@ pub fn rewrite_textures(
         bail!("RSM v{major}.{minor}: file too short to read texture count");
     }
 
-    let texture_count = i32::from_le_bytes(
-        data[texture_count_offset..texture_count_offset + 4].try_into()?
-    ) as usize;
+    let texture_count =
+        i32::from_le_bytes(data[texture_count_offset..texture_count_offset + 4].try_into()?)
+            as usize;
 
     let textures_start = texture_count_offset + 4;
     if data.len() < textures_start + texture_count * 40 {
@@ -546,7 +574,7 @@ fn ensure_texture_prefix(path: String) -> String {
     // let prefixed = if path.starts_with("texture/") || path.starts_with("texture\\") {
     //     path.to_string()
     // } else {
-    let prefixed =   format!("tex/{path}");
+    let prefixed = format!("tex/{path}");
     // };
     crate::translate::bmp_ext_to_png(&prefixed)
 }

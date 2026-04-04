@@ -80,7 +80,12 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
             if let (Some(id), Some(view), Some(slot), Some(aegis)) =
                 (current_id, current_view, current_slot, aegis)
             {
-                items.push(HeadgearItem { id, view, slot, aegis_name: aegis });
+                items.push(HeadgearItem {
+                    id,
+                    view,
+                    slot,
+                    aegis_name: aegis,
+                });
             }
             current_id = rest.split('#').next().unwrap_or("").trim().parse().ok();
             current_view = None;
@@ -127,14 +132,21 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
     if let (Some(id), Some(view), Some(slot), Some(aegis)) =
         (current_id, current_view, current_slot, aegis)
     {
-        items.push(HeadgearItem { id, view, slot, aegis_name: aegis });
+        items.push(HeadgearItem {
+            id,
+            view,
+            slot,
+            aegis_name: aegis,
+        });
     }
 
     // Group by view_id, filtering out view 0 (no sprite).
     let mut map: HashMap<u32, Vec<(u32, HeadSlot, String)>> = HashMap::new();
     for item in items {
         if item.view > 0 {
-            map.entry(item.view).or_default().push((item.id, item.slot, item.aegis_name));
+            map.entry(item.view)
+                .or_default()
+                .push((item.id, item.slot, item.aegis_name));
         }
     }
     map
@@ -182,7 +194,12 @@ pub fn build_headgear_slots(
 
         by_view.insert(
             view_id,
-            HeadgearSlotEntry { view: view_id, slot, accname, items: item_ids },
+            HeadgearSlotEntry {
+                view: view_id,
+                slot,
+                accname,
+                items: item_ids,
+            },
         );
     }
 

@@ -12,8 +12,8 @@ pub use render::{RoMapMesh, RoMapRoot};
 
 pub mod prelude {
     pub use crate::{
-        RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin, height_at, is_walkable,
-        terrain_at,
+        height_at, is_walkable, terrain_at, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot,
+        RoMapsPlugin,
     };
     pub use ro_files::TerrainType;
 }
@@ -28,6 +28,9 @@ impl Plugin for RoMapsPlugin {
         app.add_plugins(RsmPlugin);
         app.init_asset::<RoMapAsset>();
         app.register_asset_loader(RoMapLoader);
-        app.add_systems(Update, (render::spawn_map_meshes, render::spawn_model_meshes));
+        app.add_systems(
+            Update,
+            (render::spawn_map_meshes, render::spawn_model_meshes),
+        );
     }
 }

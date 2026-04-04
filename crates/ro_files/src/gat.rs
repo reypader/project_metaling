@@ -43,9 +43,7 @@ impl GatFile {
             let width = ru32(&mut c)?;
             let height = ru32(&mut c)?;
 
-            let count = (width as usize)
-                .checked_mul(height as usize)
-                .unwrap_or(0);
+            let count = (width as usize).checked_mul(height as usize).unwrap_or(0);
             let mut tiles = Vec::with_capacity(count);
 
             for _ in 0..count {
@@ -81,9 +79,7 @@ impl GatFile {
                 tiles,
             })
         })()
-        .with_context(|| {
-            format!("GAT v{major}.{minor} (implementation covers v1.2-v1.3)")
-        })
+            .with_context(|| format!("GAT v{major}.{minor} (implementation covers v1.2-v1.3)"))
     }
 
     pub fn tile(&self, col: u32, row: u32) -> Option<&GatTile> {

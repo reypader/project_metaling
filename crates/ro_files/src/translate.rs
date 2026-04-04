@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
-use std::path::Path;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::path::Path;
 
 #[derive(Deserialize, Serialize)]
 pub struct TranslationsFile {
@@ -13,9 +13,13 @@ pub struct TranslationsFile {
 /// e.g. `data/texture/foo.bmp` → `texture/foo.bmp`, `data/model/foo.rsm` → `model/foo.rsm`
 pub fn strip_data_prefix(path: &str) -> &str {
     let data_stripped = path.strip_prefix("data/").unwrap_or(path);
-    let texture_stripped = data_stripped.strip_prefix("texture/").unwrap_or(data_stripped);
-    let texture_stripped2 = texture_stripped.strip_prefix("texture\\").unwrap_or(texture_stripped);
-    texture_stripped2
+    let texture_stripped = data_stripped
+        .strip_prefix("texture/")
+        .unwrap_or(data_stripped);
+
+    (texture_stripped
+        .strip_prefix("texture\\")
+        .unwrap_or(texture_stripped)) as _
 }
 
 pub fn load_known(path: &Path) -> Result<HashMap<String, String>> {
@@ -68,7 +72,11 @@ pub fn translate_utf8_segment(
     }
 }
 
-fn translate_segment(seg: &str, known: &HashMap<String, String>, misses: &mut BTreeSet<String>) -> String {
+fn translate_segment(
+    seg: &str,
+    known: &HashMap<String, String>,
+    misses: &mut BTreeSet<String>,
+) -> String {
     if seg.is_ascii() {
         return seg.to_string();
     }
@@ -77,7 +85,8 @@ fn translate_segment(seg: &str, known: &HashMap<String, String>, misses: &mut BT
     }
     let (base, ext) = split_ext(seg);
     if !ext.is_empty()
-        && let Some(v) = known.get(base) {
+        && let Some(v) = known.get(base)
+    {
         return format!("e_{v}{ext}");
     }
     let tokens: Vec<String> = base
@@ -114,9 +123,6 @@ fn split_ext(name: &str) -> (&str, &str) {
         (name, "")
     }
 }
-
-
-
 
 // ---------------------------------------------------------------------------
 // Translator
@@ -174,7 +180,8 @@ impl Translator {
 
         // Try whole base without extension.
         if !ext.is_empty()
-            && let Some(english) = self.lookup(base) {
+            && let Some(english) = self.lookup(base)
+        {
             return format!("{pfx}{english}{ext}");
         }
 
@@ -237,7 +244,6 @@ pub fn format_miss_log(misses: &BTreeSet<String>) -> String {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
 
 /// Produce a TOML-safe key string (quote if it contains special characters).
 fn toml_key(s: &str) -> String {

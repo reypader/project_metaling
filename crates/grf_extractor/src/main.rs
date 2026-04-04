@@ -9,8 +9,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use ro_files::{Grf, GrfEntry};
 use ro_files::translate::{format_miss_log, TranslationsFile, Translator};
+use ro_files::{Grf, GrfEntry};
 
 const ITEM_RES_TABLE_PATH: &str = "data\\idnum2itemresnametable.txt";
 
@@ -44,7 +44,7 @@ struct Args {
     weapon_types: PathBuf,
 
     /// Where to write the miss log (untranslated Korean segments)
-    #[arg(long, default_value = "outputs/miss_log.toml")]
+    #[arg(long, default_value = "target/miss_log.toml")]
     miss_log: PathBuf,
 
     /// Parse and translate paths without writing any files (still writes miss log)

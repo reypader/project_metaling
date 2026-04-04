@@ -72,9 +72,15 @@ pub(crate) fn spawn_map_meshes(
             info!("[RoMap] asset not ready yet, load state: {:?}", load_state);
             continue;
         };
-        info!("[RoMap] asset loaded — grid {}x{}, scale {}, {} textures, {} surfaces, {} cubes",
-            map.gnd.width, map.gnd.height, map.gnd.scale,
-            map.gnd.texture_paths.len(), map.gnd.surfaces.len(), map.gnd.cubes.len());
+        info!(
+            "[RoMap] asset loaded — grid {}x{}, scale {}, {} textures, {} surfaces, {} cubes",
+            map.gnd.width,
+            map.gnd.height,
+            map.gnd.scale,
+            map.gnd.texture_paths.len(),
+            map.gnd.surfaces.len(),
+            map.gnd.cubes.len()
+        );
         root.spawned = true;
 
         let gnd = &map.gnd;
@@ -88,8 +94,9 @@ pub(crate) fn spawn_map_meshes(
         // Group top surfaces by texture_id so we emit one mesh per texture.
         // Each entry: (positions, normals, uvs, indices).
         let texture_count = gnd.texture_paths.len();
-        let mut groups: Vec<MeshGroup> =
-            (0..texture_count).map(|_| (vec![], vec![], vec![], vec![])).collect();
+        let mut groups: Vec<MeshGroup> = (0..texture_count)
+            .map(|_| (vec![], vec![], vec![], vec![]))
+            .collect();
 
         for row in 0..gnd.height {
             for col in 0..gnd.width {
@@ -166,13 +173,23 @@ pub(crate) fn spawn_map_meshes(
 
         let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
         let non_empty = groups.iter().filter(|(p, _, _, _)| !p.is_empty()).count();
-        let all_positions: Vec<[f32; 3]> = groups.iter().flat_map(|(p, _, _, _)| p.iter().copied()).collect();
+        let all_positions: Vec<[f32; 3]> = groups
+            .iter()
+            .flat_map(|(p, _, _, _)| p.iter().copied())
+            .collect();
         if !all_positions.is_empty() {
-            let min = all_positions.iter().fold([f32::MAX; 3], |acc, p| [acc[0].min(p[0]), acc[1].min(p[1]), acc[2].min(p[2])]);
-            let max = all_positions.iter().fold([f32::MIN; 3], |acc, p| [acc[0].max(p[0]), acc[1].max(p[1]), acc[2].max(p[2])]);
+            let min = all_positions.iter().fold([f32::MAX; 3], |acc, p| {
+                [acc[0].min(p[0]), acc[1].min(p[1]), acc[2].min(p[2])]
+            });
+            let max = all_positions.iter().fold([f32::MIN; 3], |acc, p| {
+                [acc[0].max(p[0]), acc[1].max(p[1]), acc[2].max(p[2])]
+            });
             info!("[RoMap] mesh AABB  min {:?}  max {:?}", min, max);
         }
-        info!("[RoMap] built {} non-empty mesh groups, {} total vertices", non_empty, total_verts);
+        info!(
+            "[RoMap] built {} non-empty mesh groups, {} total vertices",
+            non_empty, total_verts
+        );
 
         // Spawn child mesh entities
         let mut children: Vec<Entity> = Vec::new();
@@ -192,7 +209,10 @@ pub(crate) fn spawn_map_meshes(
             mesh.insert_indices(Indices::U32(indices));
 
             let texture_path = &gnd.texture_paths[tex_idx];
-            info!("[RoMap] spawning mesh group {} — {} verts, texture: {}", tex_idx, vert_count, texture_path);
+            info!(
+                "[RoMap] spawning mesh group {} — {} verts, texture: {}",
+                tex_idx, vert_count, texture_path
+            );
 
             let texture: Handle<Image> = asset_server.load(texture_path);
 
@@ -219,25 +239,36 @@ pub(crate) fn spawn_map_meshes(
         // Center the map at the world origin via the root entity's Transform.
         // Terrain is built in BrowEdit3 world space: X in [0, 2*cx], Z in [scale, 2*cz+scale].
         // This Transform shifts it to [-cx..cx] x [-cz..cz].
-        commands.entity(root_entity).insert(
-            Transform::from_translation(Vec3::new(-cx, 0.0, -(scale + cz)))
-        );
+        commands
+            .entity(root_entity)
+            .insert(Transform::from_translation(Vec3::new(
+                -cx,
+                0.0,
+                -(scale + cz),
+            )));
 
         // Kick off RSM model instance loading.
-        let model_instances: Vec<ModelInstance> = map.objects.iter().filter_map(|obj| {
-            if let RswObject::Model(inst) = obj {
-                Some(inst.clone())
-            } else {
-                None
-            }
-        }).collect();
+        let model_instances: Vec<ModelInstance> = map
+            .objects
+            .iter()
+            .filter_map(|obj| {
+                if let RswObject::Model(inst) = obj {
+                    Some(inst.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         if !model_instances.is_empty() {
-            let unique_files: std::collections::HashSet<&str> =
-                model_instances.iter().map(|inst| inst.model_file.as_str()).collect();
+            let unique_files: std::collections::HashSet<&str> = model_instances
+                .iter()
+                .map(|inst| inst.model_file.as_str())
+                .collect();
             info!(
                 "[RoMap] {} model instance(s) ({} unique file(s)) queued for loading",
-                model_instances.len(), unique_files.len()
+                model_instances.len(),
+                unique_files.len()
             );
 
             let pending: Vec<(Handle<RsmAsset>, ModelInstance)> = model_instances
@@ -273,8 +304,13 @@ pub(crate) fn spawn_model_meshes(
                 Some(LoadState::Loaded) => {
                     if let Some(rsm_asset) = rsm_assets.get(&handle) {
                         let children = build_model_children(
-                            &inst, rsm_asset, pending.dims,
-                            &mut commands, &mut meshes, &mut materials, &asset_server,
+                            &inst,
+                            rsm_asset,
+                            pending.dims,
+                            &mut commands,
+                            &mut meshes,
+                            &mut materials,
+                            &asset_server,
                         );
                         if !children.is_empty() {
                             commands.entity(root_entity).add_children(&children);
@@ -308,7 +344,11 @@ fn build_model_children(
     asset_server: &AssetServer,
 ) -> Vec<Entity> {
     let rsm = &rsm_asset.rsm;
-    let MapDims { scale: gnd_scale, cx, cz } = dims;
+    let MapDims {
+        scale: gnd_scale,
+        cx,
+        cz,
+    } = dims;
 
     // Build the instance Transform in BrowEdit3 world space to match the terrain mesh,
     // which is also built in BrowEdit3 world space. The root entity's centering Transform
@@ -318,11 +358,7 @@ fn build_model_children(
     //   X = 5*width + pos.x  = cx + pos.x
     //   Y = -pos.y
     //   Z = 10 + 5*height - pos.z  = gnd_scale + cz - pos.z
-    let translation = Vec3::new(
-        cx + inst.pos[0],
-        -inst.pos[1],
-        gnd_scale + cz - inst.pos[2],
-    );
+    let translation = Vec3::new(cx + inst.pos[0], -inst.pos[1], gnd_scale + cz - inst.pos[2]);
     // With Z negated in mesh geometry (step 7 below), the outer scale(1,1,-1) is baked in.
     // Conjugation by Scale(1,1,-1): Ry(+y)→Ry(-y), Rx(-x)→Rx(+x), Rz(-z)→Rz(-z).
     let rotation = Quat::from_euler(
@@ -386,8 +422,10 @@ fn build_model_children(
     }
     if actual_min_y == f32::MAX {
         actual_min_y = 0.0;
-        bb_x_min = 0.0; bb_x_max = 0.0;
-        bb_z_min = 0.0; bb_z_max = 0.0;
+        bb_x_min = 0.0;
+        bb_x_max = 0.0;
+        bb_z_min = 0.0;
+        bb_z_max = 0.0;
     }
     let real_bbrange_x = (bb_x_min + bb_x_max) * 0.5;
     let real_bbrange_z = (bb_z_min + bb_z_max) * 0.5; // RSM Z space; pivot adds this post-Z-negate
@@ -395,8 +433,9 @@ fn build_model_children(
     // Build flat mesh geometry per texture, collecting all face data in model space.
     // Keyed by the resolved RsmFile::textures index.
     let tex_count = rsm.textures.len();
-    let mut groups: Vec<MeshGroup> =
-        (0..tex_count.max(1)).map(|_| (vec![], vec![], vec![], vec![])).collect();
+    let mut groups: Vec<MeshGroup> = (0..tex_count.max(1))
+        .map(|_| (vec![], vec![], vec![], vec![]))
+        .collect();
 
     for mesh in &rsm.meshes {
         let is_root = mesh.parent_name.is_empty();
@@ -510,14 +549,26 @@ fn build_model_children(
     let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
     info!(
         "[RoModel] spawning '{}' — {} mesh(es), {} tex group(s), {} total verts, bb {:?}..{:?}, rsw_pos {:?}, rsw_scale {:?}, translation {:?}, rotation {:?}, real_bbrange [{:.2},{:.2}]",
-        inst.model_file, rsm.meshes.len(), non_empty, total_verts, rsm.bbmin, rsm.bbmax,
-        inst.pos, inst.scale, translation, rotation, real_bbrange_x, real_bbrange_z
+        inst.model_file,
+        rsm.meshes.len(),
+        non_empty,
+        total_verts,
+        rsm.bbmin,
+        rsm.bbmax,
+        inst.pos,
+        inst.scale,
+        translation,
+        rotation,
+        real_bbrange_x,
+        real_bbrange_z
     );
 
     let instance_root = commands
-        .spawn(Transform::from_translation(translation)
-            .with_rotation(rotation)
-            .with_scale(scale))
+        .spawn(
+            Transform::from_translation(translation)
+                .with_rotation(rotation)
+                .with_scale(scale),
+        )
         .id();
 
     let children: Vec<Entity> = vec![instance_root];
@@ -528,7 +579,10 @@ fn build_model_children(
         }
 
         let vert_count = positions.len();
-        let mut mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::default());
+        let mut mesh = Mesh::new(
+            PrimitiveTopology::TriangleList,
+            RenderAssetUsages::default(),
+        );
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
         mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
         mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs_data);

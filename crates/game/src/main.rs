@@ -1,18 +1,18 @@
 mod camera_orbit;
 
 use crate::camera_orbit::{OrbitCamera, OrbitCameraPlugin};
-use bevy::color::palettes::css::{OLD_LACE, ORANGE_RED};
+use bevy::color::palettes::css::OLD_LACE;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
 use bevy_ro_maps::{RoMapRoot, RoMapsPlugin};
 use bevy_ro_sprites::prelude::*;
 use std::f32::consts::PI;
-use std::ops::{DerefMut, Mul};
+use std::ops::DerefMut;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(AssetPlugin {
-            file_path: "/Users/rmpader/code_projects/project_metaling/output".to_string(),
+            file_path: "/Users/rmpader/code_projects/project_metaling/target/assets".to_string(),
             ..default()
         }))
         .add_plugins(OrbitCameraPlugin)
@@ -102,7 +102,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             maximum_distance: 10.0,
             ..default()
         }
-        .build(),
+            .build(),
     ));
 
     // ambient light
@@ -164,7 +164,7 @@ struct PlayerControl;
 
 fn move_player(
     keys: Res<ButtonInput<KeyCode>>,
-    mut orbit_cam : ResMut<OrbitCamera>,
+    mut orbit_cam: ResMut<OrbitCamera>,
     time: Res<Time>,
     mut q: Single<(&mut Transform, &mut ActorState, &mut ActorDirection), With<PlayerControl>>,
 ) {
@@ -191,7 +191,7 @@ fn move_player(
 
     if transform != Vec3::ZERO {
         tf.translation += transform * 1000.0 * time.delta_secs();
-        orbit_cam.focus = tf.translation.clone();
+        orbit_cam.focus = tf.translation;
         state.action = Action::Walk;
         direction.0 = transform.xz();
     } else {
@@ -268,10 +268,13 @@ fn attach_composite(
     mut mats: ResMut<Assets<RoCompositeMaterial>>,
     actors: Query<(Entity, &ActorSprite, &ActorState, &ActorDirection)>,
     server: Res<AssetServer>,
-    mut camera: Single<&Transform, With<Camera3d>>,
+    camera: Single<&Transform, With<Camera3d>>,
 ) {
     for (entity, sprite, state, dir) in &actors {
-        let tag = composite_tag(state.action.tag_name(), direction_index(dir.0, camera.forward().as_vec3().xz().normalize()));
+        let tag = composite_tag(
+            state.action.tag_name(),
+            direction_index(dir.0, camera.forward().as_vec3().xz().normalize()),
+        );
 
         let mut layers = vec![
             CompositeLayerDef {

@@ -54,16 +54,19 @@ pub fn scan(
 
     // Load headgear slots if needed
     let accname_map: HashMap<String, (u32, String)> = if needs_slots {
-        let path = slots_file.ok_or_else(|| anyhow::anyhow!(
-            "--slots is required when scanning headgear"
-        ))?;
-        let text = std::fs::read_to_string(path)
-            .with_context(|| format!("reading {}", path.display()))?;
-        let data: HeadgearSlotsFile = toml::from_str(&text)
-            .with_context(|| format!("parsing {}", path.display()))?;
+        let path = slots_file
+            .ok_or_else(|| anyhow::anyhow!("--slots is required when scanning headgear"))?;
+        let text =
+            std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+        let data: HeadgearSlotsFile =
+            toml::from_str(&text).with_context(|| format!("parsing {}", path.display()))?;
         data.headgear
             .iter()
-            .filter_map(|e| e.accname.as_ref().map(|name| (name.clone(), (e.view, e.slot.clone()))))
+            .filter_map(|e| {
+                e.accname
+                    .as_ref()
+                    .map(|name| (name.clone(), (e.view, e.slot.clone())))
+            })
             .collect()
     } else {
         HashMap::new()
@@ -71,13 +74,12 @@ pub fn scan(
 
     // Load weapon types if needed
     let id_to_weapon_type: HashMap<u32, String> = if needs_weapons {
-        let path = weapon_types_file.ok_or_else(|| anyhow::anyhow!(
-            "--weapon-types is required when scanning weapons"
-        ))?;
-        let text = std::fs::read_to_string(path)
-            .with_context(|| format!("reading {}", path.display()))?;
-        let data: WeaponTypesFile = toml::from_str(&text)
-            .with_context(|| format!("parsing {}", path.display()))?;
+        let path = weapon_types_file
+            .ok_or_else(|| anyhow::anyhow!("--weapon-types is required when scanning weapons"))?;
+        let text =
+            std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+        let data: WeaponTypesFile =
+            toml::from_str(&text).with_context(|| format!("parsing {}", path.display()))?;
         data.weapon_type
             .iter()
             .flat_map(|e| e.items.iter().map(|&id| (id, e.name.clone())))
@@ -90,7 +92,7 @@ pub fn scan(
 
     let mut m = Manifest {
         data_root: data_str,
-        output_root: "./output".to_string(),
+        output_root: "./target/assets".to_string(),
         body: Vec::new(),
         head: Vec::new(),
         headgear: Vec::new(),
@@ -102,19 +104,36 @@ pub fn scan(
         map: Vec::new(),
     };
 
-    if want("shadow")     { scan_shadow(data_root, &mut m); }
-    if want("body")       { scan_bodies(data_root, &mut m)?; }
-    if want("head")       { scan_heads(data_root, &mut m)?; }
-    if want("headgear")   { scan_headgears(data_root, &accname_map, &mut m)?; }
-    if want("garment")    { scan_garments(data_root, &mut m)?; }
-    if want("weapon")     { scan_weapons(data_root, &id_to_weapon_type, &mut m)?; }
-    if want("shield")     { scan_shields(data_root, &mut m)?; }
-    if want("projectile") { scan_projectiles(data_root, &mut m)?; }
-    if want("map")        { scan_maps(data_root, &mut m)?; }
+    if want("shadow") {
+        scan_shadow(data_root, &mut m);
+    }
+    if want("body") {
+        scan_bodies(data_root, &mut m)?;
+    }
+    if want("head") {
+        scan_heads(data_root, &mut m)?;
+    }
+    if want("headgear") {
+        scan_headgears(data_root, &accname_map, &mut m)?;
+    }
+    if want("garment") {
+        scan_garments(data_root, &mut m)?;
+    }
+    if want("weapon") {
+        scan_weapons(data_root, &id_to_weapon_type, &mut m)?;
+    }
+    if want("shield") {
+        scan_shields(data_root, &mut m)?;
+    }
+    if want("projectile") {
+        scan_projectiles(data_root, &mut m)?;
+    }
+    if want("map") {
+        scan_maps(data_root, &mut m)?;
+    }
 
     let toml_text = toml::to_string_pretty(&m)?;
-    std::fs::write(output, &toml_text)
-        .with_context(|| format!("writing {}", output.display()))?;
+    std::fs::write(output, &toml_text).with_context(|| format!("writing {}", output.display()))?;
 
     println!("Wrote manifest: {}", output.display());
     println!(
@@ -199,9 +218,7 @@ fn scan_bodies(data_root: &Path, m: &mut Manifest) -> Result<()> {
                 gender: gender.to_string(),
                 spr: format!("{rel}.spr"),
                 act: format!("{rel}.act"),
-                imf: imf_path
-                    .exists()
-                    .then(|| format!("imf/{stem}.imf")),
+                imf: imf_path.exists().then(|| format!("imf/{stem}.imf")),
             });
         }
 
@@ -354,7 +371,11 @@ fn scan_garments(data_root: &Path, m: &mut Manifest) -> Result<()> {
 //     — byte-identical duplicates of the same files already in pecopeco_crusader/.
 //       The GRF stores them in both locations. The scan picks them up from
 //       pecopeco_crusader/ (where they belong) and ignores the paladin copies.
-fn scan_weapons(data_root: &Path, id_to_weapon_type: &HashMap<u32, String>, m: &mut Manifest) -> Result<()> {
+fn scan_weapons(
+    data_root: &Path,
+    id_to_weapon_type: &HashMap<u32, String>,
+    m: &mut Manifest,
+) -> Result<()> {
     let human_dir = data_root.join("sprite/human");
     if !human_dir.exists() {
         return Ok(());
@@ -423,7 +444,9 @@ fn scan_weapons(data_root: &Path, id_to_weapon_type: &HashMap<u32, String>, m: &
             }
             let weapon_part = &rest[us + 1..];
             // Skip shield sprites misplaced in weapon dirs.
-            let base_weapon = weapon_part.strip_suffix("_slash_glow").unwrap_or(weapon_part);
+            let base_weapon = weapon_part
+                .strip_suffix("_slash_glow")
+                .unwrap_or(weapon_part);
             if SHIELD_NAMES.contains(&base_weapon) {
                 continue;
             }
@@ -495,7 +518,11 @@ fn scan_shields(data_root: &Path, m: &mut Manifest) -> Result<()> {
             let raw_name = &rest[us + 1..];
 
             // Skip ID-based shields (e.g. 28901_shield) — future add-on bundle.
-            if raw_name.strip_suffix("_shield").map(|id| id.parse::<u32>().is_ok()).unwrap_or(false) {
+            if raw_name
+                .strip_suffix("_shield")
+                .map(|id| id.parse::<u32>().is_ok())
+                .unwrap_or(false)
+            {
                 eprintln!("warning: skipping ID-based shield sprite '{stem}'");
                 continue;
             }
@@ -529,9 +556,8 @@ fn scan_projectiles(data_root: &Path, m: &mut Manifest) -> Result<()> {
     // Canonical name overrides: some projectile sprites are named after the unit
     // that fires them but represent a generic reusable effect.
     // e.g. skel_archer_arrow is the standard arrow sprite reused by all archers.
-    let name_overrides: std::collections::HashMap<&str, &str> = [
-        ("skel_archer_arrow", "arrow"),
-    ].into_iter().collect();
+    let name_overrides: std::collections::HashMap<&str, &str> =
+        [("skel_archer_arrow", "arrow")].into_iter().collect();
 
     let mut entries = spr_stems_in(&monster_dir)?;
     entries.sort();
@@ -623,9 +649,10 @@ fn dir_names(dir: &Path) -> Result<Vec<String>> {
     for entry in std::fs::read_dir(dir)? {
         let entry = entry?;
         if entry.file_type()?.is_dir()
-            && let Some(name) = entry.file_name().to_str() {
-                result.push(name.to_string());
-            }
+            && let Some(name) = entry.file_name().to_str()
+        {
+            result.push(name.to_string());
+        }
     }
     Ok(result)
 }
