@@ -15,3 +15,4 @@ bevy = { version = "0.18", default-features = false, features = [
 ro_files = { path = "../ro_files" }
 bevy_ro_models = { path = "../bevy_ro_models" }
 anyhow = "1"
+pathfinding = "4.15.0"

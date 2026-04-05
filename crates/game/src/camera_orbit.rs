@@ -2,27 +2,34 @@
 // Camera orbit
 // ─────────────────────────────────────────────────────────────
 
+use crate::PlayerControl;
 use bevy::app::{App, Plugin, Update};
 use bevy::camera::Camera3d;
 use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::input::ButtonInput;
-use bevy::math::Vec3;
+use bevy::math::{StableInterpolate, Vec3};
+use bevy::prelude::IntoScheduleConfigs;
 use bevy::prelude::{
-    EulerRot, KeyCode, MouseButton, Quat, Res, ResMut, Resource, Single, Time, Transform, With,
+    Component, EulerRot, KeyCode, MouseButton, Quat, Res, ResMut, Resource, Single, Time,
+    Transform, With, Without,
 };
 
 pub struct OrbitCameraPlugin;
 impl Plugin for OrbitCameraPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<OrbitCamera>();
+        app.add_systems(Update, (follow_player, update_cam).chain());
         app.add_systems(Update, camera_orbit);
     }
 }
 #[derive(Resource)]
 pub struct OrbitCamera {
-    distance: f32,
+    pub distance: f32,
     pub focus: Vec3,
 }
+
+#[derive(Component)]
+pub struct CameraFollower;
 
 impl Default for OrbitCamera {
     fn default() -> Self {
@@ -33,6 +40,21 @@ impl Default for OrbitCamera {
     }
 }
 
+fn follow_player(
+    q: Single<&Transform, (Without<CameraFollower>, With<PlayerControl>)>,
+    mut follower: Single<&mut Transform, (With<CameraFollower>, Without<PlayerControl>)>,
+    time: Res<Time>,
+) {
+    follower
+        .translation
+        .smooth_nudge(&q.translation, 5.0, time.delta_secs());
+}
+fn update_cam(
+    mut orbit: ResMut<OrbitCamera>,
+    follower: Single<&Transform, (With<CameraFollower>, Without<PlayerControl>)>,
+) {
+    orbit.focus = follower.translation
+}
 fn camera_orbit(
     mouse_button: Res<ButtonInput<MouseButton>>,
     kb_button: Res<ButtonInput<KeyCode>>,

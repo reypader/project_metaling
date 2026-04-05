@@ -1,8 +1,8 @@
 mod camera_orbit;
 mod map_interaction;
 
-use crate::camera_orbit::{OrbitCamera, OrbitCameraPlugin};
-use crate::map_interaction::{MapInteractionPlugin, MapMarker};
+use crate::camera_orbit::{CameraFollower, OrbitCamera, OrbitCameraPlugin};
+use crate::map_interaction::{MapInteractionPlugin, MapMarker, Navigation};
 use bevy::color::palettes::css::OLD_LACE;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
@@ -25,7 +25,7 @@ fn main() {
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
         .add_systems(PostStartup, attach_composite)
-        .add_systems(Update, (select_action, update_composite_tag, move_player))
+        .add_systems(Update, (select_action, update_composite_tag))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -44,10 +44,11 @@ fn setup(
 ) {
     commands.spawn((
         RoMapRoot {
-            asset: asset_server.load("maps/prt_fild08/prt_fild08.gnd"),
+            // asset: asset_server.load("maps/prt_fild08/prt_fild08.gnd"),
             // asset: asset_server.load("maps/payon/payon.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
             // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
+            asset: asset_server.load("maps/pprontera/pprontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -56,12 +57,16 @@ fn setup(
 
     commands.spawn((
         MapMarker,
-        Mesh3d(meshes.add(Cylinder::new(5.0, 2.0))),
+        Mesh3d(meshes.add(Cylinder::new(2.5, 2.0))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color: Color::srgb(1.0, 0.1, 0.1),
             ..default()
         })),
         Transform::from_xyz(0.0, -100.0, 0.0),
+        Pickable {
+            should_block_lower: false,
+            is_hoverable: false,
+        },
     ));
 
     // Actor — body.spr + head 17.spr, composited in one quad
@@ -89,9 +94,14 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(-Vec3::Z.xz()),
-        Transform::from_xyz(0.0, 0.0, 0.0),
+        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(0.25,0.25,0.25)),
         PlayerControl,
     ));
+    commands.spawn((
+        Transform::from_xyz(0.0, 0.0, 0.0),
+        CameraFollower,
+    ));
+
     commands.spawn((
         ActorSprite {
             body: "sprite/human_female_knight/body.spr",
@@ -109,20 +119,16 @@ fn setup(
     commands.spawn((
         DirectionalLight {
             illuminance: light_consts::lux::AMBIENT_DAYLIGHT,
-            shadows_enabled: false,
+            shadows_enabled: true,
             ..default()
         },
-        Transform {
-            translation: Vec3::new(0.0, 000.0, 50000.0),
-            rotation: Quat::from_rotation_x(-PI / 2.),
-            ..default()
-        },
+        Transform::from_xyz(10.0, 20.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
         // The default cascade config is designed to handle large scenes.
         // As this example has a much smaller world, we can tighten the shadow
         // bounds for better visual quality.
         CascadeShadowConfigBuilder {
-            first_cascade_far_bound: 4.0,
-            maximum_distance: 10.0,
+            // first_cascade_far_bound: 4.0,
+            // maximum_distance: 10.0,
             ..default()
         }
         .build(),
@@ -132,7 +138,7 @@ fn setup(
     // ambient lights' brightnesses are measured in candela per meter square, calculable as (color * brightness)
     commands.insert_resource(GlobalAmbientLight {
         color: OLD_LACE.into(),
-        brightness: 100.0,
+        brightness: 500.0,
         ..default()
     });
 
@@ -185,46 +191,7 @@ fn select_action(keys: Res<ButtonInput<KeyCode>>, mut q: Query<&mut ActorState>)
 #[derive(Component)]
 struct PlayerControl;
 
-fn move_player(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut orbit_cam: ResMut<OrbitCamera>,
-    time: Res<Time>,
-    mut q: Single<(&mut Transform, &mut ActorState, &mut ActorDirection), With<PlayerControl>>,
-    navmesh: Single<&NavMesh>,
-) {
-    let speed = 100.0 * time.delta_secs();
-    let mut z = 0.0;
-    if keys.pressed(KeyCode::KeyW) {
-        z -= 1.0;
-    }
-    if keys.pressed(KeyCode::KeyS) {
-        z += 1.0;
-    }
 
-    let mut x = 0.0;
-    if keys.pressed(KeyCode::KeyA) {
-        x -= 1.0;
-    }
-    if keys.pressed(KeyCode::KeyD) {
-        x += 1.0;
-    }
-    let (tf, state, direction) = q.deref_mut();
-
-    let d = Vec2::new(x,z);
-    let x = tf.translation.x + x*speed;
-    let z = tf.translation.z + z*speed;
-    let y = navmesh.height_at(x, z);
-
-    let transform = Vec3::new(x, y, z);
-    if d != Vec2::ZERO {
-        tf.translation = transform;
-        orbit_cam.focus = tf.translation;
-        state.action = Action::Walk;
-        direction.0 = d;
-    } else {
-        state.action = Action::Idle;
-    }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Public types

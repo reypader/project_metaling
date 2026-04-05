@@ -1,10 +1,12 @@
 mod assets;
 mod loader;
 mod render;
+mod navigation;
 
 pub use assets::RoMapAsset;
 pub use loader::RoMapLoader;
-pub use render::{NavMesh, RoMapMesh, RoMapRoot};
+pub use render::{RoMapMesh, RoMapRoot};
+pub use navigation::{NavMesh};
 
 pub mod prelude {
     pub use crate::{NavMesh, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
