@@ -6,8 +6,12 @@ use bevy::{
     prelude::*,
 };
 use bevy_ro_models::RsmAsset;
+use pathfinding::prelude::astar;
 use ro_files::TerrainType::Blocked;
-use ro_files::{GatFile, GatTile, ModelInstance, RswObject, TerrainType};
+use ro_files::{GatFile, GatTile, ModelInstance, RsmMesh, RswObject, ShadeType, TerrainType};
+use std::collections::HashMap;
+use std::ops::Deref;
+use crate::navigation::NavMesh;
 
 /// Vertex data accumulated per texture group while building mesh geometry.
 type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<u32>);
@@ -36,153 +40,6 @@ pub struct RoMapRoot {
     /// Set to `true` by the plugin once mesh children have been spawned. Prevents re-spawning
     /// on subsequent frames.
     pub spawned: bool,
-}
-
-#[derive(Component)]
-pub struct NavMesh {
-    pub terrain_width: f32,
-    pub terrain_height: f32,
-    pub nav_width: u32,
-    pub nav_height: u32,
-    /// Row-major: index = row * width + col.
-    pub tiles: Vec<GatTile>,
-}
-
-impl NavMesh {
-    pub fn tile(&self, col: u32, row: u32) -> Option<&GatTile> {
-        if col < self.nav_width && row < self.nav_height {
-            self.tiles.get((row * self.nav_width + col) as usize)
-        } else {
-            None
-        }
-    }
-
-    pub fn terrain_at(&self, scale: f32, world_x: f32, world_z: f32) -> TerrainType {
-        let cx = self.nav_width as f32 * scale * 0.5;
-        let cz = self.nav_height as f32 * scale * 0.5;
-
-        let col = ((world_x + cx) / scale).floor() as i32;
-        // NW edge of tile row y is at centered Z = cz - (y+1)*scale;
-        // SW edge at cz - y*scale. Row = ceil((cz - world_z) / scale).
-        let row = ((cz - world_z) / scale).ceil() as i32;
-
-        if col < 0 || col >= self.nav_width as i32 || row < 0 || row >= self.nav_height as i32 {
-            return TerrainType::Blocked;
-        }
-
-        self.tile(col as u32, row as u32)
-            .map(|t| t.terrain_type)
-            .unwrap_or(TerrainType::Blocked)
-    }
-
-    pub fn to_map_tile(&self, world_x: f32, world_z: f32) -> (Vec3, TerrainType) {
-        let width = self.nav_width;
-        let height = self.nav_height;
-        let scale_x = self.terrain_width / width as f32;
-        let scale_z = self.terrain_height / height as f32;
-        let offset_w = -(width as f32 * 0.5 * scale_x);
-        let offset_h = height as f32 * 0.5 * scale_z;
-
-        // Column: X runs left-to-right from -cx to +cx.
-        let tile_x = (world_x - offset_w) / scale_x;
-        let col = tile_x.floor() as i32;
-
-        let fx = tile_x.fract();
-
-        // Row: NW edge of tile row y is at centered Z = cz - (y+1)*scale,
-        //      SW edge is at cz - y*scale (higher Z value).
-        // Given world_z, find row using: row = ceil((cz - world_z) / scale).
-        // fz = row - (cz - world_z)/scale  gives 0 at NW edge, 1 at SW edge.
-        let u = (offset_h - world_z) / scale_z;
-        let row = u.ceil() as i32;
-        let fz = (row as f32 - u).clamp(0.0, 1.0);
-        // println!("querying height of {:?},{:?}", col, row);
-        // println!("self dimension {:?},{:?}", self.width, self.height);
-
-        if col < 0 || col >= self.nav_width as i32 {
-            return (Vec3::new(world_x, 0.0, world_z), Blocked);
-        }
-        if row < 0 || row >= self.nav_height as i32 {
-            return (Vec3::new(world_x, 0.0, world_z), Blocked);
-        }
-
-        let Some(tile) = self.tile(col as u32, row as u32) else {
-            return (Vec3::new(world_x, 0.0, world_z), Blocked);
-        };
-        // println!("found {:?}", tile.terrain_type);
-        let sw = -tile.altitude_sw;
-        let se = -tile.altitude_se;
-        let nw = -tile.altitude_nw;
-        let ne = -tile.altitude_ne;
-
-        // println!(
-        //     "nw={:?},ne={:?},sw={:?},se={:?}...fx={:?},fz={:?}",
-        //     nw, ne, sw, se, fx, fz
-        // );
-        // Bilinear interpolation: fz=0 samples the NW/NE edge, fz=1 samples the SW/SE edge.
-        let north = nw + (ne - nw) * fx;
-        let south = sw + (se - sw) * fx;
-
-        (
-            Vec3::new(
-                world_x,                    // offset_w + (scale_x * col as f32),
-                (north + (south - north) * fz), // * scale_x.max(scale_z).ceil(),
-                world_z,                    // offset_h - (scale_z * row as f32),
-            ),
-            tile.terrain_type,
-        )
-    }
-
-    pub fn height_at(&self, world_x: f32, world_z: f32) -> f32 {
-        let width = self.nav_width;
-        let height = self.nav_height;
-        let scale_x = self.terrain_width / width as f32;
-        let scale_z = self.terrain_height / height as f32;
-
-        let offset_w = -(width as f32 * 0.5 * scale_x);
-        let offset_h = height as f32 * 0.5 * scale_z;
-
-        // Column: X runs left-to-right from -cx to +cx.
-        let tile_x = (world_x - offset_w) / scale_x;
-        let col = tile_x.floor() as i32;
-
-        let fx = tile_x.fract();
-
-        // Row: NW edge of tile row y is at centered Z = cz - (y+1)*scale,
-        //      SW edge is at cz - y*scale (higher Z value).
-        // Given world_z, find row using: row = ceil((cz - world_z) / scale).
-        // fz = row - (cz - world_z)/scale  gives 0 at NW edge, 1 at SW edge.
-        let u = (offset_h - world_z) / scale_z;
-        let row = u.ceil() as i32;
-        let fz = (row as f32 - u).clamp(0.0, 1.0);
-        // println!("querying height of {:?},{:?}", col, row);
-        // println!("self dimension {:?},{:?}", self.width, self.height);
-
-        if col < 0 || col >= self.nav_width as i32 {
-            return 0.0;
-        }
-        if row < 0 || row >= self.nav_height as i32 {
-            return 0.0;
-        }
-
-        let Some(tile) = self.tile(col as u32, row as u32) else {
-            return 0.0;
-        };
-        // println!("found {:?}", tile.terrain_type);
-        let sw = -tile.altitude_sw;
-        let se = -tile.altitude_se;
-        let nw = -tile.altitude_nw;
-        let ne = -tile.altitude_ne;
-
-        // println!(
-        //     "nw={:?},ne={:?},sw={:?},se={:?}...fx={:?},fz={:?}",
-        //     nw, ne, sw, se, fx, fz
-        // );
-        // Bilinear interpolation: fz=0 samples the NW/NE edge, fz=1 samples the SW/SE edge.
-        let north = nw + (ne - nw) * fx;
-        let south = sw + (se - sw) * fx;
-        (north + (south - north) * fz) // * scale_x.max(scale_z).ceil(),
-    }
 }
 
 /// Map grid dimensions in world units, derived once from the GND header.
@@ -237,8 +94,8 @@ pub(crate) fn spawn_map_meshes(
         commands.entity(root_entity).insert(NavMesh {
             terrain_width: gnd.width as f32 * scale,
             terrain_height: gnd.height as f32 * scale,
-            nav_width: map.gat.width,
-            nav_height: map.gat.height,
+            nav_width: map.gat.width as i32,
+            nav_height: map.gat.height as i32,
             tiles: map.gat.tiles.clone(),
         });
 
@@ -253,6 +110,36 @@ pub(crate) fn spawn_map_meshes(
         let mut groups: Vec<MeshGroup> = (0..texture_count)
             .map(|_| (vec![], vec![], vec![], vec![]))
             .collect();
+
+        // Pre-compute smooth normals at shared grid corners by accumulating (area-weighted)
+        // face normals from all adjacent tiles. Corner (r, c) maps to index r*(width+1)+c.
+        // Tile (row, col) contributes to corners NW=(row,col), NE=(row,col+1),
+        // SW=(row+1,col), SE=(row+1,col+1).
+        let corner_cols = (gnd.width + 1) as usize;
+        let mut corner_normals: Vec<Vec3> =
+            vec![Vec3::ZERO; (gnd.height + 1) as usize * corner_cols];
+        for row in 0..gnd.height {
+            for col in 0..gnd.width {
+                let cube = &gnd.cubes[(row * gnd.width + col) as usize];
+                let x0 = col as f32 * scale;
+                let x1 = (col + 1) as f32 * scale;
+                let z_nw = gnd.height as f32 * scale - row as f32 * scale;
+                let z_sw = z_nw + scale;
+                let sw = Vec3::new(x0, -cube.heights[0], z_sw);
+                let se = Vec3::new(x1, -cube.heights[1], z_sw);
+                let nw = Vec3::new(x0, -cube.heights[2], z_nw);
+                let face_normal = (se - sw).cross(nw - sw); // area-weighted, not normalized
+                let r = row as usize;
+                let c = col as usize;
+                corner_normals[r * corner_cols + c] += face_normal; // NW
+                corner_normals[r * corner_cols + c + 1] += face_normal; // NE
+                corner_normals[(r + 1) * corner_cols + c] += face_normal; // SW
+                corner_normals[(r + 1) * corner_cols + c + 1] += face_normal; // SE
+            }
+        }
+        for n in &mut corner_normals {
+            *n = n.normalize_or_zero();
+        }
 
         for row in 0..gnd.height {
             for col in 0..gnd.width {
@@ -289,11 +176,13 @@ pub(crate) fn spawn_map_meshes(
                 let nw = Vec3::new(x0, -cube.heights[2], z_nw);
                 let ne = Vec3::new(x1, -cube.heights[3], z_nw);
 
-                // Face normal: CCW winding from above (+Y) uses sw→se edge × sw→nw edge.
-                let edge1 = se - sw;
-                let edge2 = nw - sw;
-                let normal = edge1.cross(edge2).normalize();
-                let normal_arr = normal.to_array();
+                // Smooth normals: look up the averaged corner normal for each vertex.
+                let r = row as usize;
+                let c = col as usize;
+                let n_sw = corner_normals[(r + 1) * corner_cols + c].to_array();
+                let n_se = corner_normals[(r + 1) * corner_cols + c + 1].to_array();
+                let n_nw = corner_normals[r * corner_cols + c].to_array();
+                let n_ne = corner_normals[r * corner_cols + c + 1].to_array();
 
                 let (positions, normals, uvs, indices) = &mut groups[tex_idx];
 
@@ -305,9 +194,10 @@ pub(crate) fn spawn_map_meshes(
                 positions.push(nw.to_array());
                 positions.push(ne.to_array());
 
-                for _ in 0..4 {
-                    normals.push(normal_arr);
-                }
+                normals.push(n_sw);
+                normals.push(n_se);
+                normals.push(n_nw);
+                normals.push(n_ne);
 
                 // UVs: match vertex order above.
                 uvs.push([surface.u[0], surface.v[0]]);
@@ -374,6 +264,8 @@ pub(crate) fn spawn_map_meshes(
 
             let material = materials.add(StandardMaterial {
                 base_color_texture: Some(texture),
+                double_sided: true,
+                cull_mode: None,
                 ..default()
             });
 
@@ -384,7 +276,7 @@ pub(crate) fn spawn_map_meshes(
                     Transform::default(),
                     RoMapMesh,
                     Pickable {
-                        should_block_lower: false,
+                        should_block_lower: true,
                         is_hoverable: true,
                     },
                 ))
@@ -494,6 +386,52 @@ pub(crate) fn spawn_model_meshes(
     }
 }
 
+/// Applies the full RSM vertex transform chain (offset matrix → pos_ → scale →
+/// rotation → pos [non-root] → Y-negate → Z-negate → bb pivot) and returns the
+/// resulting position in Bevy world space (model-local, before the instance transform).
+fn transform_rsm_vertex(
+    raw: [f32; 3],
+    mesh: &RsmMesh,
+    is_root: bool,
+    actual_min_y: f32,
+    real_bbrange_x: f32,
+    real_bbrange_z: f32,
+) -> Vec3 {
+    let m = &mesh.offset;
+    let mut p = [
+        m[0][0] * raw[0] + m[1][0] * raw[1] + m[2][0] * raw[2],
+        m[0][1] * raw[0] + m[1][1] * raw[1] + m[2][1] * raw[2],
+        m[0][2] * raw[0] + m[1][2] * raw[1] + m[2][2] * raw[2],
+    ];
+    p[0] += mesh.pos_[0];
+    p[1] += mesh.pos_[1];
+    p[2] += mesh.pos_[2];
+    p[0] *= mesh.scale[0];
+    p[1] *= mesh.scale[1];
+    p[2] *= mesh.scale[2];
+    if !mesh.frames.is_empty() {
+        let rot = Quat::from_array(mesh.frames[0].quaternion).normalize();
+        p = (rot * Vec3::from(p)).to_array();
+    } else if mesh.rot_angle.abs() > 0.001 {
+        let axis = Vec3::from(mesh.rot_axis);
+        if axis.length_squared() > 0.0001 {
+            let rot = Quat::from_axis_angle(axis.normalize(), mesh.rot_angle);
+            p = (rot * Vec3::from(p)).to_array();
+        }
+    }
+    if !is_root {
+        p[0] += mesh.pos[0];
+        p[1] += mesh.pos[1];
+        p[2] += mesh.pos[2];
+    }
+    p[1] = -p[1];
+    p[2] = -p[2];
+    p[0] -= real_bbrange_x;
+    p[1] -= actual_min_y;
+    p[2] += real_bbrange_z;
+    Vec3::from(p)
+}
+
 fn build_model_children(
     inst: &ModelInstance,
     rsm_asset: &RsmAsset,
@@ -528,6 +466,12 @@ fn build_model_children(
         (-inst.rot[2]).to_radians(), // -rz (unchanged by Z-flip conjugation)
     );
     let scale = Vec3::new(inst.scale[0], inst.scale[1], inst.scale[2]);
+    // Negative determinant = odd number of negative scale components.
+    // In that case the instance transform reverses face winding, so we pre-flip the index
+    // order in the baked geometry to keep faces front-facing in world space. Without this,
+    // double_sided:true would see the (now back-facing) face and negate the normal a second
+    // time, undoing Bevy's correct normal-matrix flip and making the model dark.
+    let inst_scale_neg = inst.scale[0] * inst.scale[1] * inst.scale[2] < 0.0;
 
     // Compute the full-transform bounding box (replaces the offset-only rsm.bbrange). across all mesh vertices using the same transform
     // chain applied in the face loop (offset → pos_ → scale → rotation → pos for non-root).
@@ -590,15 +534,56 @@ fn build_model_children(
     let real_bbrange_x = (bb_x_min + bb_x_max) * 0.5;
     let real_bbrange_z = (bb_z_min + bb_z_max) * 0.5; // RSM Z space; pivot adds this post-Z-negate
 
-    // Build flat mesh geometry per texture, collecting all face data in model space.
+    // Pre-compute per-vertex smooth normals when shade_type is Smooth.
+    // Keyed by (vertex_id, smooth_group) so hard edges between smooth groups are preserved.
+    // Face normals are accumulated (area-weighted by magnitude) then normalized on lookup.
+    let smooth = matches!(rsm.shade_type, ShadeType::Smooth);
+    let mesh_smooth_normals: Vec<HashMap<(u16, i32), Vec3>> = if smooth {
+        rsm.meshes
+            .iter()
+            .map(|mesh| {
+                let is_root = mesh.parent_name.is_empty();
+                let mut acc: HashMap<(u16, i32), Vec3> = HashMap::new();
+                for face in &mesh.faces {
+                    let p = |i: usize| {
+                        transform_rsm_vertex(
+                            mesh.vertices
+                                .get(face.vertex_ids[i] as usize)
+                                .copied()
+                                .unwrap_or_default(),
+                            mesh,
+                            is_root,
+                            actual_min_y,
+                            real_bbrange_x,
+                            real_bbrange_z,
+                        )
+                    };
+                    let face_normal = (p(1) - p(0)).cross(p(2) - p(0));
+                    for corner in 0..3 {
+                        *acc.entry((face.vertex_ids[corner], face.smooth_group))
+                            .or_insert(Vec3::ZERO) += face_normal;
+                    }
+                }
+                acc
+            })
+            .collect()
+    } else {
+        Vec::new()
+    };
+
+    // Build mesh geometry per texture, collecting all face data in model space.
     // Keyed by the resolved RsmFile::textures index.
     let tex_count = rsm.textures.len();
     let mut groups: Vec<MeshGroup> = (0..tex_count.max(1))
         .map(|_| (vec![], vec![], vec![], vec![]))
         .collect();
 
-    for mesh in &rsm.meshes {
+    for (mesh_idx, mesh) in rsm.meshes.iter().enumerate() {
         let is_root = mesh.parent_name.is_empty();
+        let smooth_normals = mesh_smooth_normals.get(mesh_idx);
+        // mesh.scale parity XOR inst parity: flip if exactly one of them is negative-det.
+        let mesh_scale_neg = mesh.scale[0] * mesh.scale[1] * mesh.scale[2] < 0.0;
+        let flip_winding = inst_scale_neg ^ mesh_scale_neg;
 
         for face in &mesh.faces {
             let tex_slot = face.texture_id as usize;
@@ -678,24 +663,49 @@ fn build_model_children(
             let v0 = Vec3::from(tri_verts[0]);
             let v1 = Vec3::from(tri_verts[1]);
             let v2 = Vec3::from(tri_verts[2]);
-            let normal = (v1 - v0).cross(v2 - v0).normalize();
-            let normal_arr = normal.to_array();
+            let face_normal = (v1 - v0).cross(v2 - v0).normalize();
+
+            // Per-corner normals: smooth (averaged per vertex+smooth_group) or flat.
+            let corner_normals: [[f32; 3]; 3] = std::array::from_fn(|corner| {
+                if let Some(sn) = smooth_normals {
+                    let key = (face.vertex_ids[corner], face.smooth_group);
+                    sn.get(&key)
+                        .copied()
+                        .unwrap_or(face_normal)
+                        .normalize()
+                        .to_array()
+                } else {
+                    face_normal.to_array()
+                }
+            });
 
             let base = positions.len() as u32;
             for corner in 0..3 {
                 positions.push(tri_verts[corner]);
-                normals.push(normal_arr);
+                normals.push(corner_normals[corner]);
                 uvs.push(tri_uvs[corner]);
             }
-            indices.push(base);
-            indices.push(base + 1);
-            indices.push(base + 2);
+            // Flip index order when combined scale determinant is negative so the face
+            // stays front-facing in world space after the instance transform.
+            if flip_winding {
+                indices.push(base + 2);
+                indices.push(base + 1);
+                indices.push(base);
+            } else {
+                indices.push(base);
+                indices.push(base + 1);
+                indices.push(base + 2);
+            }
 
             if face.two_sided {
                 let base2 = positions.len() as u32;
-                for corner in (0..3).rev() {
+                // Back face: vertex order is reversed relative to main face winding so it is
+                // front-facing from the opposite side. When flip_winding is true the main face
+                // uses [2,1,0] so the back face must use [0,1,2], and vice versa.
+                let back_order: [usize; 3] = if flip_winding { [0, 1, 2] } else { [2, 1, 0] };
+                for corner in back_order {
                     positions.push(tri_verts[corner]);
-                    normals.push((-normal).to_array());
+                    normals.push((-Vec3::from(corner_normals[corner])).to_array());
                     uvs.push(tri_uvs[corner]);
                 }
                 indices.push(base2);
@@ -757,8 +767,9 @@ fn build_model_children(
         let texture: Handle<Image> = asset_server.load(tex_name.to_string());
         let material = materials.add(StandardMaterial {
             base_color_texture: Some(texture),
-            double_sided: false,
+            double_sided: true,
             cull_mode: None,
+            unlit: matches!(rsm.shade_type, ShadeType::Black),
             ..default()
         });
 
