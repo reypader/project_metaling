@@ -3,10 +3,9 @@ mod map_interaction;
 
 use crate::camera_orbit::{CameraFollower, OrbitCamera, OrbitCameraPlugin};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker, Navigation};
-use bevy::color::palettes::css::OLD_LACE;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
-use bevy_ro_maps::{NavMesh, RoMapRoot, RoMapsPlugin};
+use bevy_ro_maps::{MapLightingReady, NavMesh, RoMapRoot, RoMapsPlugin};
 use bevy_ro_sprites::prelude::*;
 use std::f32::consts::PI;
 use std::ops::DerefMut;
@@ -24,6 +23,7 @@ fn main() {
         .add_plugins(RoMapsPlugin)
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
+        .add_observer(apply_map_lighting)
         .add_systems(PostStartup, attach_composite)
         .add_systems(Update, (select_action, update_composite_tag))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
@@ -47,8 +47,8 @@ fn setup(
             // asset: asset_server.load("maps/prt_fild08/prt_fild08.gnd"),
             // asset: asset_server.load("maps/payon/payon.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
-            // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
-            asset: asset_server.load("maps/pprontera/pprontera.gnd"),
+            asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
+            // asset: asset_server.load("maps/pprontera/pprontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -115,32 +115,17 @@ fn setup(
         ActorDirection(Vec2::Y),
         Transform::from_xyz(20.0, 0.0, 0.0),
     ));
-    // directional 'sun' light
+    // Directional sun light — direction and color will be overwritten by apply_map_lighting
+    // once the map asset finishes loading.
     commands.spawn((
         DirectionalLight {
-            illuminance: light_consts::lux::AMBIENT_DAYLIGHT,
+            illuminance: 0.0,
             shadows_enabled: true,
             ..default()
         },
-        Transform::from_xyz(10.0, 20.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-        // The default cascade config is designed to handle large scenes.
-        // As this example has a much smaller world, we can tighten the shadow
-        // bounds for better visual quality.
-        CascadeShadowConfigBuilder {
-            // first_cascade_far_bound: 4.0,
-            // maximum_distance: 10.0,
-            ..default()
-        }
-        .build(),
+        Transform::default(),
+        CascadeShadowConfigBuilder::default().build(),
     ));
-
-    // ambient light
-    // ambient lights' brightnesses are measured in candela per meter square, calculable as (color * brightness)
-    commands.insert_resource(GlobalAmbientLight {
-        color: OLD_LACE.into(),
-        brightness: 500.0,
-        ..default()
-    });
 
     commands.spawn((
         Camera3d::default(),
@@ -191,7 +176,33 @@ fn select_action(keys: Res<ButtonInput<KeyCode>>, mut q: Query<&mut ActorState>)
 #[derive(Component)]
 struct PlayerControl;
 
+fn apply_map_lighting(
+    trigger: On<MapLightingReady>,
+    mut sun_query: Query<(&mut DirectionalLight, &mut Transform)>,
+    mut ambient: ResMut<GlobalAmbientLight>,
+) {
+    let lighting = &trigger.event().0;
 
+    // Convert spherical coordinates to a sun ray direction.
+    // Start from (0, -1, 0) (straight down), rotate around X by -latitude then around Y
+    // by longitude. The resulting vector is the direction the light travels.
+    let lat_rad = (lighting.latitude as f32).to_radians();
+    let lon_rad = (lighting.longitude as f32).to_radians();
+    let rot = Quat::from_rotation_y(lon_rad) * Quat::from_rotation_x(-lat_rad);
+    let sun_dir = rot * Vec3::NEG_Y;
+
+    let [dr, dg, db] = lighting.diffuse;
+    let [ar, ag, ab] = lighting.ambient;
+
+    if let Ok((mut light, mut transform)) = sun_query.single_mut() {
+        light.color = Color::srgb(dr, dg * 0.92, db * 0.78);
+        light.illuminance = lighting.shadowmap_alpha * 20_000.0;
+        *transform = Transform::IDENTITY.looking_to(sun_dir, Vec3::Y);
+    }
+
+    ambient.color = Color::srgb(ar, ag, ab);
+    ambient.brightness = 1500.0;
+}
 
 // ─────────────────────────────────────────────────────────────
 // Public types

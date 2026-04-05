@@ -6,11 +6,8 @@ use bevy::{
     prelude::*,
 };
 use bevy_ro_models::RsmAsset;
-use pathfinding::prelude::astar;
-use ro_files::TerrainType::Blocked;
-use ro_files::{GatFile, GatTile, ModelInstance, RsmMesh, RswObject, ShadeType, TerrainType};
+use ro_files::{ModelInstance, RsmMesh, RswLighting, RswObject, ShadeType};
 use std::collections::HashMap;
-use std::ops::Deref;
 use crate::navigation::NavMesh;
 
 /// Vertex data accumulated per texture group while building mesh geometry.
@@ -53,12 +50,25 @@ pub(crate) struct MapDims {
     pub cz: f32,
 }
 
+/// Animates the water plane by cycling through pre-loaded texture frames.
+#[derive(Component)]
+pub(crate) struct WaterAnimator {
+    pub frames: Vec<Handle<Image>>,
+    pub interval_secs: f32,
+    pub elapsed: f32,
+    pub current_frame: usize,
+}
+
 /// Tracks RSM model instances that are still waiting for their asset to finish loading.
 #[derive(Component)]
 pub(crate) struct PendingModels {
     pub instances: Vec<(Handle<RsmAsset>, ModelInstance)>,
     pub dims: MapDims,
 }
+
+/// Fired once when a map finishes spawning. Carries the lighting parameters from the RSW file.
+#[derive(Event, Clone)]
+pub struct MapLightingReady(pub RswLighting);
 
 pub(crate) fn spawn_map_meshes(
     mut commands: Commands,
@@ -87,9 +97,11 @@ pub(crate) fn spawn_map_meshes(
             map.gnd.cubes.len()
         );
         root.spawned = true;
+        commands.trigger(MapLightingReady(map.lighting.clone()));
 
         let gnd = &map.gnd;
         let scale = gnd.scale;
+
 
         commands.entity(root_entity).insert(NavMesh {
             terrain_width: gnd.width as f32 * scale,
@@ -217,6 +229,144 @@ pub(crate) fn spawn_map_meshes(
             }
         }
 
+        // Build wall geometry for north and east surfaces.
+        for row in 0..gnd.height {
+            for col in 0..gnd.width {
+                let cube = &gnd.cubes[(row * gnd.width + col) as usize];
+
+                let x0 = col as f32 * scale;
+                let x1 = (col + 1) as f32 * scale;
+                let z_nw = gnd.height as f32 * scale - row as f32 * scale;
+                let z_sw = z_nw + scale;
+
+                // North wall: shared edge at Z = z_nw. z_sw of tile (row+1) == z_nw of this
+                // tile, so the correct neighbor is row+1, not row-1.
+                if cube.north_surface_id >= 0 {
+                    if let Some(surf) = gnd.surfaces.get(cube.north_surface_id as usize) {
+                        let tex_idx = surf.texture_id as usize;
+                        if surf.texture_id >= 0 && tex_idx < texture_count {
+                            if let Some(north) = gnd.cube(col, row + 1) {
+                                // v0=BL, v1=BR, v2=TL, v3=TR
+                                // Top vertices come from neighbor's south edge (heights[0]=SW, heights[1]=SE).
+                                let v0 = Vec3::new(x0, -cube.heights[2], z_nw);
+                                let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
+                                let v2 = Vec3::new(x0, -north.heights[0], z_nw);
+                                let v3 = Vec3::new(x1, -north.heights[1], z_nw);
+                                // North wall lies in the Z-plane; normal is always +Z (faces south).
+                                let n = [0.0_f32, 0.0, 1.0];
+
+                                let (positions, normals, uvs, indices) = &mut groups[tex_idx];
+                                let base = positions.len() as u32;
+                                positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
+                                normals.extend([n, n, n, n]);
+                                uvs.push([surf.u[0], surf.v[0]]);
+                                uvs.push([surf.u[1], surf.v[1]]);
+                                uvs.push([surf.u[2], surf.v[2]]);
+                                uvs.push([surf.u[3], surf.v[3]]);
+                                // T1: v0→v1→v2, T2: v1→v3→v2
+                                indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
+                            }
+                        }
+                    }
+                }
+
+                // East wall: shared edge at X = x1, between this tile and col+1.
+                if cube.east_surface_id >= 0 {
+                    if let Some(surf) = gnd.surfaces.get(cube.east_surface_id as usize) {
+                        let tex_idx = surf.texture_id as usize;
+                        if surf.texture_id >= 0 && tex_idx < texture_count {
+                            if let Some(east) = gnd.cube(col + 1, row) {
+                                // v0=BS, v1=BN, v2=TS, v3=TN
+                                let v0 = Vec3::new(x1, -cube.heights[1], z_sw);
+                                let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
+                                let v2 = Vec3::new(x1, -east.heights[0], z_sw);
+                                let v3 = Vec3::new(x1, -east.heights[2], z_nw);
+                                // East wall lies in the X-plane; normal is always -X (faces west).
+                                let n = [-1.0_f32, 0.0, 0.0];
+
+                                let (positions, normals, uvs, indices) = &mut groups[tex_idx];
+                                let base = positions.len() as u32;
+                                positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
+                                normals.extend([n, n, n, n]);
+                                uvs.push([surf.u[0], surf.v[0]]);
+                                uvs.push([surf.u[1], surf.v[1]]);
+                                uvs.push([surf.u[2], surf.v[2]]);
+                                uvs.push([surf.u[3], surf.v[3]]);
+                                // T1: v1→v0→v2, T2: v1→v2→v3
+                                indices.extend([base + 1, base, base + 2, base + 1, base + 2, base + 3]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Spawn water plane if present (sourced from RSW for older maps, or GND for v2.6+).
+        if let Some(water) = &map.water {
+            let y = -water.level;
+            let n = [0.0_f32, 1.0, 0.0];
+            let mut positions: Vec<[f32; 3]> = Vec::new();
+            let mut normals: Vec<[f32; 3]> = Vec::new();
+            let mut uvs: Vec<[f32; 2]> = Vec::new();
+            let mut indices: Vec<u32> = Vec::new();
+
+            for row in 0..gnd.height {
+                for col in 0..gnd.width {
+                    let x0 = col as f32 * scale;
+                    let x1 = (col + 1) as f32 * scale;
+                    let z_nw = gnd.height as f32 * scale - row as f32 * scale;
+                    let z_sw = z_nw + scale;
+
+                    let base = positions.len() as u32;
+                    positions.extend([
+                        [x0, y, z_sw], // SW
+                        [x1, y, z_sw], // SE
+                        [x0, y, z_nw], // NW
+                        [x1, y, z_nw], // NE
+                    ]);
+                    normals.extend([n, n, n, n]);
+                    uvs.extend([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]);
+                    indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
+                }
+            }
+
+            let mut water_mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::default());
+            water_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
+            water_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+            water_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
+            water_mesh.insert_indices(Indices::U32(indices));
+
+            let water_type = water.water_type;
+            let frames: Vec<Handle<Image>> = (0..32)
+                .map(|f| asset_server.load(format!("tex/e_water/water{}{:02}.jpg", water_type, f)))
+                .collect();
+
+            let interval_secs = if water.texture_cycling_interval > 0 {
+                water.texture_cycling_interval as f32 / 60.0
+            } else {
+                1.0 / 30.0
+            };
+
+            let material = materials.add(StandardMaterial {
+                base_color_texture: Some(frames[0].clone()),
+                base_color: Color::srgba(1.0, 1.0, 1.0, 0.7),
+                alpha_mode: AlphaMode::Blend,
+                double_sided: true,
+                cull_mode: None,
+                ..default()
+            });
+
+            let water_entity = commands
+                .spawn((
+                    Mesh3d(meshes.add(water_mesh)),
+                    MeshMaterial3d(material),
+                    Transform::default(),
+                    WaterAnimator { frames, interval_secs, elapsed: 0.0, current_frame: 0 },
+                ))
+                .id();
+            commands.entity(root_entity).add_child(water_entity);
+        }
+
         let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
         let non_empty = groups.iter().filter(|(p, _, _, _)| !p.is_empty()).count();
         let all_positions: Vec<[f32; 3]> = groups
@@ -264,6 +414,8 @@ pub(crate) fn spawn_map_meshes(
 
             let material = materials.add(StandardMaterial {
                 base_color_texture: Some(texture),
+                alpha_mode: AlphaMode::Mask(0.5),
+                perceptual_roughness: 1.0,
                 double_sided: true,
                 cull_mode: None,
                 ..default()
@@ -767,6 +919,8 @@ fn build_model_children(
         let texture: Handle<Image> = asset_server.load(tex_name.to_string());
         let material = materials.add(StandardMaterial {
             base_color_texture: Some(texture),
+            alpha_mode: AlphaMode::Mask(0.5),
+            perceptual_roughness: 1.0,
             double_sided: true,
             cull_mode: None,
             unlit: matches!(rsm.shade_type, ShadeType::Black),
@@ -785,4 +939,24 @@ fn build_model_children(
     }
 
     children
+}
+
+pub(crate) fn animate_water(
+    time: Res<Time>,
+    mut query: Query<(&mut WaterAnimator, &MeshMaterial3d<StandardMaterial>)>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    println!("Animating water");
+    for (mut anim, mat_handle) in &mut query {
+        anim.elapsed += time.delta_secs();
+        if anim.elapsed >= anim.interval_secs {
+            println!("anim.elapsed >= anim.interval_secs is true");
+            anim.elapsed -= anim.interval_secs;
+            anim.current_frame = (anim.current_frame + 1) % anim.frames.len();
+            if let Some(mat) = materials.get_mut(mat_handle.id()) {
+                println!("got material");
+                mat.base_color_texture = Some(anim.frames[anim.current_frame].clone());
+            }
+        }
+    }
 }

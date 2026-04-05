@@ -39,11 +39,13 @@ impl AssetLoader for RoMapLoader {
             .await?;
         let rsw = RswFile::parse(&rsw_bytes)?;
 
+        let water = rsw.water.or(gnd.water.clone());
         Ok(RoMapAsset {
             gnd,
             gat,
             lighting: rsw.lighting,
             objects: rsw.objects,
+            water,
         })
     }
 

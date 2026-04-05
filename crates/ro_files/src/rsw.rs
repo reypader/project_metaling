@@ -1,6 +1,7 @@
 use anyhow::{anyhow, bail, Context, Result};
 use std::io::{Cursor, Seek, SeekFrom};
 
+use crate::gnd::GndWaterPlane;
 use crate::util::{check_magic, read_fixed_string, rf32, ri32, ru32, ru8};
 
 use std::collections::{BTreeSet, HashMap};
@@ -67,6 +68,7 @@ pub enum RswObject {
 
 pub struct RswFile {
     pub version: (u8, u8),
+    pub water: Option<GndWaterPlane>,
     pub lighting: RswLighting,
     pub objects: Vec<RswObject>,
 }
@@ -103,10 +105,17 @@ impl RswFile {
             let _ = read_fixed_string(&mut c, 40)?; // src file
 
             // Water configuration: present when version < (2, 6) — moved to GND in v2.6+
-            if !at_least(version, 2, 6) {
-                // level, type, waveHeight, waveSpeed, wavePitch, textureCyclingInterval = 6 × 4 bytes
-                c.seek(SeekFrom::Current(24))?;
-            }
+            let water = if !at_least(version, 2, 6) {
+                let level = rf32(&mut c)?;
+                let water_type = ri32(&mut c)?;
+                let wave_height = rf32(&mut c)?;
+                let wave_speed = rf32(&mut c)?;
+                let wave_pitch = rf32(&mut c)?;
+                let texture_cycling_interval = ri32(&mut c)?;
+                Some(GndWaterPlane { level, water_type, wave_height, wave_speed, wave_pitch, texture_cycling_interval })
+            } else {
+                None
+            };
 
             // Lighting
             let longitude = ru32(&mut c)?;
@@ -213,6 +222,7 @@ impl RswFile {
 
             Ok(RswFile {
                 version,
+                water,
                 lighting: RswLighting {
                     longitude,
                     latitude,

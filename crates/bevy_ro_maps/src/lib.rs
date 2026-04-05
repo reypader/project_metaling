@@ -5,11 +5,11 @@ mod navigation;
 
 pub use assets::RoMapAsset;
 pub use loader::RoMapLoader;
-pub use render::{RoMapMesh, RoMapRoot};
+pub use render::{MapLightingReady, RoMapMesh, RoMapRoot};
 pub use navigation::{NavMesh};
 
 pub mod prelude {
-    pub use crate::{NavMesh, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
+    pub use crate::{MapLightingReady, NavMesh, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
     pub use ro_files::TerrainType;
 }
 
@@ -25,7 +25,7 @@ impl Plugin for RoMapsPlugin {
         app.register_asset_loader(RoMapLoader);
         app.add_systems(
             Update,
-            (render::spawn_map_meshes, render::spawn_model_meshes),
+            (render::spawn_map_meshes, render::spawn_model_meshes, render::animate_water),
         );
     }
 }
