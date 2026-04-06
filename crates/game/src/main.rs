@@ -334,7 +334,8 @@ fn attach_composite(
 fn update_composite_tag(
     actors: Query<
         (&ActorState, &ActorDirection, &Children),
-        Or<(Changed<ActorState>, Changed<ActorDirection>)>,
+        // Or<(Changed<ActorState>, Changed<ActorDirection>)>,
+        (With<ActorState>, With<ActorDirection>),
     >,
     mut billboards: Query<&mut RoComposite>,
     camera_q: Query<&Transform, With<Camera3d>>,

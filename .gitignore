@@ -1,5 +1,6 @@
 .idea
 *.iml
+.venv
 
 target
 extracted
@@ -9,3 +10,6 @@ manifest.toml
 
 CLAUDE.md
 .claude
+.claudeignore
+plan.md
+reference
