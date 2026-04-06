@@ -6,7 +6,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_ro_models::RsmAsset;
-use bevy::pbr::Lightmap;
+use crate::terrain_material::{TerrainLightmapExtension, TerrainMaterial};
 use ro_files::{ModelInstance, RsmMesh, RswLighting, RswObject, ShadeType};
 use std::collections::HashMap;
 use crate::navigation::NavMesh;
@@ -95,6 +95,7 @@ pub(crate) fn spawn_map_meshes(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut terrain_materials: ResMut<Assets<TerrainMaterial>>,
     mut images: ResMut<Assets<Image>>,
 ) {
     for (root_entity, mut root) in &mut map_roots {
@@ -452,26 +453,25 @@ pub(crate) fn spawn_map_meshes(
 
             let texture: Handle<Image> = asset_server.load(texture_path);
 
-            let material = materials.add(StandardMaterial {
-                base_color_texture: Some(texture),
-                alpha_mode: AlphaMode::Mask(0.5),
-                perceptual_roughness: 1.0,
-                reflectance: 0.0,
-                lightmap_exposure: 1.0,
-                double_sided: true,
-                cull_mode: None,
-                ..default()
+            let material = terrain_materials.add(TerrainMaterial {
+                base: StandardMaterial {
+                    base_color_texture: Some(texture),
+                    alpha_mode: AlphaMode::Mask(0.5),
+                    perceptual_roughness: 1.0,
+                    reflectance: 0.0,
+                    double_sided: true,
+                    cull_mode: None,
+                    ..default()
+                },
+                extension: TerrainLightmapExtension {
+                    lightmap: lightmap_atlas.clone(),
+                },
             });
 
             let child = commands
                 .spawn((
                     Mesh3d(meshes.add(mesh)),
                     MeshMaterial3d(material),
-                    Lightmap {
-                        image: lightmap_atlas.clone(),
-                        uv_rect: Rect::new(0.0, 0.0, 1.0, 1.0),
-                        bicubic_sampling: false,
-                    },
                     Transform::default(),
                     RoMapMesh,
                     Pickable {

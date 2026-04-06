@@ -124,7 +124,12 @@ fn setup(
             ..default()
         },
         Transform::default(),
-        CascadeShadowConfigBuilder::default().build(),
+        CascadeShadowConfigBuilder {
+            maximum_distance: 1000.0,
+            first_cascade_far_bound: 300.0,
+            ..default()
+        }
+        .build(),
     ));
 
     commands.spawn((
@@ -188,20 +193,22 @@ fn apply_map_lighting(
     // by longitude. The resulting vector is the direction the light travels.
     let lat_rad = (lighting.latitude as f32).to_radians();
     let lon_rad = (lighting.longitude as f32).to_radians();
-    let rot = Quat::from_rotation_y(lon_rad) * Quat::from_rotation_x(-lat_rad);
+    let rot = Quat::from_rotation_y(-lon_rad) * Quat::from_rotation_x(lat_rad);
     let sun_dir = rot * Vec3::NEG_Y;
 
     let [dr, dg, db] = lighting.diffuse;
     let [ar, ag, ab] = lighting.ambient;
 
     if let Ok((mut light, mut transform)) = sun_query.single_mut() {
-        light.color = Color::srgb(dr, dg * 0.92, db * 0.78);
-        light.illuminance = lighting.shadowmap_alpha * 20_000.0;
+        // light.color = Color::srgb(dr, dg * 0.92, db * 0.78);
+        light.color = Color::srgb(dr, dg, db);
+
+        light.illuminance = lighting.shadowmap_alpha * 8_000.0;
         *transform = Transform::IDENTITY.looking_to(sun_dir, Vec3::Y);
     }
 
     ambient.color = Color::srgb(ar, ag, ab);
-    ambient.brightness = 1500.0;
+    ambient.brightness = 800.0;
 }
 
 // ─────────────────────────────────────────────────────────────
