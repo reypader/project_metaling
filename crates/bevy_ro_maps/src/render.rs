@@ -66,6 +66,22 @@ pub(crate) struct PendingModels {
     pub dims: MapDims,
 }
 
+/// Per-mesh rotation-keyframe data used by [`RsmAnimator`].
+struct AnimNode {
+    /// The anim-node entity whose `Transform::rotation` is updated each frame.
+    entity: Entity,
+    /// Rotation keyframes `(time_ms, quaternion)`, sorted ascending by time.
+    frames: Vec<(i32, Quat)>,
+}
+
+/// Drives RSM1 per-mesh rotation-keyframe animation on a model instance entity.
+#[derive(Component)]
+pub(crate) struct RsmAnimator {
+    anim_speed: f32,
+    elapsed_ms: f32,
+    nodes: Vec<AnimNode>,
+}
+
 /// Fired once when a map finishes spawning. Carries the lighting parameters from the RSW file.
 #[derive(Event, Clone)]
 pub struct MapLightingReady(pub RswLighting);
@@ -416,6 +432,7 @@ pub(crate) fn spawn_map_meshes(
                 base_color_texture: Some(texture),
                 alpha_mode: AlphaMode::Mask(0.5),
                 perceptual_roughness: 1.0,
+                reflectance: 0.0,
                 double_sided: true,
                 cull_mode: None,
                 ..default()
@@ -594,6 +611,30 @@ fn build_model_children(
     asset_server: &AssetServer,
 ) -> Vec<Entity> {
     let rsm = &rsm_asset.rsm;
+
+    // Dispatch to the hierarchical animated builder for RSM1 models with keyframe animation.
+    if rsm.version < 0x0200
+        && inst.anim_speed > 0.0
+        && rsm.meshes.iter().any(|m| m.frames.len() > 1)
+    {
+        return build_animated_rsm1(inst, rsm_asset, dims, commands, meshes, materials, asset_server);
+    }
+
+    // RSM2 falls through to the static flat-baked path, which uses RSM1 matrix logic.
+    // Geometry will be approximately correct for simple single-mesh props but wrong for
+    // models with non-trivial hierarchies or animation. See CLAUDE.md for details.
+    if rsm.version >= 0x0200 {
+        let has_rot_anim = rsm.meshes.iter().any(|m| m.frames.len() > 1);
+        warn!(
+            "[RoModel] RSM2 model '{}' rendered via static RSM1-style path — \
+             matrix chain differs; {} mesh(es){}, anim_speed={}",
+            inst.model_file,
+            rsm.meshes.len(),
+            if has_rot_anim { ", has rotation keyframes (not animated)" } else { "" },
+            inst.anim_speed,
+        );
+    }
+
     let MapDims {
         scale: gnd_scale,
         cx,
@@ -921,6 +962,7 @@ fn build_model_children(
             base_color_texture: Some(texture),
             alpha_mode: AlphaMode::Mask(0.5),
             perceptual_roughness: 1.0,
+            reflectance: 0.0,
             double_sided: true,
             cull_mode: None,
             unlit: matches!(rsm.shade_type, ShadeType::Black),
@@ -939,6 +981,359 @@ fn build_model_children(
     }
 
     children
+}
+
+/// Builds the entity hierarchy for an animated RSM1 model instance.
+///
+/// Hierarchy:
+/// ```
+/// instance_root (RSW world positioning)
+/// └── outer_model (Y/Z-flip + real_bbrange pivot)
+///     └── [per mesh] anim_node (matrix1: translate × rotate(t) × scale)
+///         └── [per texture] geometry entity (matrix2 baked into vertices)
+/// ```
+///
+/// Only meshes with more than one keyframe are tracked by [`RsmAnimator`]; the
+/// rest have a fixed `Transform` and are effectively static.
+fn build_animated_rsm1(
+    inst: &ModelInstance,
+    rsm_asset: &RsmAsset,
+    dims: MapDims,
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    asset_server: &AssetServer,
+) -> Vec<Entity> {
+    let rsm = &rsm_asset.rsm;
+    let MapDims { scale: gnd_scale, cx, cz } = dims;
+
+    // Instance-level transform — identical to the static path.
+    let translation = Vec3::new(cx + inst.pos[0], -inst.pos[1], gnd_scale + cz - inst.pos[2]);
+    let rotation = Quat::from_euler(
+        EulerRot::YXZ,
+        (-inst.rot[1]).to_radians(),
+        inst.rot[0].to_radians(),
+        (-inst.rot[2]).to_radians(),
+    );
+    let inst_scale = Vec3::new(inst.scale[0], inst.scale[1], inst.scale[2]);
+
+    // Compute real bounding box over the full static (t=0) transform chain —
+    // identical to the static path so the pivot is consistent.
+    let mut actual_min_y = f32::MAX;
+    let mut bb_x_min = f32::MAX;
+    let mut bb_x_max = f32::MIN;
+    let mut bb_z_min = f32::MAX;
+    let mut bb_z_max = f32::MIN;
+    for mesh in &rsm.meshes {
+        let is_root = mesh.parent_name.is_empty();
+        for &raw in &mesh.vertices {
+            let m = &mesh.offset;
+            let mut p = [
+                m[0][0] * raw[0] + m[1][0] * raw[1] + m[2][0] * raw[2],
+                m[0][1] * raw[0] + m[1][1] * raw[1] + m[2][1] * raw[2],
+                m[0][2] * raw[0] + m[1][2] * raw[1] + m[2][2] * raw[2],
+            ];
+            p[0] += mesh.pos_[0]; p[1] += mesh.pos_[1]; p[2] += mesh.pos_[2];
+            p[0] *= mesh.scale[0]; p[1] *= mesh.scale[1]; p[2] *= mesh.scale[2];
+            if !mesh.frames.is_empty() {
+                let rot = Quat::from_array(mesh.frames[0].quaternion).normalize();
+                p = (rot * Vec3::from(p)).to_array();
+            } else if mesh.rot_angle.abs() > 0.001 {
+                let axis = Vec3::from(mesh.rot_axis);
+                if axis.length_squared() > 0.0001 {
+                    p = (Quat::from_axis_angle(axis.normalize(), mesh.rot_angle) * Vec3::from(p)).to_array();
+                }
+            }
+            if !is_root { p[0] += mesh.pos[0]; p[1] += mesh.pos[1]; p[2] += mesh.pos[2]; }
+            actual_min_y = actual_min_y.min(-p[1]);
+            bb_x_min = bb_x_min.min(p[0]); bb_x_max = bb_x_max.max(p[0]);
+            bb_z_min = bb_z_min.min(p[2]); bb_z_max = bb_z_max.max(p[2]);
+        }
+    }
+    if actual_min_y == f32::MAX {
+        actual_min_y = 0.0;
+        bb_x_min = 0.0; bb_x_max = 0.0; bb_z_min = 0.0; bb_z_max = 0.0;
+    }
+    let real_bbrange_x = (bb_x_min + bb_x_max) * 0.5;
+    let real_bbrange_z = (bb_z_min + bb_z_max) * 0.5;
+
+    // Build name→index map for parent-child wiring.
+    let mesh_index_by_name: HashMap<&str, usize> = rsm.meshes
+        .iter()
+        .enumerate()
+        .map(|(i, m)| (m.name.as_str(), i))
+        .collect();
+
+    // Instance root — carries RSW world positioning.
+    let instance_root = commands.spawn(
+        Transform::from_translation(translation)
+            .with_rotation(rotation)
+            .with_scale(inst_scale),
+    ).id();
+
+    // Outer model entity — encapsulates the Y/Z flip and real_bbrange pivot that
+    // are baked per-vertex in the static path.
+    //
+    // The combined per-vertex steps (Y-flip, Z-flip, pivot) equal:
+    //   Scale(1,-1,-1) * p + (-rbx, -min_y, +rbz)
+    // which is exactly `Transform { translation: (-rbx,-min_y,rbz), scale: (1,-1,-1) }`.
+    let outer_model = commands.spawn(
+        Transform::from_translation(Vec3::new(-real_bbrange_x, -actual_min_y, real_bbrange_z))
+            .with_scale(Vec3::new(1.0, -1.0, -1.0)),
+    ).id();
+    commands.entity(instance_root).add_child(outer_model);
+
+    // Pre-compute per-mesh smooth normals in matrix2 space.
+    let smooth = matches!(rsm.shade_type, ShadeType::Smooth);
+    let mesh_smooth_normals: Vec<Option<HashMap<(u16, i32), Vec3>>> = rsm.meshes.iter().map(|mesh| {
+        if !smooth { return None; }
+        let mut acc: HashMap<(u16, i32), Vec3> = HashMap::new();
+        for face in &mesh.faces {
+            let bake = |i: usize| -> Vec3 {
+                let raw = mesh.vertices.get(face.vertex_ids[i] as usize).copied().unwrap_or_default();
+                let m = &mesh.offset;
+                Vec3::new(
+                    m[0][0]*raw[0] + m[1][0]*raw[1] + m[2][0]*raw[2] + mesh.pos_[0],
+                    m[0][1]*raw[0] + m[1][1]*raw[1] + m[2][1]*raw[2] + mesh.pos_[1],
+                    m[0][2]*raw[0] + m[1][2]*raw[1] + m[2][2]*raw[2] + mesh.pos_[2],
+                )
+            };
+            let fn_ = (bake(1) - bake(0)).cross(bake(2) - bake(0));
+            for corner in 0..3 {
+                *acc.entry((face.vertex_ids[corner], face.smooth_group)).or_insert(Vec3::ZERO) += fn_;
+            }
+        }
+        Some(acc)
+    }).collect();
+
+    // Pass 1: create all anim-node entities with their initial (t=0) transforms.
+    //
+    // matrix1 for each mesh = translate(pos for non-root) × rotate(t) × scale(mesh.scale).
+    // For root meshes the translation is Vec3::ZERO because the pivot is already handled
+    // by the outer_model entity transform.
+    let anim_entities: Vec<Entity> = rsm.meshes.iter().map(|mesh| {
+        let is_root = mesh.parent_name.is_empty();
+        let mesh_translation = if is_root { Vec3::ZERO } else { Vec3::from(mesh.pos) };
+        commands.spawn(
+            Transform::from_translation(mesh_translation)
+                .with_rotation(rsm_mesh_initial_quat(mesh))
+                .with_scale(Vec3::from(mesh.scale)),
+        ).id()
+    }).collect();
+
+    // Pass 2: wire parent-child, build geometry, collect animated nodes.
+    let mut anim_nodes: Vec<AnimNode> = Vec::new();
+    let tex_count = rsm.textures.len().max(1);
+
+    for (mesh_idx, mesh) in rsm.meshes.iter().enumerate() {
+        let anim_entity = anim_entities[mesh_idx];
+
+        // Wire to parent anim-node (or outer_model for root meshes).
+        if mesh.parent_name.is_empty() {
+            commands.entity(outer_model).add_child(anim_entity);
+        } else {
+            let parent = mesh_index_by_name
+                .get(mesh.parent_name.as_str())
+                .and_then(|&pi| anim_entities.get(pi))
+                .copied()
+                .unwrap_or(outer_model);
+            commands.entity(parent).add_child(anim_entity);
+        }
+
+        // Build per-texture geometry groups with only matrix2 baked into vertices.
+        let mut groups: Vec<MeshGroup> = (0..tex_count).map(|_| (vec![], vec![], vec![], vec![])).collect();
+        let smooth_norms = mesh_smooth_normals.get(mesh_idx).and_then(|o| o.as_ref());
+
+        for face in &mesh.faces {
+            let tex_slot = face.texture_id as usize;
+            let resolved_tex = mesh.texture_indices.get(tex_slot).copied().unwrap_or(0) as usize;
+            if resolved_tex >= groups.len() { continue; }
+
+            let (positions, normals, uvs, indices) = &mut groups[resolved_tex];
+            let mut tri_verts = [[0.0f32; 3]; 3];
+            let mut tri_uvs = [[0.0f32; 2]; 3];
+
+            for corner in 0..3 {
+                let vid = face.vertex_ids[corner] as usize;
+                let tcid = face.texcoord_ids[corner] as usize;
+                let raw = mesh.vertices.get(vid).copied().unwrap_or_default();
+                // Apply only matrix2: offset × raw + pos_
+                let m = &mesh.offset;
+                tri_verts[corner] = [
+                    m[0][0]*raw[0] + m[1][0]*raw[1] + m[2][0]*raw[2] + mesh.pos_[0],
+                    m[0][1]*raw[0] + m[1][1]*raw[1] + m[2][1]*raw[2] + mesh.pos_[1],
+                    m[0][2]*raw[0] + m[1][2]*raw[1] + m[2][2]*raw[2] + mesh.pos_[2],
+                ];
+                tri_uvs[corner] = mesh.tex_coords.get(tcid).copied().unwrap_or_default();
+            }
+
+            let v0 = Vec3::from(tri_verts[0]);
+            let v1 = Vec3::from(tri_verts[1]);
+            let v2 = Vec3::from(tri_verts[2]);
+            let face_normal = (v1 - v0).cross(v2 - v0).normalize();
+
+            let corner_normals: [[f32; 3]; 3] = std::array::from_fn(|corner| {
+                if let Some(sn) = smooth_norms {
+                    sn.get(&(face.vertex_ids[corner], face.smooth_group))
+                        .copied()
+                        .unwrap_or(face_normal)
+                        .normalize()
+                        .to_array()
+                } else {
+                    face_normal.to_array()
+                }
+            });
+
+            let base = positions.len() as u32;
+            for corner in 0..3 {
+                positions.push(tri_verts[corner]);
+                normals.push(corner_normals[corner]);
+                uvs.push(tri_uvs[corner]);
+            }
+            indices.extend([base, base + 1, base + 2]);
+
+            if face.two_sided {
+                let base2 = positions.len() as u32;
+                for corner in [2usize, 1, 0] {
+                    positions.push(tri_verts[corner]);
+                    normals.push((-Vec3::from(corner_normals[corner])).to_array());
+                    uvs.push(tri_uvs[corner]);
+                }
+                indices.extend([base2, base2 + 1, base2 + 2]);
+            }
+        }
+
+        // Spawn geometry entities as children of the anim-node.
+        for (tex_idx, (pos_data, norm_data, uv_data, idx_data)) in groups.into_iter().enumerate() {
+            if pos_data.is_empty() { continue; }
+
+            let mut mesh_geom = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::default());
+            mesh_geom.insert_attribute(Mesh::ATTRIBUTE_POSITION, pos_data);
+            mesh_geom.insert_attribute(Mesh::ATTRIBUTE_NORMAL, norm_data);
+            mesh_geom.insert_attribute(Mesh::ATTRIBUTE_UV_0, uv_data);
+            mesh_geom.insert_indices(Indices::U32(idx_data));
+
+            let tex_name = rsm.textures.get(tex_idx).map(|s| s.as_str()).unwrap_or("");
+            let texture: Handle<Image> = asset_server.load(tex_name.to_string());
+            let material = materials.add(StandardMaterial {
+                base_color_texture: Some(texture),
+                alpha_mode: AlphaMode::Mask(0.5),
+                perceptual_roughness: 1.0,
+                reflectance: 0.0,
+                double_sided: true,
+                cull_mode: None,
+                unlit: matches!(rsm.shade_type, ShadeType::Black),
+                ..default()
+            });
+
+            let geom = commands.spawn((
+                Mesh3d(meshes.add(mesh_geom)),
+                MeshMaterial3d(material),
+                Transform::default(),
+            )).id();
+            commands.entity(anim_entity).add_child(geom);
+        }
+
+        // Register animated meshes (> 1 keyframe) for the RsmAnimator.
+        if mesh.frames.len() > 1 {
+            let kf: Vec<(i32, Quat)> = mesh.frames.iter()
+                .map(|f| (f.time, Quat::from_array(f.quaternion).normalize()))
+                .collect();
+            anim_nodes.push(AnimNode { entity: anim_entity, frames: kf });
+        }
+    }
+
+    // Attach RsmAnimator when there are animated nodes.
+    if !anim_nodes.is_empty() {
+        let anim_speed = if inst.anim_speed > 0.0 { inst.anim_speed } else { 1.0 };
+        commands.entity(instance_root).insert(RsmAnimator {
+            anim_speed,
+            elapsed_ms: 0.0,
+            nodes: anim_nodes,
+        });
+    }
+
+    vec![instance_root]
+}
+
+/// Returns the initial (t=0) rotation quaternion for an RSM1 mesh.
+fn rsm_mesh_initial_quat(mesh: &RsmMesh) -> Quat {
+    if !mesh.frames.is_empty() {
+        Quat::from_array(mesh.frames[0].quaternion).normalize()
+    } else if mesh.rot_angle.abs() > 0.001 {
+        let axis = Vec3::from(mesh.rot_axis);
+        if axis.length_squared() > 0.0001 {
+            Quat::from_axis_angle(axis.normalize(), mesh.rot_angle)
+        } else {
+            Quat::IDENTITY
+        }
+    } else {
+        Quat::IDENTITY
+    }
+}
+
+/// Advances per-mesh rotation keyframe animation for all [`RsmAnimator`] instances.
+///
+/// Uses [`Without<RsmAnimator>`] on the Transform query to avoid a Bevy query
+/// conflict (the instance root entity carries both components).
+pub(crate) fn animate_rsm(
+    time: Res<Time>,
+    mut animators: Query<&mut RsmAnimator>,
+    mut node_transforms: Query<&mut Transform, Without<RsmAnimator>>,
+) {
+    for mut animator in &mut animators {
+        animator.elapsed_ms += time.delta_secs() * 1000.0 * animator.anim_speed;
+        for node in &animator.nodes {
+            let quat = rsm1_interpolate_rotation(&node.frames, animator.elapsed_ms);
+            if let Ok(mut t) = node_transforms.get_mut(node.entity) {
+                t.rotation = quat;
+            }
+        }
+    }
+}
+
+/// BrowEdit-compatible RSM1 keyframe interpolation.
+///
+/// Loop period = last keyframe's time. Finds the surrounding pair of frames and
+/// SLERPs between their quaternions using the same index logic as BrowEdit's
+/// `calcMatrix1`.
+fn rsm1_interpolate_rotation(frames: &[(i32, Quat)], elapsed_ms: f32) -> Quat {
+    if frames.is_empty() {
+        return Quat::IDENTITY;
+    }
+    let last_time = frames.last().unwrap().0;
+    if last_time == 0 || frames.len() == 1 {
+        return frames[0].1;
+    }
+
+    let tick = (elapsed_ms as i32).rem_euclid(last_time);
+
+    // Find `current`: the last frame index whose time <= tick.
+    // BrowEdit initialises `current = 0` and sets it to `i - 1` on the first
+    // frame with `time > tick`, clamping to 0 if that would be negative.
+    let mut current: i32 = 0;
+    'find: {
+        for (i, &(t, _)) in frames.iter().enumerate() {
+            if t > tick {
+                current = i as i32 - 1;
+                break 'find;
+            }
+        }
+        // Loop exhausted: all frame times <= tick (shouldn't happen since
+        // tick < last_time, but keep BrowEdit's fallback of current = 0).
+    }
+    if current < 0 { current = 0; }
+
+    let mut next = current + 1;
+    if next as usize >= frames.len() { next = 0; }
+
+    let (t_curr, q_curr) = frames[current as usize];
+    let (t_next, q_next) = frames[next as usize];
+
+    let denom = (t_next - t_curr) as f32;
+    let interval = if denom.abs() < f32::EPSILON { 0.0 } else { (tick - t_curr) as f32 / denom };
+
+    q_curr.slerp(q_next, interval).normalize()
 }
 
 pub(crate) fn animate_water(

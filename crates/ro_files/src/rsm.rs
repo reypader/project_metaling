@@ -380,6 +380,12 @@ fn parse_rsm2_mesh(c: &mut Cursor<&[u8]>, shared_textures: &mut Vec<String>) -> 
 
     // Position keyframes — skip.
     let pos_kf_count = ri32(c)? as usize;
+    if pos_kf_count > 0 {
+        log::warn!(
+            "[RoModel] RSM2 mesh '{}': {} position keyframe(s) skipped (not yet implemented)",
+            name, pos_kf_count
+        );
+    }
     for _ in 0..pos_kf_count {
         skip(c, 4 + 12 + 4)?; // i32 frame + vec3 + i32 unknown
     }
@@ -399,14 +405,26 @@ fn parse_rsm2_mesh(c: &mut Cursor<&[u8]>, shared_textures: &mut Vec<String>) -> 
         });
     }
 
-    // Unknown section 1: count × 20 bytes.
+    // Unknown section 1: likely scale keyframes — count × 20 bytes.
     let unk1_count = ri32(c)? as usize;
+    if unk1_count > 0 {
+        log::warn!(
+            "[RoModel] RSM2 mesh '{}': {} unknown-section-1 (scale?) keyframe(s) skipped",
+            name, unk1_count
+        );
+    }
     for _ in 0..unk1_count {
         skip(c, 20)?;
     }
 
-    // Unknown section 2: nested structure.
+    // Unknown section 2: likely texture UV animation — nested structure.
     let unk2_outer = ri32(c)? as usize;
+    if unk2_outer > 0 {
+        log::warn!(
+            "[RoModel] RSM2 mesh '{}': unknown-section-2 (texture anim?) has {} outer entry(s) — skipped",
+            name, unk2_outer
+        );
+    }
     for _ in 0..unk2_outer {
         skip(c, 4)?; // outer i32
         let unk2_inner = ri32(c)? as usize;

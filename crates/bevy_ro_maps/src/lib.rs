@@ -25,7 +25,7 @@ impl Plugin for RoMapsPlugin {
         app.register_asset_loader(RoMapLoader);
         app.add_systems(
             Update,
-            (render::spawn_map_meshes, render::spawn_model_meshes, render::animate_water),
+            (render::spawn_map_meshes, render::spawn_model_meshes, render::animate_water, render::animate_rsm),
         );
     }
 }
