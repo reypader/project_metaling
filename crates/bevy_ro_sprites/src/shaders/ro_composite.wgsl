@@ -1,4 +1,6 @@
 #import bevy_pbr::forward_io::VertexOutput
+#import bevy_pbr::mesh_view_bindings as view_bindings
+#import bevy_pbr::shadows
 
 // Must match MAX_LAYERS in composite.rs
 const MAX_LAYERS: u32 = 8u;
@@ -59,5 +61,28 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
         }
     }
 
-    return result;
+    // Apply directional light shadows so the environment casts shadows onto the sprite.
+    let view_z = dot(vec4<f32>(
+        view_bindings::view.view_from_world[0].z,
+        view_bindings::view.view_from_world[1].z,
+        view_bindings::view.view_from_world[2].z,
+        view_bindings::view.view_from_world[3].z,
+    ), mesh.world_position);
+
+    var shadow_factor = 1.0;
+    for (var i = 0u; i < view_bindings::lights.n_directional_lights; i++) {
+        let s = shadows::fetch_directional_shadow(
+            i,
+            mesh.world_position,
+            mesh.world_normal,
+            view_z,
+        );
+        shadow_factor = min(shadow_factor, s);
+    }
+
+    // Darken by shadow but floor at 0.4 so sprites in full shadow still
+    // read as the ambient-lit version of their colours rather than going black.
+    let effective_shadow = mix(0.4, 1.0, shadow_factor);
+
+    return vec4<f32>(result.rgb * effective_shadow, result.a);
 }

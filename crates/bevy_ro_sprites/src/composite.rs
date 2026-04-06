@@ -3,6 +3,7 @@ use std::{num::NonZero, time::Duration};
 use bevy::{
     asset::uuid_handle,
     ecs::system::{lifetimeless::SRes, SystemParamItem},
+    light::NotShadowCaster,
     pbr::Material,
     prelude::*,
     render::{
@@ -317,6 +318,7 @@ impl Plugin for RoCompositePlugin {
         );
         app.add_plugins(MaterialPlugin::<RoCompositeMaterial>::default());
         app.add_systems(Update, (orient_billboard, update_ro_composite).chain());
+        app.add_systems(Update, disable_billboard_shadows);
     }
 }
 
@@ -618,6 +620,19 @@ pub fn direction_index(facing: Vec2, cam_fwd: Vec2) -> u8 {
         angle
     };
     ((angle + std::f32::consts::PI / 8.0) / (std::f32::consts::TAU / 8.0)) as u8 % 8
+}
+
+/// Keeps every [`RoComposite`] billboard facing the camera.
+///
+/// Disables shadow casting on billboard entities. A flat plane rotating to face the
+/// camera cannot cast a meaningful shadow, so we suppress it entirely.
+fn disable_billboard_shadows(
+    mut commands: Commands,
+    query: Query<Entity, Added<RoComposite>>,
+) {
+    for entity in &query {
+        commands.entity(entity).insert(NotShadowCaster);
+    }
 }
 
 /// Keeps every [`RoComposite`] billboard facing the camera.
