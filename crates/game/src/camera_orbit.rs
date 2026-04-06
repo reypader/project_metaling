@@ -75,11 +75,12 @@ fn camera_orbit(
     }
 
     let d = orbit.distance - (scroll.delta.y * 200.0 * dt);
-    orbit.distance = d.clamp(200.0, 5000.0);
+    orbit.distance = d.clamp(50.0, 150.0);
 
     let (yaw, pitch, roll) = camera.rotation.to_euler(EulerRot::YXZ);
 
-    let pitch = pitch + delta_pitch; //.clamp(-FRAC_PI_3, -FRAC_1_PI);
+    // Clamp pitch: no shallower than 30° from ground (-PI/6), no steeper than 30° from vertical (-PI/3).
+    let pitch = (pitch + delta_pitch).clamp(-std::f32::consts::FRAC_PI_3, -std::f32::consts::FRAC_PI_6);
     let yaw = yaw + delta_yaw;
     camera.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
 

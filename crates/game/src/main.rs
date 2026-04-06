@@ -46,6 +46,7 @@ fn setup(
         RoMapRoot {
             // asset: asset_server.load("maps/prt_fild08/prt_fild08.gnd"),
             // asset: asset_server.load("maps/payon/payon.gnd"),
+            // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
             // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
             asset: asset_server.load("maps/pprontera/pprontera.gnd"),
@@ -57,7 +58,7 @@ fn setup(
 
     commands.spawn((
         MapMarker,
-        Mesh3d(meshes.add(Cylinder::new(2.5, 2.0))),
+        Mesh3d(meshes.add(Cylinder::new(2.5, 0.5))),
         MeshMaterial3d(materials.add(StandardMaterial {
             base_color: Color::srgb(1.0, 0.1, 0.1),
             ..default()
@@ -94,7 +95,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(-Vec3::Z.xz()),
-        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(0.25,0.25,0.25)),
+        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(0.15,0.15,0.15)),
         PlayerControl,
     ));
     commands.spawn((

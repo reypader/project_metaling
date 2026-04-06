@@ -318,7 +318,7 @@ impl Plugin for RoCompositePlugin {
         );
         app.add_plugins(MaterialPlugin::<RoCompositeMaterial>::default());
         app.add_systems(Update, (orient_billboard, update_ro_composite).chain());
-        app.add_systems(Update, disable_billboard_shadows);
+        app.add_systems(Update, (disable_billboard_shadows, attach_shadow_layer));
     }
 }
 
@@ -346,34 +346,32 @@ pub fn update_ro_composite(
     };
     for (entity, mut composite, mat_handle, mut transform) in &mut composites {
         // ── 1. Advance animation ──────────────────────────────────────────
-        // Resolve tag range and frame duration from the first layer's atlas.
-        // We extract owned values immediately to avoid holding borrows across
-        // the subsequent mutations of `composite`.
-        let first_handle = composite.layers.first().map(|l| l.atlas.clone());
-        let Some(first_atlas) = first_handle.as_ref().and_then(|h| atlases.get(h)) else {
-            continue;
-        };
-
-        let tag_range = match composite.tag.as_ref() {
-            Some(tag) => match first_atlas.tags.get(tag) {
-                Some(meta) => meta.range.clone(),
-                None => continue,
-            },
-            None => 0..=(first_atlas.frame_durations.len().saturating_sub(1) as u16),
-        };
-        let frame_dur = first_atlas
-            .frame_durations
-            .get(composite.current_frame as usize)
-            .copied();
-        let _ = first_atlas; // release borrow on atlases before mutating composite
-
-        // The Body layer is the compositing anchor and the source of ACT frame events.
-        // Compute this early so it's available both during frame advance and in step 2.
+        // The Body layer is the compositing anchor and animation driver.
+        // Resolve tag range and frame duration from the body atlas, not layers[0],
+        // so that non-body layers prepended to the list (e.g. shadow) don't interfere.
         let body_idx = composite
             .layers
             .iter()
             .position(|l| l.role == SpriteRole::Body)
             .unwrap_or(0);
+
+        let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
+        let Some(body_driver) = body_handle.as_ref().and_then(|h| atlases.get(h)) else {
+            continue;
+        };
+
+        let tag_range = match composite.tag.as_ref() {
+            Some(tag) => match body_driver.tags.get(tag) {
+                Some(meta) => meta.range.clone(),
+                None => continue,
+            },
+            None => 0..=(body_driver.frame_durations.len().saturating_sub(1) as u16),
+        };
+        let frame_dur = body_driver
+            .frame_durations
+            .get(composite.current_frame as usize)
+            .copied();
+        let _ = body_driver; // release borrow on atlases before mutating composite
 
         if !tag_range.contains(&composite.current_frame) {
             composite.current_frame = *tag_range.start();
@@ -396,7 +394,6 @@ pub fn update_ro_composite(
                 composite.current_frame = new_frame;
 
                 // Emit ACT frame events from the body atlas (the animation driver).
-                let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
                 if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h))
                     && let Some(Some(event)) = atlas.frame_events.get(new_frame as usize)
                 {
@@ -474,7 +471,11 @@ pub fn update_ro_composite(
                 .as_deref()
                 .and_then(|t| atlas.tags.get(t))
                 .map(|m| (*m.range.start() + rel_frame).min(*m.range.end()) as usize)
-                .unwrap_or(frame);
+                // Fall back to frame 0 for layers that don't carry the current tag.
+                // rel_frame can exceed the layer's total frame count (e.g. shadow has 1 frame
+                // but walk animations have 8), causing out-of-bounds frame_origins lookups
+                // that displace the layer. Frame 0 is always a valid, stable anchor.
+                .unwrap_or(0);
 
             let atlas_idx = atlas.get_atlas_index(mapped_frame);
             let rect = layout.textures[atlas_idx];
@@ -583,7 +584,7 @@ pub fn update_ro_composite(
         //   translation = -local_x * cam_right - local_y * cam_up
         let local_x = canvas_feet.x - canvas_size.x / 2.0;
         let local_y = canvas_size.y / 2.0 - canvas_feet.y;
-        transform.translation = -*cam_right * local_x - *cam_up * local_y;
+        transform.translation = (10.0*Vec3::Y)-*cam_right * local_x - *cam_up * local_y;
     }
 }
 
@@ -622,6 +623,27 @@ pub fn direction_index(facing: Vec2, cam_fwd: Vec2) -> u8 {
     ((angle + std::f32::consts::PI / 8.0) / (std::f32::consts::TAU / 8.0)) as u8 % 8
 }
 
+const SHADOW_SPR_PATH: &str = "sprite/shadow/shadow.spr";
+
+/// Prepends a shadow layer to every newly spawned [`RoComposite`] that doesn't already have one.
+fn attach_shadow_layer(
+    mut composites: Query<&mut RoComposite, Added<RoComposite>>,
+    server: Res<AssetServer>,
+) {
+    for mut composite in &mut composites {
+        if composite.layers.iter().any(|l| l.role == SpriteRole::Shadow) {
+            continue;
+        }
+        composite.layers.insert(
+            0,
+            CompositeLayerDef {
+                atlas: server.load(SHADOW_SPR_PATH),
+                role: SpriteRole::Shadow,
+            },
+        );
+    }
+}
+
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
 /// Disables shadow casting on billboard entities. A flat plane rotating to face the
@@ -637,8 +659,9 @@ fn disable_billboard_shadows(
 
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
-/// Rotates the billboard about its parent's world position (actor feet) so that the
-/// canvas always faces the camera regardless of the billboard's canvas-layout translation.
+/// Rotates only around the Y-axis so the billboard faces the camera's XZ direction.
+/// The plane stays vertical at all times, which prevents it from clipping through
+/// horizontal surfaces regardless of camera pitch.
 pub fn orient_billboard(
     mut billboards: Query<(&mut Transform, &ChildOf), (With<RoComposite>, Without<Camera3d>)>,
     parents: Query<&GlobalTransform>,
@@ -650,8 +673,17 @@ pub fn orient_billboard(
             .get(child_of.parent())
             .map(|gt| gt.translation())
             .unwrap_or(Vec3::ZERO);
-        let dir_to_cam = (cam.translation - pivot).normalize_or_zero();
-        let target = tf.translation - dir_to_cam;
-        tf.look_at(target, cam.up());
+
+        // Project pivot onto the camera's local X axis (the infinite line through the
+        // camera along its right vector). Facing that closest point rather than the
+        // camera position directly makes all billboards parallel to the camera's
+        // view plane, avoiding the slight angle divergence at the screen edges.
+        let cam_right = cam.rotation * Vec3::X;
+        let t = (pivot - cam.translation).dot(cam_right);
+        let closest = cam.translation + t * cam_right;
+        let dx = closest.x - pivot.x;
+        let dz = closest.z - pivot.z;
+        const TILT: f32 = 25.0 * std::f32::consts::PI / 180.0;
+        tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-TILT);
     }
 }

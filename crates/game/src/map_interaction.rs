@@ -101,16 +101,19 @@ fn attach_input_listeners(
                  query: Query<&NavMesh>,
                  map: Single<&RoMapRoot>,
                  mut commands: Commands| {
-                    if let Ok(navmesh) = query.get(click.entity) {
-                        if let Some(hit_pos) = click.hit.position {
-                            let (payer_entity, player_tf) = (*player).into();
-                            let (target, terrain_type) = navmesh.to_map_tile(hit_pos.x, hit_pos.z);
-                            if terrain_type == TerrainType::Walkable {
-                                let start = player_tf.translation.xz();
-                                if let Some(path) =
-                                    navmesh.path((start.x, start.y), (target.x, target.z))
-                                {
-                                    commands.entity(payer_entity).insert(Navigation { path });
+                    if click.button == PointerButton::Primary {
+                        if let Ok(navmesh) = query.get(click.entity) {
+                            if let Some(hit_pos) = click.hit.position {
+                                let (payer_entity, player_tf) = (*player).into();
+                                let (target, terrain_type) =
+                                    navmesh.to_map_tile(hit_pos.x, hit_pos.z);
+                                if terrain_type == TerrainType::Walkable {
+                                    let start = player_tf.translation.xz();
+                                    if let Some(path) =
+                                        navmesh.path((start.x, start.y), (target.x, target.z))
+                                    {
+                                        commands.entity(payer_entity).insert(Navigation { path });
+                                    }
                                 }
                             }
                         }
