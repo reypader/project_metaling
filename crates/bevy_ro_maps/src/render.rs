@@ -6,12 +6,14 @@ use bevy::{
     prelude::*,
 };
 use bevy_ro_models::RsmAsset;
+use bevy::pbr::Lightmap;
 use ro_files::{ModelInstance, RsmMesh, RswLighting, RswObject, ShadeType};
 use std::collections::HashMap;
 use crate::navigation::NavMesh;
 
 /// Vertex data accumulated per texture group while building mesh geometry.
-type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<u32>);
+/// Fields: (positions, normals, uv0, uv1, indices)
+type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<[f32; 2]>, Vec<u32>);
 
 /// Marker component placed on each terrain mesh entity spawned by the plugin.
 #[derive(Component)]
@@ -93,6 +95,7 @@ pub(crate) fn spawn_map_meshes(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut images: ResMut<Assets<Image>>,
 ) {
     for (root_entity, mut root) in &mut map_roots {
         if root.spawned {
@@ -118,6 +121,7 @@ pub(crate) fn spawn_map_meshes(
         let gnd = &map.gnd;
         let scale = gnd.scale;
 
+        let (lightmap_atlas, atlas_size_px) = build_lightmap_atlas(gnd, &mut images);
 
         commands.entity(root_entity).insert(NavMesh {
             terrain_width: gnd.width as f32 * scale,
@@ -136,7 +140,7 @@ pub(crate) fn spawn_map_meshes(
         // Each entry: (positions, normals, uvs, indices).
         let texture_count = gnd.texture_paths.len();
         let mut groups: Vec<MeshGroup> = (0..texture_count)
-            .map(|_| (vec![], vec![], vec![], vec![]))
+            .map(|_| (vec![], vec![], vec![], vec![], vec![]))
             .collect();
 
         // Pre-compute smooth normals at shared grid corners by accumulating (area-weighted)
@@ -212,7 +216,7 @@ pub(crate) fn spawn_map_meshes(
                 let n_nw = corner_normals[r * corner_cols + c].to_array();
                 let n_ne = corner_normals[r * corner_cols + c + 1].to_array();
 
-                let (positions, normals, uvs, indices) = &mut groups[tex_idx];
+                let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
 
                 let base = positions.len() as u32;
 
@@ -227,11 +231,20 @@ pub(crate) fn spawn_map_meshes(
                 normals.push(n_nw);
                 normals.push(n_ne);
 
-                // UVs: match vertex order above.
+                // UV0: diffuse texture UVs, match vertex order above.
                 uvs.push([surface.u[0], surface.v[0]]);
                 uvs.push([surface.u[1], surface.v[1]]);
                 uvs.push([surface.u[2], surface.v[2]]);
                 uvs.push([surface.u[3], surface.v[3]]);
+
+                // UV1: lightmap atlas UVs.
+                // Vertex order: SW=(lm1.x, lm1.y), SE=(lm2.x, lm1.y),
+                //               NW=(lm1.x, lm2.y), NE=(lm2.x, lm2.y)
+                let (lm1, lm2) = lightmap_uv_range(surface.lightmap_id, atlas_size_px);
+                uvs1.push([lm1[0], lm1[1]]);
+                uvs1.push([lm2[0], lm1[1]]);
+                uvs1.push([lm1[0], lm2[1]]);
+                uvs1.push([lm2[0], lm2[1]]);
 
                 // Two CCW triangles viewed from above (+Y): normal points +Y.
                 // sw(0)→se(1)→nw(2)  and  se(1)→ne(3)→nw(2)
@@ -271,7 +284,7 @@ pub(crate) fn spawn_map_meshes(
                                 // North wall lies in the Z-plane; normal is always +Z (faces south).
                                 let n = [0.0_f32, 0.0, 1.0];
 
-                                let (positions, normals, uvs, indices) = &mut groups[tex_idx];
+                                let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
                                 let base = positions.len() as u32;
                                 positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
                                 normals.extend([n, n, n, n]);
@@ -279,6 +292,11 @@ pub(crate) fn spawn_map_meshes(
                                 uvs.push([surf.u[1], surf.v[1]]);
                                 uvs.push([surf.u[2], surf.v[2]]);
                                 uvs.push([surf.u[3], surf.v[3]]);
+                                // UV1 north wall: v0=(lm1.x,lm1.y), v1=(lm2.x,lm1.y),
+                                //                v2=(lm1.x,lm2.y), v3=(lm2.x,lm2.y)
+                                let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
+                                uvs1.extend([[lm1[0], lm1[1]], [lm2[0], lm1[1]],
+                                             [lm1[0], lm2[1]], [lm2[0], lm2[1]]]);
                                 // T1: v0→v1→v2, T2: v1→v3→v2
                                 indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
                             }
@@ -300,7 +318,7 @@ pub(crate) fn spawn_map_meshes(
                                 // East wall lies in the X-plane; normal is always -X (faces west).
                                 let n = [-1.0_f32, 0.0, 0.0];
 
-                                let (positions, normals, uvs, indices) = &mut groups[tex_idx];
+                                let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
                                 let base = positions.len() as u32;
                                 positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
                                 normals.extend([n, n, n, n]);
@@ -308,6 +326,11 @@ pub(crate) fn spawn_map_meshes(
                                 uvs.push([surf.u[1], surf.v[1]]);
                                 uvs.push([surf.u[2], surf.v[2]]);
                                 uvs.push([surf.u[3], surf.v[3]]);
+                                // UV1 east wall: v0=(lm2.x,lm1.y), v1=(lm1.x,lm1.y),
+                                //               v2=(lm2.x,lm2.y), v3=(lm1.x,lm2.y)
+                                let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
+                                uvs1.extend([[lm2[0], lm1[1]], [lm1[0], lm1[1]],
+                                             [lm2[0], lm2[1]], [lm1[0], lm2[1]]]);
                                 // T1: v1→v0→v2, T2: v1→v2→v3
                                 indices.extend([base + 1, base, base + 2, base + 1, base + 2, base + 3]);
                             }
@@ -383,11 +406,11 @@ pub(crate) fn spawn_map_meshes(
             commands.entity(root_entity).add_child(water_entity);
         }
 
-        let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
-        let non_empty = groups.iter().filter(|(p, _, _, _)| !p.is_empty()).count();
+        let total_verts: usize = groups.iter().map(|(p, _, _, _, _)| p.len()).sum();
+        let non_empty = groups.iter().filter(|(p, _, _, _, _)| !p.is_empty()).count();
         let all_positions: Vec<[f32; 3]> = groups
             .iter()
-            .flat_map(|(p, _, _, _)| p.iter().copied())
+            .flat_map(|(p, _, _, _, _)| p.iter().copied())
             .collect();
         if !all_positions.is_empty() {
             let min = all_positions.iter().fold([f32::MAX; 3], |acc, p| {
@@ -405,7 +428,7 @@ pub(crate) fn spawn_map_meshes(
 
         // Spawn child mesh entities
         let mut children: Vec<Entity> = Vec::new();
-        for (tex_idx, (positions, normals, uvs, indices)) in groups.into_iter().enumerate() {
+        for (tex_idx, (positions, normals, uvs, uvs1, indices)) in groups.into_iter().enumerate() {
             if positions.is_empty() {
                 continue;
             }
@@ -418,6 +441,7 @@ pub(crate) fn spawn_map_meshes(
             mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
             mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
             mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
+            mesh.insert_attribute(Mesh::ATTRIBUTE_UV_1, uvs1);
             mesh.insert_indices(Indices::U32(indices));
 
             let texture_path = &gnd.texture_paths[tex_idx];
@@ -433,6 +457,7 @@ pub(crate) fn spawn_map_meshes(
                 alpha_mode: AlphaMode::Mask(0.5),
                 perceptual_roughness: 1.0,
                 reflectance: 0.0,
+                lightmap_exposure: 1.0,
                 double_sided: true,
                 cull_mode: None,
                 ..default()
@@ -442,6 +467,11 @@ pub(crate) fn spawn_map_meshes(
                 .spawn((
                     Mesh3d(meshes.add(mesh)),
                     MeshMaterial3d(material),
+                    Lightmap {
+                        image: lightmap_atlas.clone(),
+                        uv_rect: Rect::new(0.0, 0.0, 1.0, 1.0),
+                        bicubic_sampling: false,
+                    },
                     Transform::default(),
                     RoMapMesh,
                     Pickable {
@@ -768,7 +798,7 @@ fn build_model_children(
     // Keyed by the resolved RsmFile::textures index.
     let tex_count = rsm.textures.len();
     let mut groups: Vec<MeshGroup> = (0..tex_count.max(1))
-        .map(|_| (vec![], vec![], vec![], vec![]))
+        .map(|_| (vec![], vec![], vec![], vec![], vec![]))
         .collect();
 
     for (mesh_idx, mesh) in rsm.meshes.iter().enumerate() {
@@ -785,7 +815,7 @@ fn build_model_children(
                 continue;
             }
 
-            let (positions, normals, uvs, indices) = &mut groups[resolved_tex];
+            let (positions, normals, uvs, _uvs1, indices) = &mut groups[resolved_tex];
 
             let mut tri_verts = [[0.0f32; 3]; 3];
             let mut tri_uvs = [[0.0f32; 2]; 3];
@@ -908,8 +938,8 @@ fn build_model_children(
         }
     }
 
-    let non_empty = groups.iter().filter(|(p, _, _, _)| !p.is_empty()).count();
-    let total_verts: usize = groups.iter().map(|(p, _, _, _)| p.len()).sum();
+    let _non_empty = groups.iter().filter(|(p, _, _, _, _)| !p.is_empty()).count();
+    let _total_verts: usize = groups.iter().map(|(p, _, _, _, _)| p.len()).sum();
     // info!(
     //     "[RoModel] spawning '{}' — {} mesh(es), {} tex group(s), {} total verts, bb {:?}..{:?}, rsw_pos {:?}, rsw_scale {:?}, translation {:?}, rotation {:?}, real_bbrange [{:.2},{:.2}]",
     //     inst.model_file,
@@ -936,12 +966,11 @@ fn build_model_children(
 
     let children: Vec<Entity> = vec![instance_root];
 
-    for (tex_idx, (positions, normals, uvs_data, face_indices)) in groups.into_iter().enumerate() {
+    for (tex_idx, (positions, normals, uvs_data, _uvs1, face_indices)) in groups.into_iter().enumerate() {
         if positions.is_empty() {
             continue;
         }
 
-        let vert_count = positions.len();
         let mut mesh = Mesh::new(
             PrimitiveTopology::TriangleList,
             RenderAssetUsages::default(),
@@ -1141,7 +1170,7 @@ fn build_animated_rsm1(
         }
 
         // Build per-texture geometry groups with only matrix2 baked into vertices.
-        let mut groups: Vec<MeshGroup> = (0..tex_count).map(|_| (vec![], vec![], vec![], vec![])).collect();
+        let mut groups: Vec<MeshGroup> = (0..tex_count).map(|_| (vec![], vec![], vec![], vec![], vec![])).collect();
         let smooth_norms = mesh_smooth_normals.get(mesh_idx).and_then(|o| o.as_ref());
 
         for face in &mesh.faces {
@@ -1149,7 +1178,7 @@ fn build_animated_rsm1(
             let resolved_tex = mesh.texture_indices.get(tex_slot).copied().unwrap_or(0) as usize;
             if resolved_tex >= groups.len() { continue; }
 
-            let (positions, normals, uvs, indices) = &mut groups[resolved_tex];
+            let (positions, normals, uvs, _uvs1, indices) = &mut groups[resolved_tex];
             let mut tri_verts = [[0.0f32; 3]; 3];
             let mut tri_uvs = [[0.0f32; 2]; 3];
 
@@ -1204,7 +1233,7 @@ fn build_animated_rsm1(
         }
 
         // Spawn geometry entities as children of the anim-node.
-        for (tex_idx, (pos_data, norm_data, uv_data, idx_data)) in groups.into_iter().enumerate() {
+        for (tex_idx, (pos_data, norm_data, uv_data, _uv1_data, idx_data)) in groups.into_iter().enumerate() {
             if pos_data.is_empty() { continue; }
 
             let mut mesh_geom = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::default());
@@ -1336,20 +1365,98 @@ fn rsm1_interpolate_rotation(frames: &[(i32, Quat)], elapsed_ms: f32) -> Quat {
     q_curr.slerp(q_next, interval).normalize()
 }
 
+/// Builds an RGBA lightmap atlas from all `GndLightmapSlice` entries.
+///
+/// Layout: slices are packed left-to-right, top-to-bottom in a square atlas.
+/// Each 8×8 slice occupies its own 8×8 region.
+/// RGB = baked light color, A = shadow/AO intensity.
+///
+/// Returns the atlas `Handle<Image>` and the atlas side length in pixels.
+fn build_lightmap_atlas(gnd: &ro_files::GndFile, images: &mut Assets<Image>) -> (Handle<Image>, usize) {
+    let n = gnd.lightmap_slices.len();
+    if n == 0 {
+        let img = Image::new(
+            bevy::render::render_resource::Extent3d { width: 1, height: 1, depth_or_array_layers: 1 },
+            bevy::render::render_resource::TextureDimension::D2,
+            vec![255u8; 4],
+            bevy::render::render_resource::TextureFormat::Rgba8UnormSrgb,
+            RenderAssetUsages::default(),
+        );
+        return (images.add(img), 1);
+    }
+
+    // Pick the smallest power-of-two number of slices per row that fits all slices
+    // in a square atlas.
+    let slices_per_row = {
+        let sq = (n as f32).sqrt().ceil() as usize;
+        sq.next_power_of_two().max(1)
+    };
+    let atlas_size = slices_per_row * 8;
+
+    let mut data = vec![0u8; atlas_size * atlas_size * 4];
+
+    for (i, slice) in gnd.lightmap_slices.iter().enumerate() {
+        let col = i % slices_per_row;
+        let row = i / slices_per_row;
+        for yy in 0..8usize {
+            for xx in 0..8usize {
+                let atlas_x = col * 8 + xx;
+                let atlas_y = row * 8 + yy;
+                let pixel = (atlas_y * atlas_size + atlas_x) * 4;
+                let texel = xx + 8 * yy;
+                data[pixel]     = slice.lightmap[3 * texel];
+                data[pixel + 1] = slice.lightmap[3 * texel + 1];
+                data[pixel + 2] = slice.lightmap[3 * texel + 2];
+                data[pixel + 3] = slice.shadowmap[texel];
+            }
+        }
+    }
+
+    let img = Image::new(
+        bevy::render::render_resource::Extent3d {
+            width: atlas_size as u32,
+            height: atlas_size as u32,
+            depth_or_array_layers: 1,
+        },
+        bevy::render::render_resource::TextureDimension::D2,
+        data,
+        bevy::render::render_resource::TextureFormat::Rgba8UnormSrgb,
+        RenderAssetUsages::default(),
+    );
+    (images.add(img), atlas_size)
+}
+
+/// Computes the lightmap atlas UV range `(lm1, lm2)` for a surface's `lightmap_id`.
+///
+/// `lm1` is the top-left corner UV of the slice's inner 6×6 region.
+/// `lm2` is the bottom-right corner UV.
+///
+/// Returns `([0,0], [0,0])` when `lightmap_id < 0`.
+fn lightmap_uv_range(lightmap_id: i16, atlas_size: usize) -> ([f32; 2], [f32; 2]) {
+    if lightmap_id < 0 || atlas_size == 0 {
+        return ([0.0; 2], [0.0; 2]);
+    }
+    let id = lightmap_id as usize;
+    let slices_per_row = atlas_size / 8;
+    let col = id % slices_per_row;
+    let row = id / slices_per_row;
+    let inv = 1.0 / atlas_size as f32;
+    let lm1 = [col as f32 * 8.0 * inv + inv, row as f32 * 8.0 * inv + inv];
+    let lm2 = [lm1[0] + 6.0 * inv, lm1[1] + 6.0 * inv];
+    (lm1, lm2)
+}
+
 pub(crate) fn animate_water(
     time: Res<Time>,
     mut query: Query<(&mut WaterAnimator, &MeshMaterial3d<StandardMaterial>)>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    println!("Animating water");
     for (mut anim, mat_handle) in &mut query {
         anim.elapsed += time.delta_secs();
         if anim.elapsed >= anim.interval_secs {
-            println!("anim.elapsed >= anim.interval_secs is true");
             anim.elapsed -= anim.interval_secs;
             anim.current_frame = (anim.current_frame + 1) % anim.frames.len();
             if let Some(mat) = materials.get_mut(mat_handle.id()) {
-                println!("got material");
                 mat.base_color_texture = Some(anim.frames[anim.current_frame].clone());
             }
         }
