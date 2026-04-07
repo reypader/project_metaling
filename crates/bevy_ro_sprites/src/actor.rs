@@ -59,7 +59,6 @@ pub struct ActorState {
 
 /// Propagates [`ActorState`]/[`ActorDirection`] changes to the [`RoComposite`] tag on the
 /// billboard child entity. Registered by [`crate::RoSpritePlugin`].
-#[allow(clippy::type_complexity)]
 pub(crate) fn update_composite_tag(
     actors: Query<
         (&ActorState, &ActorDirection, &Children),

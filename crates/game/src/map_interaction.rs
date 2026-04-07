@@ -72,8 +72,8 @@ fn attach_input_listeners(
                  marker: Single<(&mut Visibility, &mut Transform), With<MapMarker>>,
                  query: Query<&NavMesh>,
                  _map: Single<&RoMapRoot>| {
-                    if let Ok(navmesh) = query.get(hover.entity) {
-                        if let Some(hit_pos) = hover.hit.position {
+                    if let Ok(navmesh) = query.get(hover.entity)
+                        && let Some(hit_pos) = hover.hit.position {
                             let (target, terrain_type) = navmesh.to_map_tile(hit_pos.x, hit_pos.z);
                             let (mut vis, mut tf) = marker.into_inner();
 
@@ -92,7 +92,6 @@ fn attach_input_listeners(
                                 TerrainType::Unknown(_) => *vis = Hidden,
                             }
                         }
-                    }
                 },
             )
             .observe(
@@ -101,10 +100,10 @@ fn attach_input_listeners(
                  query: Query<&NavMesh>,
                  _map: Single<&RoMapRoot>,
                  mut commands: Commands| {
-                    if click.button == PointerButton::Primary {
-                        if let Ok(navmesh) = query.get(click.entity) {
-                            if let Some(hit_pos) = click.hit.position {
-                                let (payer_entity, player_tf) = (*player).into();
+                    if click.button == PointerButton::Primary
+                        && let Ok(navmesh) = query.get(click.entity)
+                            && let Some(hit_pos) = click.hit.position {
+                                let (payer_entity, player_tf) = *player;
                                 let (target, terrain_type) =
                                     navmesh.to_map_tile(hit_pos.x, hit_pos.z);
                                 if terrain_type == TerrainType::Walkable {
@@ -116,8 +115,6 @@ fn attach_input_listeners(
                                     }
                                 }
                             }
-                        }
-                    }
                 },
             );
     }

@@ -260,11 +260,11 @@ pub(crate) fn spawn_map_meshes(
 
                 // North wall: shared edge at Z = z_nw. z_sw of tile (row+1) == z_nw of this
                 // tile, so the correct neighbor is row+1, not row-1.
-                if cube.north_surface_id >= 0 {
-                    if let Some(surf) = gnd.surfaces.get(cube.north_surface_id as usize) {
+                if cube.north_surface_id >= 0
+                    && let Some(surf) = gnd.surfaces.get(cube.north_surface_id as usize) {
                         let tex_idx = surf.texture_id as usize;
-                        if surf.texture_id >= 0 && tex_idx < texture_count {
-                            if let Some(north) = gnd.cube(col, row + 1) {
+                        if surf.texture_id >= 0 && tex_idx < texture_count
+                            && let Some(north) = gnd.cube(col, row + 1) {
                                 // v0=BL, v1=BR, v2=TL, v3=TR
                                 // Top vertices come from neighbor's south edge (heights[0]=SW, heights[1]=SE).
                                 let v0 = Vec3::new(x0, -cube.heights[2], z_nw);
@@ -290,16 +290,14 @@ pub(crate) fn spawn_map_meshes(
                                 // T1: v0→v1→v2, T2: v1→v3→v2
                                 indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
                             }
-                        }
                     }
-                }
 
                 // East wall: shared edge at X = x1, between this tile and col+1.
-                if cube.east_surface_id >= 0 {
-                    if let Some(surf) = gnd.surfaces.get(cube.east_surface_id as usize) {
+                if cube.east_surface_id >= 0
+                    && let Some(surf) = gnd.surfaces.get(cube.east_surface_id as usize) {
                         let tex_idx = surf.texture_id as usize;
-                        if surf.texture_id >= 0 && tex_idx < texture_count {
-                            if let Some(east) = gnd.cube(col + 1, row) {
+                        if surf.texture_id >= 0 && tex_idx < texture_count
+                            && let Some(east) = gnd.cube(col + 1, row) {
                                 // v0=BS, v1=BN, v2=TS, v3=TN
                                 let v0 = Vec3::new(x1, -cube.heights[1], z_sw);
                                 let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
@@ -324,9 +322,7 @@ pub(crate) fn spawn_map_meshes(
                                 // T1: v1→v0→v2, T2: v1→v2→v3
                                 indices.extend([base + 1, base, base + 2, base + 1, base + 2, base + 3]);
                             }
-                        }
                     }
-                }
             }
         }
 

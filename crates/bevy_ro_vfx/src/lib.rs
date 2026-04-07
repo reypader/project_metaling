@@ -109,7 +109,6 @@ fn attach_effect_sprites(
 /// Applies layout and positioning for effect billboard children (those with [`EffectBillboard`]).
 /// Calls [`advance_and_update_composite`] for animation/material, then sizes and places the quad
 /// using the effect's `scale_factor` and no feet lift.
-#[allow(clippy::type_complexity)]
 fn update_effect_composites(
     mut composites: Query<
         (

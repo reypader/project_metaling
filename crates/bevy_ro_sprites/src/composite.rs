@@ -345,7 +345,6 @@ impl Plugin for RoCompositePlugin {
 ///
 /// Callers apply step 6 (sizing/positioning) using the returned layout and their own
 /// `scale_factor` and `feet_lift` values.
-#[allow(clippy::too_many_arguments)]
 pub fn advance_and_update_composite(
     entity: Entity,
     composite: &mut RoComposite,
@@ -597,7 +596,6 @@ pub fn advance_and_update_composite(
 /// Applies layout+positioning for actor billboard children (those with [`ActorBillboard`]).
 /// Calls [`advance_and_update_composite`] for animation/material, then sizes and places the quad
 /// using `scale_factor = 1.0` and the actor's `feet_lift`.
-#[allow(clippy::type_complexity)]
 fn update_actor_composites(
     mut composites: Query<
         (
@@ -720,13 +718,12 @@ fn disable_billboard_shadows(mut commands: Commands, query: Query<Entity, Added<
 /// When `false`, each billboard faces the camera position directly (spherical orientation),
 /// which matches the original RO client behaviour but introduces slight angular divergence
 /// at the screen edges.
-const CAMERA_PARALLEL_BILLBOARDS: bool = true;
+const CAMERA_PARALLEL_BILLBOARDS: bool = false;
 
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
 /// Rotates the billboard about its parent's world position (actor feet) so that the
 /// canvas always faces the camera regardless of the billboard's canvas-layout translation.
-#[allow(clippy::type_complexity)]
 pub fn orient_billboard(
     mut billboards: Query<(&mut Transform, &ChildOf), (With<RoComposite>, Without<Camera3d>)>,
     parents: Query<&GlobalTransform>,
@@ -751,15 +748,17 @@ pub fn orient_billboard(
             let dz = closest.z - pivot.z;
             tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-TILT);
         } else {
-            let dir = pivot-cam.translation;
-            let angle = dir.y.atan2(dir.z);
-            // let xxx: f32 = angle * std::f32::consts::PI / 180.0;
+            // Spherical: same horizontal projection as the parallel branch, but tilt
+            // is computed from the actual angle to the camera's right-axis line rather
+            // than the fixed TILT constant.
             let cam_right = cam.rotation * Vec3::X;
             let t = (pivot - cam.translation).dot(cam_right);
             let closest = cam.translation + t * cam_right;
-            let dx = closest.x - pivot.x;
-            let dz = closest.z - pivot.z;
-            tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(angle);
+            let face_dir = closest - pivot;
+            let xz_len = Vec2::new(face_dir.x, face_dir.z).length();
+            let yaw = f32::atan2(face_dir.x, face_dir.z);
+            let pitch = -f32::atan2(face_dir.y, xz_len);
+            tf.rotation = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(pitch);
         };
     }
 }

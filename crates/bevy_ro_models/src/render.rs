@@ -16,6 +16,11 @@ type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<[f32; 2]>, Ve
 #[derive(Component)]
 pub struct RoModelMesh;
 
+/// Marker placed on the root entity of each materialized RSM model instance.
+/// Used to group all `RoModelMesh` children under a single model for whole-model fading.
+#[derive(Component)]
+pub struct RoModelInstance;
+
 /// Placed on entities by the map crate to request model geometry spawning.
 /// Once the RSM asset loads, the model crate replaces this with rendered mesh children
 /// and removes the component.
@@ -127,7 +132,7 @@ pub(crate) fn materialize_loading_models(
                     );
                 }
 
-                commands.entity(entity).remove::<LoadingModel>();
+                commands.entity(entity).insert(RoModelInstance).remove::<LoadingModel>();
             }
             Some(LoadState::Failed(err)) => {
                 warn!("[RoModel] failed to load RSM asset: {err}");

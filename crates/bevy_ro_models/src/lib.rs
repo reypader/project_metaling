@@ -4,7 +4,7 @@ mod render;
 
 pub use assets::RsmAsset;
 pub use loader::RsmLoader;
-pub use render::{PendingModel, RoModelMesh};
+pub use render::{PendingModel, RoModelInstance, RoModelMesh};
 
 use bevy::prelude::*;
 

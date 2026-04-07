@@ -560,13 +560,11 @@ fn extract_first_spr_file(block: &[String]) -> Option<String> {
                 depth -= 1;
                 if depth == 0 {
                     let sub: String = chars[sub_start..i].iter().collect();
-                    if sub.contains("type: 'SPR'") || sub.contains("type:\"SPR\"") {
-                        if let Some(file) = extract_quoted_field(&sub, "file") {
-                            if !file.contains('%') {
+                    if (sub.contains("type: 'SPR'") || sub.contains("type:\"SPR\""))
+                        && let Some(file) = extract_quoted_field(&sub, "file")
+                            && !file.contains('%') {
                                 return Some(file);
                             }
-                        }
-                    }
                 }
             }
             _ => {}
@@ -577,6 +575,7 @@ fn extract_first_spr_file(block: &[String]) -> Option<String> {
 }
 
 /// Extracts the value of a JS-style quoted field: `key: 'value'` or `key: "value"`.
+#[allow(clippy::manual_strip)]
 fn extract_quoted_field(text: &str, key: &str) -> Option<String> {
     let pattern = format!("{key}:");
     let pos = text.find(&pattern)?;
