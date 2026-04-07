@@ -40,6 +40,11 @@ enum Command {
         /// texture/ and model/ directories are copied with translated names.
         #[arg(long, value_name = "PATH", default_value = "config/translations.toml")]
         translations: Option<PathBuf>,
+
+        /// Path to EffectTable.json for effect ID → sprite mapping (effect type only).
+        /// When provided, a clean effect_sprites.json is emitted into sprite/effect/.
+        #[arg(long, value_name = "PATH", default_value = "config/EffectTable.json")]
+        effect_table: Option<PathBuf>,
     },
 
     /// Scan a GRF extraction and generate a manifest TOML file
@@ -99,6 +104,7 @@ fn main() -> Result<()> {
             output,
             types,
             translations,
+            effect_table,
         } => {
             let types = parse_types(types.as_deref())?;
             batch::batch(
@@ -106,6 +112,7 @@ fn main() -> Result<()> {
                 output.as_deref(),
                 types.as_deref(),
                 translations.as_deref(),
+                effect_table.as_deref(),
             )?;
         }
 
@@ -169,6 +176,7 @@ const VALID_TYPES: &[&str] = &[
     "projectile",
     "map",
     "sound",
+    "effect",
 ];
 
 fn parse_types(types: Option<&str>) -> anyhow::Result<Option<Vec<String>>> {

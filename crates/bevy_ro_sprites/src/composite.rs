@@ -277,6 +277,26 @@ pub struct CompositeLayerDef {
     pub role: SpriteRole,
 }
 
+/// Opt out of the automatic ground-shadow layer added by [`RoCompositePlugin`].
+/// Attach this alongside [`RoComposite`] on entities that should not cast a ground shadow
+/// (e.g. effect sprites, UI billboards).
+#[derive(Component)]
+pub struct NoShadowLayer;
+
+/// Uniform scale divisor applied to the billboard's canvas size and feet offset.
+/// Use this to correct for effect sprites whose ACT scale values bake oversized canvases.
+/// For example, `BillboardScale(1.0 / 35.0)` reduces a 668px canvas to ~19 world units.
+#[derive(Component, Clone, Copy)]
+pub struct BillboardScale(pub f32);
+
+/// World-space Y offset applied after feet alignment to lift the billboard above the terrain.
+/// Actor sprites need this because their ACT attach points land their feet exactly at the
+/// origin, causing the bottom of the quad to clip into the ground. Effect sprites don't have
+/// attach points and are positioned at the emitter location, so they should use `FeetLift(0.0)`
+/// or simply omit this component (defaults to `0.0`).
+#[derive(Component, Clone, Copy)]
+pub struct FeetLift(pub f32);
+
 /// Drive a single-quad composite billboard from multiple RoAtlas layers.
 ///
 /// Attach alongside `Mesh3d`, `MeshMaterial3d<RoCompositeMaterial>`, and `Transform`.
@@ -331,6 +351,8 @@ pub fn update_ro_composite(
             &mut RoComposite,
             &MeshMaterial3d<RoCompositeMaterial>,
             &mut Transform,
+            Option<&BillboardScale>,
+            Option<&FeetLift>,
         ),
         Without<Camera3d>,
     >,
@@ -340,7 +362,9 @@ pub fn update_ro_composite(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, mut composite, mat_handle, mut transform) in &mut composites {
+    for (entity, mut composite, mat_handle, mut transform, billboard_scale, feet_lift) in &mut composites {
+        let scale_factor = billboard_scale.map(|s| s.0).unwrap_or(1.0);
+        let feet_lift = feet_lift.map(|f| f.0).unwrap_or(8.0);
         // ── 1. Advance animation ──────────────────────────────────────────
         // The Body layer is the compositing anchor and animation driver.
         // Resolve tag range and frame duration from the body atlas, not layers[0],
@@ -463,15 +487,17 @@ pub fn update_ro_composite(
             };
 
             // Map relative position within body's tag to this layer's own tag range.
-            let mapped_frame = tag_name
-                .as_deref()
-                .and_then(|t| atlas.tags.get(t))
-                .map(|m| (*m.range.start() + rel_frame).min(*m.range.end()) as usize)
-                // Fall back to frame 0 for layers that don't carry the current tag.
-                // rel_frame can exceed the layer's total frame count (e.g. shadow has 1 frame
-                // but walk animations have 8), causing out-of-bounds frame_origins lookups
-                // that displace the layer. Frame 0 is always a valid, stable anchor.
-                .unwrap_or(0);
+            let mapped_frame = match tag_name.as_deref() {
+                Some(t) => match atlas.tags.get(t) {
+                    // Layer carries the tag: remap rel_frame into its range.
+                    Some(m) => (*m.range.start() + rel_frame).min(*m.range.end()) as usize,
+                    // Tag not found on this layer (e.g. shadow has only one tag);
+                    // fall back to frame 0 to avoid out-of-bounds displacements.
+                    None => 0,
+                },
+                // tag: None — cycle through all frames directly.
+                None => (rel_frame as usize).min(atlas.frame_durations.len().saturating_sub(1)),
+            };
 
             let atlas_idx = atlas.get_atlas_index(mapped_frame);
             let rect = layout.textures[atlas_idx];
@@ -530,8 +556,16 @@ pub fn update_ro_composite(
         let overflow = (-content_min).max(Vec2::ZERO);
         let canvas_size = (content_max + overflow).max(Vec2::ONE);
         // canvas_feet = body's feet in canvas pixel space.
-        // Stable as long as nothing extends above/left of the body's top-left (rare for weapons).
-        let canvas_feet = body.origin.as_vec2() + overflow;
+        // When the body layer has an attach point, use the sprite-space origin (correct for
+        // players whose shadow/head layers shift the canvas). When there is no attach point
+        // (effects, monsters/NPCs), use the bottom-middle of the canvas: effects have an
+        // arbitrary sprite origin that is not their visual base, and monsters naturally have
+        // their feet at the canvas bottom (only 1px of padding separates origin from edge).
+        let canvas_feet = if anchor_attach.is_some() {
+            body.origin.as_vec2() + overflow
+        } else {
+            Vec2::new(canvas_size.x / 2.0, canvas_size.y)
+        };
 
         // ── 4. Build layer uniforms (sorted by z-order) ───────────────────
         // Canvas bounds (step 3) always use frames[0] (body) as the anchor.
@@ -566,8 +600,9 @@ pub fn update_ro_composite(
         }
 
         // ── 6. Size and position the billboard quad ───────────────────────
-        // Scale so 1 unit = 1 pixel.
-        transform.scale = Vec3::new(canvas_size.x, canvas_size.y, 1.0);
+        // Scale so 1 unit = 1 pixel, then apply optional BillboardScale factor.
+        // scale_factor < 1.0 normalizes effect sprites whose ACT bakes large canvases.
+        transform.scale = Vec3::new(canvas_size.x * scale_factor, canvas_size.y * scale_factor, 1.0);
 
         // The canvas feet pixel is at local offset (local_x, local_y) from the
         // billboard center (in scaled canvas space):
@@ -578,16 +613,12 @@ pub fn update_ro_composite(
         // so the billboard's local Y axis is NOT the same as cam_up. Using cam_up here
         // causes the feet position to drift as the camera pitches. Instead, derive the
         // billboard's world-space axes from its already-computed rotation.
-        let local_x = canvas_feet.x - canvas_size.x / 2.0;
-        let local_y = canvas_size.y / 2.0 - canvas_feet.y;
+        let local_x = (canvas_feet.x - canvas_size.x / 2.0) * scale_factor;
+        let local_y = (canvas_size.y / 2.0 - canvas_feet.y) * scale_factor;
         let billboard_right = transform.rotation * Vec3::X;
         let billboard_up = transform.rotation * Vec3::Y;
-        // Lift the feet pixel slightly above the terrain surface to prevent the
-        // bottom of the quad from clipping into the ground. In world space so
-        // the offset is independent of camera pitch.
-        const FEET_LIFT: f32 = 10.0;
         transform.translation =
-            -billboard_right * local_x - billboard_up * local_y + Vec3::Y * FEET_LIFT;
+            -billboard_right * local_x - billboard_up * local_y + Vec3::Y * feet_lift;
     }
 }
 
@@ -629,8 +660,9 @@ pub fn direction_index(facing: Vec2, cam_fwd: Vec2) -> u8 {
 const SHADOW_SPR_PATH: &str = "sprite/shadow/shadow.spr";
 
 /// Prepends a shadow layer to every newly spawned [`RoComposite`] that doesn't already have one.
+/// Entities with [`NoShadowLayer`] are skipped.
 fn attach_shadow_layer(
-    mut composites: Query<&mut RoComposite, Added<RoComposite>>,
+    mut composites: Query<&mut RoComposite, (Added<RoComposite>, Without<NoShadowLayer>)>,
     server: Res<AssetServer>,
 ) {
     for mut composite in &mut composites {

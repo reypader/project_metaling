@@ -75,7 +75,7 @@ fn camera_orbit(
     }
 
     let d = orbit.distance - (scroll.delta.y * 200.0 * dt);
-    orbit.distance = d.clamp(50.0, 150.0);
+    orbit.distance = d.clamp(50.0, 200.0);
 
     let (yaw, pitch, roll) = camera.rotation.to_euler(EulerRot::YXZ);
 

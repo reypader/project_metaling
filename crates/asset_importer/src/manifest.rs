@@ -27,6 +27,8 @@ pub struct Manifest {
     pub projectile: Vec<ProjectileEntry>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub map: Vec<MapEntry>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub effect: Vec<EffectEntry>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -121,4 +123,12 @@ pub struct MapEntry {
     pub gnd: String,
     /// GAT path relative to data_root (collision/height data, self-contained).
     pub gat: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct EffectEntry {
+    /// Sprite name (filename stem, e.g. "torch_01").
+    pub name: String,
+    pub spr: String,
+    pub act: String,
 }

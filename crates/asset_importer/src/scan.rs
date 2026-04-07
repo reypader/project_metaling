@@ -102,6 +102,7 @@ pub fn scan(
         shadow: Vec::new(),
         projectile: Vec::new(),
         map: Vec::new(),
+        effect: Vec::new(),
     };
 
     if want("shadow") {
@@ -131,13 +132,16 @@ pub fn scan(
     if want("map") {
         scan_maps(data_root, &mut m)?;
     }
+    if want("effect") {
+        scan_effects(data_root, &mut m)?;
+    }
 
     let toml_text = toml::to_string_pretty(&m)?;
     std::fs::write(output, &toml_text).with_context(|| format!("writing {}", output.display()))?;
 
     println!("Wrote manifest: {}", output.display());
     println!(
-        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={}",
+        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={} effects={}",
         m.body.len(),
         m.head.len(),
         m.headgear.len(),
@@ -147,6 +151,7 @@ pub fn scan(
         m.shadow.len(),
         m.projectile.len(),
         m.map.len(),
+        m.effect.len(),
     );
 
     Ok(())
@@ -607,6 +612,27 @@ fn scan_maps(data_root: &Path, m: &mut Manifest) -> Result<()> {
         });
     }
     m.map.sort_by(|a, b| a.name.cmp(&b.name));
+    Ok(())
+}
+
+fn scan_effects(data_root: &Path, m: &mut Manifest) -> Result<()> {
+    let effect_dir = data_root.join("sprite/effect");
+    if !effect_dir.exists() {
+        return Ok(());
+    }
+    let mut stems = spr_stems_in(&effect_dir)?;
+    stems.sort();
+    for stem in stems {
+        let act_path = effect_dir.join(format!("{stem}.act"));
+        if !act_path.exists() {
+            continue;
+        }
+        m.effect.push(crate::manifest::EffectEntry {
+            name: stem.clone(),
+            spr: format!("sprite/effect/{stem}.spr"),
+            act: format!("sprite/effect/{stem}.act"),
+        });
+    }
     Ok(())
 }
 

@@ -4,10 +4,11 @@ mod map_interaction;
 use crate::camera_orbit::{CameraFollower, OrbitCamera, OrbitCameraPlugin};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker, Navigation};
 use bevy::light::CascadeShadowConfigBuilder;
+use bevy::picking::Pickable;
 use bevy::prelude::*;
 use bevy::camera::primitives::Aabb;
-use bevy_ro_maps::{MapLightingReady, NavMesh, RoMapRoot, RoMapsPlugin, RoModelMesh};
-use std::collections::HashSet;
+use bevy_ro_maps::{MapLightingReady, NavMesh, RoEffectEmitter, RoMapRoot, RoMapsPlugin, RoModelMesh};
+use std::collections::{HashMap, HashSet};
 use bevy_ro_sprites::prelude::*;
 use std::f32::consts::PI;
 use std::ops::DerefMut;
@@ -20,7 +21,7 @@ fn main() {
         }))
         .add_plugins(OrbitCameraPlugin)
         // .add_plugins(DefaultPickingPlugins)
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, load_effect_sprite_map))
         .add_plugins(RoSpritePlugin)
         .add_plugins(RoMapsPlugin)
         .add_plugins(MeshPickingPlugin)
@@ -28,7 +29,7 @@ fn main() {
         .add_observer(apply_map_lighting)
         .add_systems(PostStartup, attach_composite)
         .insert_resource(ModelFadeCullDistance(500.0))
-        .add_systems(Update, (select_action, update_composite_tag, fade_occluded_models))
+        .add_systems(Update, (select_action, update_composite_tag, fade_occluded_models, attach_effect_sprites))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -51,9 +52,9 @@ fn setup(
             // asset: asset_server.load("maps/payon/payon.gnd"),
             // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
-            asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
+            // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
             // asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
-            // asset: asset_server.load("maps/pprontera/pprontera.gnd"),
+            asset: asset_server.load("maps/pprontera/pprontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -326,6 +327,7 @@ fn attach_composite(
                 Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
                 MeshMaterial3d(mats.add(RoCompositeMaterial::default())),
                 Transform::default(),
+                FeetLift(10.0),
             ));
         });
     }
@@ -491,7 +493,7 @@ fn fade_occluded_models(
     cull_dist: Res<ModelFadeCullDistance>,
     camera_q: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     player_q: Query<&GlobalTransform, With<PlayerControl>>,
-    billboards: Query<&GlobalTransform, With<RoComposite>>,
+    billboards: Query<&GlobalTransform, (With<RoComposite>, Without<EffectComposite>)>,
     model_meshes: Query<
         (Entity, &GlobalTransform, &Aabb, &MeshMaterial3d<StandardMaterial>),
         With<RoModelMesh>,
@@ -567,4 +569,79 @@ fn fade_occluded_models(
     }
 
     *previously_faded = should_fade;
+}
+
+/// Marker placed on effect billboard entities to exclude them from actor-occlusion fade checks.
+#[derive(Component)]
+struct EffectComposite;
+
+/// Maps RSW effect IDs to SPR file stems (e.g. `47 → "torch_01"`).
+/// Loaded from `sprite/effect/effect_sprites.json` at startup.
+#[derive(Resource, Default)]
+struct EffectSpriteMap(HashMap<u32, String>);
+
+const ASSETS_PATH: &str =
+    "/Users/rmpader/code_projects/project_metaling/target/assets";
+
+fn load_effect_sprite_map(mut commands: Commands) {
+    let path = format!("{ASSETS_PATH}/sprite/effect/effect_sprites.json");
+    let map = std::fs::read_to_string(&path)
+        .ok()
+        .and_then(|json| serde_json::from_str::<HashMap<u32, String>>(&json).ok())
+        .unwrap_or_default();
+    if map.is_empty() {
+        warn!("effect_sprites.json not found or empty — no effect sprites will render");
+    } else {
+        info!("Loaded {} effect sprite mappings", map.len());
+    }
+    commands.insert_resource(EffectSpriteMap(map));
+}
+
+/// Divisor applied to effect billboard canvas size to normalize ACT-baked pixel scales
+/// to world units. Effect ACT files use large layer scale values (e.g. 7.46×) that make
+/// canvases 10–20× larger than actor sprites. Tune this constant to adjust visual size.
+const EFFECT_SPRITE_SCALE: f32 = 1.0 / 35.0;
+
+/// Reacts to newly spawned [`RoEffectEmitter`] entities and attaches a [`RoComposite`] billboard
+/// child for effect IDs that have a corresponding SPR sprite.
+fn attach_effect_sprites(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut mats: ResMut<Assets<RoCompositeMaterial>>,
+    server: Res<AssetServer>,
+    effect_map: Res<EffectSpriteMap>,
+    new_effects: Query<(Entity, &RoEffectEmitter), Added<RoEffectEmitter>>,
+) {
+    for (entity, emitter) in &new_effects {
+        let Some(stem) = effect_map.0.get(&emitter.effect_id) else {
+            println!("Not found {:?}", &emitter.effect_id);
+            continue;
+        };
+        println!("Found {:?}", stem);
+        let spr_path = format!("sprite/effect/{stem}.spr");
+        // tag: None plays all frames in sequence — effect ACTs are non-directional loops.
+        // A directional tag like "idle_s" silently skips rendering if the ACT has only
+        // one action, so we let the composite cycle the full frame range instead.
+        commands.entity(entity).insert(Visibility::Inherited).with_children(|parent| {
+            parent.spawn((
+                RoComposite {
+                    layers: vec![CompositeLayerDef {
+                        atlas: server.load(spr_path),
+                        role: SpriteRole::Body,
+                    }],
+                    tag: None,
+                    playing: true,
+                    ..Default::default()
+                },
+                Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
+                MeshMaterial3d(mats.add(RoCompositeMaterial::default())),
+                Transform::default(),
+                Visibility::Visible,
+                EffectComposite,
+                NoShadowLayer,
+                BillboardScale(EFFECT_SPRITE_SCALE),
+                Pickable { should_block_lower: false, is_hoverable: false },
+            ));
+        });
+    }
 }

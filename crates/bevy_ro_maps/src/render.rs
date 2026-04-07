@@ -1116,6 +1116,7 @@ fn build_model_children(
                 MeshMaterial3d(material),
                 Transform::default(),
                 RoModelMesh,
+                Pickable { should_block_lower: false, is_hoverable: false },
             ))
             .id();
 
@@ -1373,6 +1374,7 @@ fn build_animated_rsm1(
                 MeshMaterial3d(material),
                 Transform::default(),
                 RoModelMesh,
+                Pickable { should_block_lower: false, is_hoverable: false },
             )).id();
             commands.entity(anim_entity).add_child(geom);
         }

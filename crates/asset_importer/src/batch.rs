@@ -9,6 +9,7 @@ pub fn batch(
     output_override: Option<&Path>,
     types: Option<&[String]>,
     translations: Option<&Path>,
+    effect_table: Option<&Path>,
 ) -> Result<()> {
     let want = |t: &str| types.is_some_and(|ts| ts.iter().any(|x| x == t));
 
@@ -207,6 +208,34 @@ pub fn batch(
             }
             copy_raw(&spr_path, &act_path, None, &entry.name, &out_dir)?;
             exported += 1;
+        }
+    }
+
+    // Effect sprites
+    if want("effect") {
+        let effect_out = sprite_root.join("effect");
+        for entry in &m.effect {
+            let spr_path = data_root.join(&entry.spr);
+            let act_path = data_root.join(&entry.act);
+            if let Some(reason) = missing(&spr_path, &act_path) {
+                log_skip(&mut skip_log, "effect", &toml::to_string(entry)?, &reason);
+                skipped += 1;
+                continue;
+            }
+            copy_raw(&spr_path, &act_path, None, &entry.name, &effect_out)?;
+            exported += 1;
+        }
+
+        if let Some(table_path) = effect_table.filter(|p| p.exists()) {
+            let mapping = parse_effect_table(table_path)?;
+            // Only include entries whose SPR file was actually exported.
+            let filtered: HashMap<u32, String> = mapping
+                .into_iter()
+                .filter(|(_, stem)| effect_out.join(format!("{stem}.spr")).exists())
+                .collect();
+            let json = emit_effect_sprites_json(&filtered);
+            std::fs::write(effect_out.join("effect_sprites.json"), json)?;
+            println!("Effect sprite map: {} entries", filtered.len());
         }
     }
 
@@ -427,6 +456,151 @@ fn bmp_to_png_name(name: &str) -> String {
     } else {
         name.to_string()
     }
+}
+
+// ---------------------------------------------------------------------------
+// EffectTable.json parsing
+// ---------------------------------------------------------------------------
+
+/// Parses BrowEdit3's EffectTable.json (JS syntax, not strict JSON) and returns
+/// a map of effect ID → SPR file stem for all SPR-type entries.
+fn parse_effect_table(path: &Path) -> Result<HashMap<u32, String>> {
+    let text = std::fs::read_to_string(path)
+        .with_context(|| format!("reading {}", path.display()))?;
+
+    let mut result = HashMap::new();
+    let mut lines = text.lines().peekable();
+
+    while let Some(line) = lines.next() {
+        let stripped = strip_js_comment(line);
+        let trimmed = stripped.trim();
+
+        let Some(id) = parse_leading_id(trimmed) else {
+            continue;
+        };
+
+        // Collect the full effect block until bracket depth returns to 0.
+        let mut block = vec![trimmed.to_string()];
+        let mut depth: i32 = trimmed
+            .chars()
+            .map(|c| match c {
+                '[' | '{' => 1,
+                ']' | '}' => -1,
+                _ => 0,
+            })
+            .sum();
+
+        while depth > 0 {
+            let Some(next) = lines.next() else { break };
+            let s = strip_js_comment(next);
+            let t = s.trim();
+            depth += t
+                .chars()
+                .map(|c| match c {
+                    '[' | '{' => 1,
+                    ']' | '}' => -1,
+                    _ => 0,
+                })
+                .sum::<i32>();
+            block.push(t.to_string());
+        }
+
+        if let Some(file) = extract_first_spr_file(&block) {
+            result.insert(id, file);
+        }
+    }
+
+    Ok(result)
+}
+
+/// Strips a JavaScript single-line comment (`//...`) from the end of a line.
+fn strip_js_comment(line: &str) -> String {
+    // Simple approach: find first `//` not inside a string.
+    // Good enough for this file since no string values contain `//`.
+    if let Some(pos) = line.find("//") {
+        line[..pos].trim_end().to_string()
+    } else {
+        line.to_string()
+    }
+}
+
+/// Extracts a leading numeric key from a line like `47: [{`.
+fn parse_leading_id(line: &str) -> Option<u32> {
+    let digits: String = line.chars().take_while(|c| c.is_ascii_digit()).collect();
+    if digits.is_empty() {
+        return None;
+    }
+    let rest = line[digits.len()..].trim_start();
+    if rest.starts_with(':') {
+        digits.parse().ok()
+    } else {
+        None
+    }
+}
+
+/// Finds the first SPR sub-block in `block` and returns its `file` value stem.
+/// Skips entries whose file contains `%` (format strings like `firehit%d`).
+fn extract_first_spr_file(block: &[String]) -> Option<String> {
+    let text = block.join("\n");
+
+    // Walk character by character to find `{...}` sub-blocks.
+    let chars: Vec<char> = text.chars().collect();
+    let mut depth = 0i32;
+    let mut sub_start = 0;
+
+    for (i, &ch) in chars.iter().enumerate() {
+        match ch {
+            '{' => {
+                if depth == 0 {
+                    sub_start = i + 1;
+                }
+                depth += 1;
+            }
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    let sub: String = chars[sub_start..i].iter().collect();
+                    if sub.contains("type: 'SPR'") || sub.contains("type:\"SPR\"") {
+                        if let Some(file) = extract_quoted_field(&sub, "file") {
+                            if !file.contains('%') {
+                                return Some(file);
+                            }
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    None
+}
+
+/// Extracts the value of a JS-style quoted field: `key: 'value'` or `key: "value"`.
+fn extract_quoted_field(text: &str, key: &str) -> Option<String> {
+    let pattern = format!("{key}:");
+    let pos = text.find(&pattern)?;
+    let after = text[pos + pattern.len()..].trim_start();
+    let (quote, rest) = if after.starts_with('\'') {
+        ('\'', &after[1..])
+    } else if after.starts_with('"') {
+        ('"', &after[1..])
+    } else {
+        return None;
+    };
+    let end = rest.find(quote)?;
+    Some(rest[..end].to_string())
+}
+
+/// Serializes the effect ID → file stem map as a compact JSON object.
+fn emit_effect_sprites_json(map: &HashMap<u32, String>) -> String {
+    let mut entries: Vec<(&u32, &String)> = map.iter().collect();
+    entries.sort_by_key(|(id, _)| *id);
+    let pairs: Vec<String> = entries
+        .iter()
+        .map(|(id, stem)| format!("\"{}\":\"{}\"", id, stem))
+        .collect();
+    format!("{{{}}}", pairs.join(","))
 }
 
 fn convert_bmp_to_png(src: &Path, dst: &Path) -> Result<()> {

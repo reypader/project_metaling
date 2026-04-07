@@ -2699,6 +2699,7 @@ dependencies = [
  "bevy",
  "bevy_ro_maps",
  "bevy_ro_sprites",
+ "serde_json",
 ]
 
 [[package]]
