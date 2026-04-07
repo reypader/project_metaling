@@ -6,12 +6,12 @@ mod terrain_material;
 
 pub use assets::RoMapAsset;
 pub use loader::RoMapLoader;
-pub use render::{MapLightingReady, RoMapMesh, RoMapRoot};
+pub use render::{MapLightingReady, RoEffectEmitter, RoMapLight, RoMapMesh, RoModelMesh, RoMapRoot};
 pub use navigation::NavMesh;
 pub use terrain_material::{TerrainLightmapExtension, TerrainMaterial, TERRAIN_LIGHTMAP_SHADER_HANDLE};
 
 pub mod prelude {
-    pub use crate::{MapLightingReady, NavMesh, RoMapAsset, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
+    pub use crate::{MapLightingReady, NavMesh, RoEffectEmitter, RoMapAsset, RoMapLight, RoMapLoader, RoMapMesh, RoModelMesh, RoMapRoot, RoMapsPlugin};
     pub use ro_files::TerrainType;
 }
 

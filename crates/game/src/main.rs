@@ -5,7 +5,9 @@ use crate::camera_orbit::{CameraFollower, OrbitCamera, OrbitCameraPlugin};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker, Navigation};
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
-use bevy_ro_maps::{MapLightingReady, NavMesh, RoMapRoot, RoMapsPlugin};
+use bevy::camera::primitives::Aabb;
+use bevy_ro_maps::{MapLightingReady, NavMesh, RoMapRoot, RoMapsPlugin, RoModelMesh};
+use std::collections::HashSet;
 use bevy_ro_sprites::prelude::*;
 use std::f32::consts::PI;
 use std::ops::DerefMut;
@@ -25,7 +27,8 @@ fn main() {
         .add_plugins(MapInteractionPlugin)
         .add_observer(apply_map_lighting)
         .add_systems(PostStartup, attach_composite)
-        .add_systems(Update, (select_action, update_composite_tag))
+        .insert_resource(ModelFadeCullDistance(500.0))
+        .add_systems(Update, (select_action, update_composite_tag, fade_occluded_models))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -48,8 +51,9 @@ fn setup(
             // asset: asset_server.load("maps/payon/payon.gnd"),
             // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
-            // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
-            asset: asset_server.load("maps/pprontera/pprontera.gnd"),
+            asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
+            // asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
+            // asset: asset_server.load("maps/pprontera/pprontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -82,7 +86,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(Vec2::Y),
-        Transform::from_xyz(-20.0, 0.0, 0.0),
+        Transform::from_xyz(-20.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
     ));
     commands.spawn((
         ActorSprite {
@@ -95,7 +99,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(-Vec3::Z.xz()),
-        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(0.15,0.15,0.15)),
+        Transform::from_xyz(0.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
         PlayerControl,
     ));
     commands.spawn((
@@ -114,7 +118,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(Vec2::Y),
-        Transform::from_xyz(20.0, 0.0, 0.0),
+        Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
     ));
     // Directional sun light — direction and color will be overwritten by apply_map_lighting
     // once the map asset finishes loading.
@@ -379,3 +383,188 @@ fn update_composite_tag(
 // let e = trigger.event();
 // // play e.event as a sound cue
 // });
+
+// ─────────────────────────────────────────────────────────────
+// Model fade-out when occluding sprite billboards
+// ─────────────────────────────────────────────────────────────
+
+/// Maximum distance from the player at which model-vs-billboard overlap is tested.
+/// Models farther than this are never faded, regardless of screen overlap.
+#[derive(Resource)]
+pub struct ModelFadeCullDistance(pub f32);
+
+/// Projects the four corners of a billboard quad (unit rectangle in local space,
+/// scaled by `GlobalTransform`) into NDC and returns their 2D bounding rect plus
+/// the NDC z of the billboard center (for depth comparison against models).
+/// Returns `None` if no corner falls within the view frustum.
+fn billboard_ndc_rect(
+    camera: &Camera,
+    cam_gt: &GlobalTransform,
+    billboard_gt: &GlobalTransform,
+) -> Option<(Rect, f32)> {
+    const CORNERS: [Vec3; 4] = [
+        Vec3::new(-0.5, -0.5, 0.0),
+        Vec3::new(0.5, -0.5, 0.0),
+        Vec3::new(-0.5, 0.5, 0.0),
+        Vec3::new(0.5, 0.5, 0.0),
+    ];
+    let mut min = Vec2::splat(f32::INFINITY);
+    let mut max = Vec2::splat(f32::NEG_INFINITY);
+    let mut any = false;
+    for c in CORNERS {
+        let world = billboard_gt.transform_point(c);
+        if let Some(ndc) = camera.world_to_ndc(cam_gt, world) {
+            // z in [0, 1] means within frustum (0 = far plane, 1 = near plane).
+            if ndc.z >= 0.0 && ndc.z <= 1.0 {
+                min = min.min(ndc.truncate());
+                max = max.max(ndc.truncate());
+                any = true;
+            }
+        }
+    }
+    if !any {
+        return None;
+    }
+    // Center depth for depth-ordering: project the quad center (local origin).
+    let center_ndc_z = camera
+        .world_to_ndc(cam_gt, billboard_gt.transform_point(Vec3::ZERO))
+        .map(|n| n.z)
+        .unwrap_or(0.0);
+    Some((Rect::new(min.x, min.y, max.x, max.y), center_ndc_z))
+}
+
+/// Projects the eight corners of a mesh AABB into NDC and returns their 2D bounding rect
+/// plus the NDC z of the AABB center (for depth comparison against billboards).
+/// Returns `None` if no corner falls within the view frustum.
+fn model_ndc_rect(
+    camera: &Camera,
+    cam_gt: &GlobalTransform,
+    model_gt: &GlobalTransform,
+    aabb: &Aabb,
+) -> Option<(Rect, f32)> {
+    let c = Vec3::from(aabb.center);
+    let h = Vec3::from(aabb.half_extents);
+    let corners = [
+        c + Vec3::new(-h.x, -h.y, -h.z),
+        c + Vec3::new(h.x, -h.y, -h.z),
+        c + Vec3::new(-h.x, h.y, -h.z),
+        c + Vec3::new(h.x, h.y, -h.z),
+        c + Vec3::new(-h.x, -h.y, h.z),
+        c + Vec3::new(h.x, -h.y, h.z),
+        c + Vec3::new(-h.x, h.y, h.z),
+        c + Vec3::new(h.x, h.y, h.z),
+    ];
+    let mut min = Vec2::splat(f32::INFINITY);
+    let mut max = Vec2::splat(f32::NEG_INFINITY);
+    let mut any = false;
+    for corner in corners {
+        let world = model_gt.transform_point(corner);
+        if let Some(ndc) = camera.world_to_ndc(cam_gt, world) {
+            if ndc.z >= 0.0 && ndc.z <= 1.0 {
+                min = min.min(ndc.truncate());
+                max = max.max(ndc.truncate());
+                any = true;
+            }
+        }
+    }
+    if !any {
+        return None;
+    }
+    // Use the nearest corner's z (highest NDC z = closest to camera) so that a model
+    // clipping through the billboard — where only part of its geometry is in front —
+    // is still detected.
+    let nearest_z = corners
+        .iter()
+        .filter_map(|&corner| {
+            camera
+                .world_to_ndc(cam_gt, model_gt.transform_point(corner))
+                .map(|n| n.z)
+        })
+        .fold(f32::NEG_INFINITY, f32::max);
+    Some((Rect::new(min.x, min.y, max.x, max.y), nearest_z))
+}
+
+/// Each frame, fades RSM model meshes whose screen-space AABB overlaps any billboard sprite.
+/// Only models within [`ModelFadeCullDistance`] of the player are tested.
+fn fade_occluded_models(
+    mut previously_faded: Local<HashSet<Entity>>,
+    cull_dist: Res<ModelFadeCullDistance>,
+    camera_q: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
+    player_q: Query<&GlobalTransform, With<PlayerControl>>,
+    billboards: Query<&GlobalTransform, With<RoComposite>>,
+    model_meshes: Query<
+        (Entity, &GlobalTransform, &Aabb, &MeshMaterial3d<StandardMaterial>),
+        With<RoModelMesh>,
+    >,
+    mut std_mats: ResMut<Assets<StandardMaterial>>,
+) {
+    let Ok((camera, cam_gt)) = camera_q.single() else {
+        return;
+    };
+    let Ok(player_gt) = player_q.single() else {
+        return;
+    };
+    let player_pos = player_gt.translation();
+    let cull_dist_sq = cull_dist.0 * cull_dist.0;
+
+    // Project all visible billboards to 2D screen rects + center depth.
+    let billboard_rects: Vec<(Rect, f32)> = billboards
+        .iter()
+        .filter_map(|gt| billboard_ndc_rect(camera, cam_gt, gt))
+        .collect();
+
+    // Determine which model meshes overlap any billboard this frame.
+    let mut should_fade: HashSet<Entity> = HashSet::new();
+    if !billboard_rects.is_empty() {
+        for (entity, model_gt, aabb, _) in &model_meshes {
+            if model_gt.translation().distance_squared(player_pos) > cull_dist_sq
+            {
+                continue;
+            }
+            let Some((model_rect, model_z)) = model_ndc_rect(camera, cam_gt, model_gt, aabb) else {
+                continue;
+            };
+            for &(bill_rect, bill_z) in &billboard_rects {
+                // Only fade the model if it is in front of the billboard (closer to camera).
+                // In NDC reverse-z: higher z = closer to camera.
+                if model_z <= bill_z {
+                    continue;
+                }
+                if model_rect.min.x < bill_rect.max.x
+                    && model_rect.max.x > bill_rect.min.x
+                    && model_rect.min.y < bill_rect.max.y
+                    && model_rect.max.y > bill_rect.min.y
+                {
+                    should_fade.insert(entity);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Restore materials that were faded last frame but no longer need to be.
+    for &entity in previously_faded.iter() {
+        if !should_fade.contains(&entity) {
+            if let Ok((_, _, _, mat_handle)) = model_meshes.get(entity) {
+                if let Some(mat) = std_mats.get_mut(&mat_handle.0) {
+                    mat.base_color = Color::WHITE;
+                    mat.alpha_mode = AlphaMode::Mask(0.5);
+                }
+            }
+        }
+    }
+
+    // Apply fade to newly overlapping models.
+    for &entity in &should_fade {
+        if !previously_faded.contains(&entity) {
+            if let Ok((_, _, _, mat_handle)) = model_meshes.get(entity) {
+                if let Some(mat) = std_mats.get_mut(&mat_handle.0) {
+                    mat.base_color = Color::srgba(1.0, 1.0, 1.0, 0.1);
+                    mat.alpha_mode = AlphaMode::Blend;
+                }
+            }
+        }
+    }
+
+    *previously_faded = should_fade;
+}

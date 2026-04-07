@@ -2,19 +2,20 @@ use std::{num::NonZero, time::Duration};
 
 use bevy::{
     asset::uuid_handle,
-    ecs::system::{lifetimeless::SRes, SystemParamItem},
+    camera::visibility::NoFrustumCulling,
+    ecs::system::{SystemParamItem, lifetimeless::SRes},
     light::NotShadowCaster,
     pbr::Material,
     prelude::*,
     render::{
         render_asset::RenderAssets,
         render_resource::{
-            binding_types::{sampler, storage_buffer_read_only_sized, texture_2d}, AsBindGroup, AsBindGroupError, BindGroupEntry,
-            BindGroupLayout, BindGroupLayoutDescriptor, BindGroupLayoutEntries,
-            BindGroupLayoutEntry, BindingResource, BindingResources, BufferInitDescriptor, BufferUsages,
-            PipelineCache, PreparedBindGroup, SamplerBindingType, ShaderStages,
-            TextureSampleType,
+            AsBindGroup, AsBindGroupError, BindGroupEntry, BindGroupLayout,
+            BindGroupLayoutDescriptor, BindGroupLayoutEntries, BindGroupLayoutEntry,
+            BindingResource, BindingResources, BufferInitDescriptor, BufferUsages, PipelineCache,
+            PreparedBindGroup, SamplerBindingType, ShaderStages, TextureSampleType,
             UnpreparedBindGroup,
+            binding_types::{sampler, storage_buffer_read_only_sized, texture_2d},
         },
         renderer::RenderDevice,
         texture::{FallbackImage, GpuImage},
@@ -183,7 +184,7 @@ impl AsBindGroup for RoCompositeMaterial {
                 ),
             ),
         )
-            .to_vec()
+        .to_vec()
     }
 
     fn bind_group_data(&self) -> Self::Data {}
@@ -324,26 +325,21 @@ impl Plugin for RoCompositePlugin {
 
 /// Advances animation and rebuilds the `RoCompositeMaterial` uniforms each frame.
 pub fn update_ro_composite(
-    mut composites: Query<(
-        Entity,
-        &mut RoComposite,
-        &MeshMaterial3d<RoCompositeMaterial>,
-        &mut Transform,
-    )>,
+    mut composites: Query<
+        (
+            Entity,
+            &mut RoComposite,
+            &MeshMaterial3d<RoCompositeMaterial>,
+            &mut Transform,
+        ),
+        Without<Camera3d>,
+    >,
     atlases: Res<Assets<RoAtlas>>,
     layouts: Res<Assets<TextureAtlasLayout>>,
     mut mats: ResMut<Assets<RoCompositeMaterial>>,
     time: Res<Time>,
-    camera_q: Query<&GlobalTransform, With<Camera3d>>,
     mut commands: Commands,
 ) {
-    // Camera right/up in world space: the billboard's local axes after look_at.
-    // Used to convert canvas-pixel offsets to world-space translation.
-    let (cam_right, cam_up) = if let Ok(cam_gt) = camera_q.single() {
-        (cam_gt.right(), cam_gt.up())
-    } else {
-        (Dir3::X, Dir3::Y)
-    };
     for (entity, mut composite, mat_handle, mut transform) in &mut composites {
         // ── 1. Advance animation ──────────────────────────────────────────
         // The Body layer is the compositing anchor and animation driver.
@@ -574,17 +570,24 @@ pub fn update_ro_composite(
         transform.scale = Vec3::new(canvas_size.x, canvas_size.y, 1.0);
 
         // The canvas feet pixel is at local offset (local_x, local_y) from the
-        // billboard center (in y-up scaled space):
+        // billboard center (in scaled canvas space):
         //   local_x = canvas_feet.x - canvas_size.x / 2  (rightward in canvas)
-        //   local_y = canvas_size.y / 2 - canvas_feet.y  (upward; feet below center → negative)
+        //   local_y = canvas_size.y / 2 - canvas_feet.y  (upward; feet below center is negative)
         //
-        // The billboard's local axes are the camera's right/up in world space.
-        // To place the feet pixel at the actor's world position (parent origin),
-        // the billboard center must be offset by -R*(local_x, local_y, 0):
-        //   translation = -local_x * cam_right - local_y * cam_up
+        // orient_billboard applies a Y-rotation to face the camera plus a fixed X tilt,
+        // so the billboard's local Y axis is NOT the same as cam_up. Using cam_up here
+        // causes the feet position to drift as the camera pitches. Instead, derive the
+        // billboard's world-space axes from its already-computed rotation.
         let local_x = canvas_feet.x - canvas_size.x / 2.0;
         let local_y = canvas_size.y / 2.0 - canvas_feet.y;
-        transform.translation = (10.0*Vec3::Y)-*cam_right * local_x - *cam_up * local_y;
+        let billboard_right = transform.rotation * Vec3::X;
+        let billboard_up = transform.rotation * Vec3::Y;
+        // Lift the feet pixel slightly above the terrain surface to prevent the
+        // bottom of the quad from clipping into the ground. In world space so
+        // the offset is independent of camera pitch.
+        const FEET_LIFT: f32 = 10.0;
+        transform.translation =
+            -billboard_right * local_x - billboard_up * local_y + Vec3::Y * FEET_LIFT;
     }
 }
 
@@ -631,7 +634,11 @@ fn attach_shadow_layer(
     server: Res<AssetServer>,
 ) {
     for mut composite in &mut composites {
-        if composite.layers.iter().any(|l| l.role == SpriteRole::Shadow) {
+        if composite
+            .layers
+            .iter()
+            .any(|l| l.role == SpriteRole::Shadow)
+        {
             continue;
         }
         composite.layers.insert(
@@ -648,42 +655,58 @@ fn attach_shadow_layer(
 ///
 /// Disables shadow casting on billboard entities. A flat plane rotating to face the
 /// camera cannot cast a meaningful shadow, so we suppress it entirely.
-fn disable_billboard_shadows(
-    mut commands: Commands,
-    query: Query<Entity, Added<RoComposite>>,
-) {
+fn disable_billboard_shadows(mut commands: Commands, query: Query<Entity, Added<RoComposite>>) {
     for entity in &query {
-        commands.entity(entity).insert(NotShadowCaster);
+        commands
+            .entity(entity)
+            .insert((NotShadowCaster, NoFrustumCulling));
     }
 }
 
+/// When `true`, all billboards are made parallel to the camera plane by projecting each
+/// actor pivot onto the camera's right-axis line before computing the facing direction.
+/// When `false`, each billboard faces the camera position directly (spherical orientation),
+/// which matches the original RO client behaviour but introduces slight angular divergence
+/// at the screen edges.
+const CAMERA_PARALLEL_BILLBOARDS: bool = true;
+
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
-/// Rotates only around the Y-axis so the billboard faces the camera's XZ direction.
-/// The plane stays vertical at all times, which prevents it from clipping through
-/// horizontal surfaces regardless of camera pitch.
+/// Rotates the billboard about its parent's world position (actor feet) so that the
+/// canvas always faces the camera regardless of the billboard's canvas-layout translation.
 pub fn orient_billboard(
     mut billboards: Query<(&mut Transform, &ChildOf), (With<RoComposite>, Without<Camera3d>)>,
     parents: Query<&GlobalTransform>,
     camera_q: Query<&Transform, (With<Camera3d>, Without<RoComposite>)>,
 ) {
     let Ok(cam) = camera_q.single() else { return };
+    const TILT: f32 = 25.0 * std::f32::consts::PI / 180.0;
     for (mut tf, child_of) in &mut billboards {
+        // Use the parent (actor) world position as the pivot so the rotation is
+        // stable regardless of the canvas-centering offset stored in tf.translation.
         let pivot = parents
             .get(child_of.parent())
             .map(|gt| gt.translation())
             .unwrap_or(Vec3::ZERO);
-
-        // Project pivot onto the camera's local X axis (the infinite line through the
-        // camera along its right vector). Facing that closest point rather than the
-        // camera position directly makes all billboards parallel to the camera's
-        // view plane, avoiding the slight angle divergence at the screen edges.
-        let cam_right = cam.rotation * Vec3::X;
-        let t = (pivot - cam.translation).dot(cam_right);
-        let closest = cam.translation + t * cam_right;
-        let dx = closest.x - pivot.x;
-        let dz = closest.z - pivot.z;
-        const TILT: f32 = 25.0 * std::f32::consts::PI / 180.0;
-        tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-TILT);
+        if CAMERA_PARALLEL_BILLBOARDS {
+            // Project pivot onto the camera's right-axis line so all billboards
+            // stay parallel to the camera plane (no angular divergence at screen edges).
+            let cam_right = cam.rotation * Vec3::X;
+            let t = (pivot - cam.translation).dot(cam_right);
+            let closest = cam.translation + t * cam_right;
+            let dx = closest.x - pivot.x;
+            let dz = closest.z - pivot.z;
+            tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-TILT);
+        } else {
+            let dir = pivot-cam.translation;
+            let angle = dir.y.atan2(dir.z);
+            // let xxx: f32 = angle * std::f32::consts::PI / 180.0;
+            let cam_right = cam.rotation * Vec3::X;
+            let t = (pivot - cam.translation).dot(cam_right);
+            let closest = cam.translation + t * cam_right;
+            let dx = closest.x - pivot.x;
+            let dz = closest.z - pivot.z;
+            tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(angle);
+        };
     }
 }

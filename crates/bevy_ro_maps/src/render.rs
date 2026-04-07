@@ -7,7 +7,7 @@ use bevy::{
 };
 use bevy_ro_models::RsmAsset;
 use crate::terrain_material::{TerrainLightmapExtension, TerrainMaterial};
-use ro_files::{ModelInstance, RsmMesh, RswLighting, RswObject, ShadeType};
+use ro_files::{LightSource, ModelInstance, RsmMesh, RswLighting, RswObject, ShadeType};
 use std::collections::HashMap;
 use crate::navigation::NavMesh;
 
@@ -18,6 +18,24 @@ type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<[f32; 2]>, Ve
 /// Marker component placed on each terrain mesh entity spawned by the plugin.
 #[derive(Component)]
 pub struct RoMapMesh;
+
+/// Marker component placed on each RSM model geometry mesh entity spawned by the plugin.
+/// Query for this to identify model meshes without depending on internal map/model crate details.
+#[derive(Component)]
+pub struct RoModelMesh;
+
+/// Marker placed on each RSW point-light entity spawned by the plugin.
+#[derive(Component)]
+pub struct RoMapLight;
+
+/// Placed on each RSW effect-emitter entity spawned by the plugin.
+/// Stores the raw RSW effect data so game code can drive visual effects later.
+#[derive(Component, Clone)]
+pub struct RoEffectEmitter {
+    pub effect_id: u32,
+    pub emit_speed: f32,
+    pub params: [f32; 4],
+}
 
 /// Place this component on a root entity to have the plugin spawn terrain mesh children once
 /// the referenced [`RoMapAsset`] has loaded.
@@ -535,7 +553,101 @@ pub(crate) fn spawn_map_meshes(
                 dims: MapDims { scale, cx, cz },
             });
         }
+
+        // Spawn RSW point lights and effect-emitter markers.
+        let dims = MapDims { scale, cx, cz };
+        let light_entities = spawn_lights(&map.objects, dims, &mut commands);
+        let effect_entities = spawn_effects(&map.objects, dims, &mut commands);
+        info!(
+            "[RoMap] spawned {} point light(s), {} effect emitter(s)",
+            light_entities.len(),
+            effect_entities.len()
+        );
+        commands
+            .entity(root_entity)
+            .add_children(&light_entities)
+            .add_children(&effect_entities);
     }
+}
+
+/// Converts an RSW object position to BrowEdit3 local space (same system as model instances).
+/// The root entity's centering Transform brings this into Bevy world space.
+fn rsw_local_pos(pos: [f32; 3], dims: MapDims) -> Vec3 {
+    Vec3::new(
+        dims.cx + pos[0],
+        -pos[1],
+        dims.scale + dims.cz - pos[2],
+    )
+}
+
+/// Spawns a `PointLight` child entity for every `RswObject::Light` in `objects`.
+fn spawn_lights(
+    objects: &[RswObject],
+    dims: MapDims,
+    commands: &mut Commands,
+) -> Vec<Entity> {
+    objects
+        .iter()
+        .filter_map(|obj| {
+            let RswObject::Light(light) = obj else {
+                return None;
+            };
+            Some(spawn_point_light(light, dims, commands))
+        })
+        .collect()
+}
+
+fn spawn_point_light(light: &LightSource, dims: MapDims, commands: &mut Commands) -> Entity {
+    // RSW range is in GND world units (scale = 10). Bevy PointLight range is also in
+    // world units, so we use it directly.
+    // Intensity multiplier is large because the directional light uses ~10-20k lux and
+    // point lights need to visually compete; tune down once placement is confirmed correct.
+    let color = Color::linear_rgb(light.diffuse[0], light.diffuse[1], light.diffuse[2]);
+    let bevy_range = light.range.max(50.0) * 2.0;
+    let intensity = bevy_range * 200_000.0;
+
+    commands
+        .spawn((
+            PointLight {
+                color,
+                intensity,
+                range: bevy_range,
+                shadows_enabled: false,
+                ..default()
+            },
+            Transform::from_translation(rsw_local_pos(light.pos, dims)),
+            RoMapLight,
+        ))
+        .id()
+}
+
+/// Spawns a positioned marker entity for every `RswObject::Effect` in `objects`.
+fn spawn_effects(
+    objects: &[RswObject],
+    dims: MapDims,
+    commands: &mut Commands,
+) -> Vec<Entity> {
+    objects
+        .iter()
+        .filter_map(|obj| {
+            let RswObject::Effect(effect) = obj else {
+                return None;
+            };
+            Some(
+                commands
+                    .spawn((
+                        Transform::from_translation(rsw_local_pos(effect.pos, dims)),
+                        Visibility::Hidden,
+                        RoEffectEmitter {
+                            effect_id: effect.effect_id,
+                            emit_speed: effect.emit_speed,
+                            params: effect.params,
+                        },
+                    ))
+                    .id(),
+            )
+        })
+        .collect()
 }
 
 pub(crate) fn spawn_model_meshes(
@@ -1003,6 +1115,7 @@ fn build_model_children(
                 Mesh3d(meshes.add(mesh)),
                 MeshMaterial3d(material),
                 Transform::default(),
+                RoModelMesh,
             ))
             .id();
 
@@ -1259,6 +1372,7 @@ fn build_animated_rsm1(
                 Mesh3d(meshes.add(mesh_geom)),
                 MeshMaterial3d(material),
                 Transform::default(),
+                RoModelMesh,
             )).id();
             commands.entity(anim_entity).add_child(geom);
         }
