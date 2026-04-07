@@ -1,3 +1,4 @@
+pub mod actor;
 mod animation;
 pub mod composite;
 mod loader;
@@ -9,14 +10,15 @@ pub use animation::{
 pub use loader::{RoAtlas, RoAtlasLoader, RoAtlasLoaderSettings, TagMeta};
 
 pub mod prelude {
+    pub use crate::actor::{Action, ActorDirection, ActorState};
     pub use crate::animation::{
         render_animation, AnimationRepeat, RenderAnimation, RoAnimation, RoAnimationControl,
         RoAnimationPlugin, RoAnimationState, SpriteFrameEvent,
     };
     pub use crate::composite::{
-        composite_tag, direction_index, orient_billboard, BillboardScale, CompositeLayerDef,
-        FeetLift, NoShadowLayer, RoComposite, RoCompositeMaterial, RoCompositePlugin, SpriteRole,
-        MAX_LAYERS,
+        advance_and_update_composite, composite_tag, direction_index, orient_billboard,
+        ActorBillboard, CompositeLayerDef, CompositeLayout, RoComposite, RoCompositeMaterial,
+        RoCompositePlugin, SpriteRole, MAX_LAYERS,
     };
     pub use crate::loader::{RoAtlas, RoAtlasLoader, TagMeta};
     pub use crate::RoSpritePlugin;
@@ -31,6 +33,7 @@ impl Plugin for RoSpritePlugin {
         app.register_asset_loader(RoAtlasLoader);
         app.add_plugins(RoAnimationPlugin);
         app.add_plugins(composite::RoCompositePlugin);
+        app.add_systems(Update, actor::update_composite_tag);
     }
 }
 

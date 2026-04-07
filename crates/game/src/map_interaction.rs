@@ -36,7 +36,7 @@ fn navigate(
     time: Res<Time>,
 ) {
     for (mut tf, mut nav, mut dir, mut state) in query.iter_mut() {
-        let mut p = &mut nav.path;
+        let p = &mut nav.path;
         if !p.is_empty() {
             let current_loc = tf.translation.xz();
 
@@ -69,9 +69,9 @@ fn attach_input_listeners(
             .insert(ClickObserved)
             .observe(
                 |hover: On<Pointer<Move>>,
-                 mut marker: Single<(&mut Visibility, &mut Transform), With<MapMarker>>,
+                 marker: Single<(&mut Visibility, &mut Transform), With<MapMarker>>,
                  query: Query<&NavMesh>,
-                 map: Single<&RoMapRoot>| {
+                 _map: Single<&RoMapRoot>| {
                     if let Ok(navmesh) = query.get(hover.entity) {
                         if let Some(hit_pos) = hover.hit.position {
                             let (target, terrain_type) = navmesh.to_map_tile(hit_pos.x, hit_pos.z);
@@ -99,7 +99,7 @@ fn attach_input_listeners(
                 |click: On<Pointer<Click>>,
                  player: Single<(Entity, &Transform), With<PlayerControl>>,
                  query: Query<&NavMesh>,
-                 map: Single<&RoMapRoot>,
+                 _map: Single<&RoMapRoot>,
                  mut commands: Commands| {
                     if click.button == PointerButton::Primary {
                         if let Ok(navmesh) = query.get(click.entity) {

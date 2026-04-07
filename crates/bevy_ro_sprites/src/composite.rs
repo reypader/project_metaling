@@ -277,25 +277,21 @@ pub struct CompositeLayerDef {
     pub role: SpriteRole,
 }
 
-/// Opt out of the automatic ground-shadow layer added by [`RoCompositePlugin`].
-/// Attach this alongside [`RoComposite`] on entities that should not cast a ground shadow
-/// (e.g. effect sprites, UI billboards).
+/// Marker for actor billboard children. Enables shadow attachment and actor-specific
+/// positioning (feet lift). Attach this on the billboard child entity alongside [`RoComposite`].
 #[derive(Component)]
-pub struct NoShadowLayer;
+pub struct ActorBillboard {
+    /// World-space Y offset applied after feet alignment to lift the billboard above terrain.
+    /// Keeps actor feet from clipping into the ground. Typical value: `8.0`.
+    pub feet_lift: f32,
+}
 
-/// Uniform scale divisor applied to the billboard's canvas size and feet offset.
-/// Use this to correct for effect sprites whose ACT scale values bake oversized canvases.
-/// For example, `BillboardScale(1.0 / 35.0)` reduces a 668px canvas to ~19 world units.
-#[derive(Component, Clone, Copy)]
-pub struct BillboardScale(pub f32);
-
-/// World-space Y offset applied after feet alignment to lift the billboard above the terrain.
-/// Actor sprites need this because their ACT attach points land their feet exactly at the
-/// origin, causing the bottom of the quad to clip into the ground. Effect sprites don't have
-/// attach points and are positioned at the emitter location, so they should use `FeetLift(0.0)`
-/// or simply omit this component (defaults to `0.0`).
-#[derive(Component, Clone, Copy)]
-pub struct FeetLift(pub f32);
+/// Canvas geometry returned by [`advance_and_update_composite`].
+/// Used by type-specific billboard systems to apply their own scale factor and positioning.
+pub struct CompositeLayout {
+    pub canvas_size: Vec2,
+    pub canvas_feet: Vec2,
+}
 
 /// Drive a single-quad composite billboard from multiple RoAtlas layers.
 ///
@@ -338,21 +334,278 @@ impl Plugin for RoCompositePlugin {
             Shader::from_wgsl
         );
         app.add_plugins(MaterialPlugin::<RoCompositeMaterial>::default());
-        app.add_systems(Update, (orient_billboard, update_ro_composite).chain());
+        app.add_systems(Update, (orient_billboard, update_actor_composites).chain());
         app.add_systems(Update, (disable_billboard_shadows, attach_shadow_layer));
     }
 }
 
-/// Advances animation and rebuilds the `RoCompositeMaterial` uniforms each frame.
-pub fn update_ro_composite(
+/// Advances animation and rebuilds `RoCompositeMaterial` uniforms (steps 1–5).
+/// Returns `Some(CompositeLayout)` when the material was updated successfully, or `None`
+/// if the entity should be skipped this frame (atlas not loaded, tag missing, etc.).
+///
+/// Callers apply step 6 (sizing/positioning) using the returned layout and their own
+/// `scale_factor` and `feet_lift` values.
+#[allow(clippy::too_many_arguments)]
+pub fn advance_and_update_composite(
+    entity: Entity,
+    composite: &mut RoComposite,
+    mat_handle: &MeshMaterial3d<RoCompositeMaterial>,
+    atlases: &Assets<RoAtlas>,
+    layouts: &Assets<TextureAtlasLayout>,
+    mats: &mut Assets<RoCompositeMaterial>,
+    time: &Time,
+    commands: &mut Commands,
+) -> Option<CompositeLayout> {
+    // ── 1. Advance animation ──────────────────────────────────────────
+    // The Body layer is the compositing anchor and animation driver.
+    // Resolve tag range and frame duration from the body atlas, not layers[0],
+    // so that non-body layers prepended to the list (e.g. shadow) don't interfere.
+    let body_idx = composite
+        .layers
+        .iter()
+        .position(|l| l.role == SpriteRole::Body)
+        .unwrap_or(0);
+
+    let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
+    let body_driver = body_handle.as_ref().and_then(|h| atlases.get(h))?;
+
+    let tag_range = match composite.tag.as_ref() {
+        Some(tag) => match body_driver.tags.get(tag) {
+            Some(meta) => meta.range.clone(),
+            None => return None,
+        },
+        None => 0..=(body_driver.frame_durations.len().saturating_sub(1) as u16),
+    };
+    let frame_dur = body_driver
+        .frame_durations
+        .get(composite.current_frame as usize)
+        .copied();
+    let _ = body_driver; // release borrow on atlases before mutating composite
+
+    if !tag_range.contains(&composite.current_frame) {
+        composite.current_frame = *tag_range.start();
+        composite.elapsed = Duration::ZERO;
+    }
+
+    if composite.playing {
+        let speed = composite.speed.max(0.0);
+        composite.elapsed += Duration::from_secs_f32(time.delta_secs() * speed);
+        if let Some(dur) = frame_dur
+            && composite.elapsed >= dur
+        {
+            composite.elapsed = Duration::ZERO;
+            let next = composite.current_frame + 1;
+            let new_frame = if next > *tag_range.end() {
+                *tag_range.start()
+            } else {
+                next
+            };
+            composite.current_frame = new_frame;
+
+            // Emit ACT frame events from the body atlas (the animation driver).
+            if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h))
+                && let Some(Some(event)) = atlas.frame_events.get(new_frame as usize)
+            {
+                commands.trigger(SpriteFrameEvent {
+                    entity,
+                    event: event.clone(),
+                    tag: composite.tag.clone(),
+                });
+            }
+        }
+    }
+
+    let frame = composite.current_frame as usize;
+
+    // ── 2. Collect per-layer frame data ───────────────────────────────
+    struct FrameInfo {
+        image: Handle<Image>,
+        uv_min: Vec2,
+        uv_max: Vec2,
+        size_px: Vec2,
+        origin: IVec2,
+        /// Attach-point displacement in feet-origin pixel space.
+        /// = anchor_attach − self_attach; zero for anchor layer and for layers
+        /// whose attach points match the anchor's (weapons, garments, headgear).
+        attach_offset: Vec2,
+        /// Computed z-order for this frame: role + direction + IMF head-behind flag.
+        z_order: i32,
+    }
+
+    // Direction from the current tag suffix ("idle_nw" → top_left = true).
+    // Drives the z-order table: topLeft (W/NW/N/NE) vs bottomRight (S/SW/E/SE).
+    let is_top_left = composite
+        .tag
+        .as_deref()
+        .map(tag_is_top_left)
+        .unwrap_or(false);
+
+    // Anchor attach point and IMF head-behind flag both come from the body atlas.
+    let body_atlas = atlases.get(&composite.layers[body_idx].atlas);
+    let anchor_attach: Option<Vec2> = body_atlas
+        .and_then(|a| a.frame_attach_points.get(frame).copied().flatten())
+        .map(|ap| ap.as_vec2());
+    let head_behind = body_atlas
+        .and_then(|a| a.frame_head_behind.get(frame).copied())
+        .unwrap_or(false);
+
+    // Iterate body first (so frames[0] is always the anchor), then all other layers.
+    let layer_order: Vec<usize> = std::iter::once(body_idx)
+        .chain((0..composite.layers.len()).filter(|&i| i != body_idx))
+        .collect();
+
+    // `current_frame` is a flat index into the body atlas's frame sequence.
+    // Non-body layers (weapon, head, etc.) may have different frame counts per action,
+    // so their flat sequences diverge from the body's. We remap by computing the
+    // relative position within the body's tag, then applying it to each layer's own
+    // tag range for the same tag name.
+    let tag_name = composite.tag.clone();
+    let rel_frame = (frame as u16).saturating_sub(*tag_range.start());
+
+    let mut frames: Vec<FrameInfo> = Vec::with_capacity(composite.layers.len());
+    let mut all_ready = true;
+    for &layer_idx in &layer_order {
+        let layer_def = &composite.layers[layer_idx];
+        let Some(atlas) = atlases.get(&layer_def.atlas) else {
+            all_ready = false;
+            break;
+        };
+        let Some(layout) = layouts.get(&atlas.atlas_layout) else {
+            all_ready = false;
+            break;
+        };
+
+        // Map relative position within body's tag to this layer's own tag range.
+        let mapped_frame = match tag_name.as_deref() {
+            Some(t) => match atlas.tags.get(t) {
+                // Layer carries the tag: remap rel_frame into its range.
+                Some(m) => (*m.range.start() + rel_frame).min(*m.range.end()) as usize,
+                // Tag not found on this layer (e.g. shadow has only one tag);
+                // fall back to frame 0 to avoid out-of-bounds displacements.
+                None => 0,
+            },
+            // tag: None — cycle through all frames directly.
+            None => (rel_frame as usize).min(atlas.frame_durations.len().saturating_sub(1)),
+        };
+
+        let atlas_idx = atlas.get_atlas_index(mapped_frame);
+        let rect = layout.textures[atlas_idx];
+        let atlas_size = layout.size.as_vec2();
+
+        let uv_min = rect.min.as_vec2() / atlas_size;
+        let uv_max = rect.max.as_vec2() / atlas_size;
+        let size_px = (rect.max - rect.min).as_vec2();
+        let origin = atlas
+            .frame_origins
+            .get(mapped_frame)
+            .copied()
+            .unwrap_or(IVec2::ZERO);
+
+        let self_attach = atlas
+            .frame_attach_points
+            .get(mapped_frame)
+            .copied()
+            .flatten()
+            .map(|ap| ap.as_vec2());
+        let attach_offset = match (anchor_attach, self_attach) {
+            (Some(a), Some(s)) => a - s,
+            _ => Vec2::ZERO,
+        };
+
+        frames.push(FrameInfo {
+            image: atlas.atlas_image.clone(),
+            uv_min,
+            uv_max,
+            size_px,
+            origin,
+            attach_offset,
+            z_order: layer_def.role.z_order(is_top_left, head_behind),
+        });
+    }
+    if !all_ready || frames.is_empty() {
+        return None;
+    }
+
+    // ── 3. Compute canvas bounds anchored to the body (first/anchor) layer ──
+    // The body's tight frame is placed at canvas (0, 0). Its feet are at
+    // body.origin within that frame, so canvas_feet = body.origin (stable).
+    // Other layers can extend the canvas in any direction; if they extend
+    // left or above the body's top-left, we shift the canvas right/down by
+    // the overflow so all content remains in positive canvas coordinates.
+    let body = &frames[0];
+    let mut content_min = Vec2::ZERO; // body top-left at canvas (0, 0)
+    let mut content_max = body.size_px; // body bottom-right
+    for fi in frames.iter().skip(1) {
+        let lo = body.origin.as_vec2() + fi.attach_offset - fi.origin.as_vec2();
+        let hi = lo + fi.size_px;
+        content_min = content_min.min(lo);
+        content_max = content_max.max(hi);
+    }
+    // Shift canvas right/down if any layer extends above/left of body origin.
+    let overflow = (-content_min).max(Vec2::ZERO);
+    let canvas_size = (content_max + overflow).max(Vec2::ONE);
+    // canvas_feet = body's feet in canvas pixel space.
+    // When the body layer has an attach point, use the sprite-space origin (correct for
+    // players whose shadow/head layers shift the canvas). When there is no attach point
+    // (effects, monsters/NPCs), use the bottom-middle of the canvas: effects have an
+    // arbitrary sprite origin that is not their visual base, and monsters naturally have
+    // their feet at the canvas bottom (only 1px of padding separates origin from edge).
+    let canvas_feet = if anchor_attach.is_some() {
+        body.origin.as_vec2() + overflow
+    } else {
+        Vec2::new(canvas_size.x / 2.0, canvas_size.y)
+    };
+
+    // ── 4. Build layer uniforms (sorted by z-order) ───────────────────
+    // Canvas bounds (step 3) always use frames[0] (body) as the anchor.
+    // GPU draw order is determined by each frame's computed z_order:
+    // lower z = submitted first = drawn behind.
+    let mut render_order: Vec<usize> = (0..frames.len()).collect();
+    render_order.sort_by_key(|&i| frames[i].z_order);
+
+    let mut textures: [Handle<Image>; MAX_LAYERS] = std::array::from_fn(|_| Handle::default());
+    let mut layer_uniforms = [LayerUniform::default(); MAX_LAYERS];
+    let count = frames.len().min(MAX_LAYERS) as u32;
+
+    for (slot, &fi_idx) in render_order.iter().enumerate().take(MAX_LAYERS) {
+        let fi = &frames[fi_idx];
+        textures[slot] = fi.image.clone();
+        // top-left of this layer's frame in canvas pixels
+        let offset = canvas_feet + fi.attach_offset - fi.origin.as_vec2();
+        layer_uniforms[slot] = LayerUniform {
+            atlas_uv_min: fi.uv_min.into(),
+            atlas_uv_max: fi.uv_max.into(),
+            canvas_offset: offset.into(),
+            layer_size: fi.size_px.into(),
+        };
+    }
+
+    // ── 5. Update material ────────────────────────────────────────────
+    if let Some(mat) = mats.get_mut(&mat_handle.0) {
+        mat.textures = textures;
+        mat.canvas_size = canvas_size;
+        mat.layer_count = count;
+        mat.layers = layer_uniforms;
+    }
+
+    Some(CompositeLayout {
+        canvas_size,
+        canvas_feet,
+    })
+}
+
+/// Applies layout+positioning for actor billboard children (those with [`ActorBillboard`]).
+/// Calls [`advance_and_update_composite`] for animation/material, then sizes and places the quad
+/// using `scale_factor = 1.0` and the actor's `feet_lift`.
+#[allow(clippy::type_complexity)]
+fn update_actor_composites(
     mut composites: Query<
         (
             Entity,
             &mut RoComposite,
             &MeshMaterial3d<RoCompositeMaterial>,
             &mut Transform,
-            Option<&BillboardScale>,
-            Option<&FeetLift>,
+            &ActorBillboard,
         ),
         Without<Camera3d>,
     >,
@@ -362,263 +615,30 @@ pub fn update_ro_composite(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, mut composite, mat_handle, mut transform, billboard_scale, feet_lift) in &mut composites {
-        let scale_factor = billboard_scale.map(|s| s.0).unwrap_or(1.0);
-        let feet_lift = feet_lift.map(|f| f.0).unwrap_or(8.0);
-        // ── 1. Advance animation ──────────────────────────────────────────
-        // The Body layer is the compositing anchor and animation driver.
-        // Resolve tag range and frame duration from the body atlas, not layers[0],
-        // so that non-body layers prepended to the list (e.g. shadow) don't interfere.
-        let body_idx = composite
-            .layers
-            .iter()
-            .position(|l| l.role == SpriteRole::Body)
-            .unwrap_or(0);
-
-        let body_handle = composite.layers.get(body_idx).map(|l| l.atlas.clone());
-        let Some(body_driver) = body_handle.as_ref().and_then(|h| atlases.get(h)) else {
+    for (entity, mut composite, mat_handle, mut transform, actor) in &mut composites {
+        let Some(layout) = advance_and_update_composite(
+            entity,
+            &mut composite,
+            mat_handle,
+            &atlases,
+            &layouts,
+            &mut mats,
+            &time,
+            &mut commands,
+        ) else {
             continue;
         };
-
-        let tag_range = match composite.tag.as_ref() {
-            Some(tag) => match body_driver.tags.get(tag) {
-                Some(meta) => meta.range.clone(),
-                None => continue,
-            },
-            None => 0..=(body_driver.frame_durations.len().saturating_sub(1) as u16),
-        };
-        let frame_dur = body_driver
-            .frame_durations
-            .get(composite.current_frame as usize)
-            .copied();
-        let _ = body_driver; // release borrow on atlases before mutating composite
-
-        if !tag_range.contains(&composite.current_frame) {
-            composite.current_frame = *tag_range.start();
-            composite.elapsed = Duration::ZERO;
-        }
-
-        if composite.playing {
-            let speed = composite.speed.max(0.0);
-            composite.elapsed += Duration::from_secs_f32(time.delta_secs() * speed);
-            if let Some(dur) = frame_dur
-                && composite.elapsed >= dur
-            {
-                composite.elapsed = Duration::ZERO;
-                let next = composite.current_frame + 1;
-                let new_frame = if next > *tag_range.end() {
-                    *tag_range.start()
-                } else {
-                    next
-                };
-                composite.current_frame = new_frame;
-
-                // Emit ACT frame events from the body atlas (the animation driver).
-                if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h))
-                    && let Some(Some(event)) = atlas.frame_events.get(new_frame as usize)
-                {
-                    commands.trigger(SpriteFrameEvent {
-                        entity,
-                        event: event.clone(),
-                        tag: composite.tag.clone(),
-                    });
-                }
-            }
-        }
-
-        let frame = composite.current_frame as usize;
-
-        // ── 2. Collect per-layer frame data ───────────────────────────────
-        struct FrameInfo {
-            image: Handle<Image>,
-            uv_min: Vec2,
-            uv_max: Vec2,
-            size_px: Vec2,
-            origin: IVec2,
-            /// Attach-point displacement in feet-origin pixel space.
-            /// = anchor_attach − self_attach; zero for anchor layer and for layers
-            /// whose attach points match the anchor's (weapons, garments, headgear).
-            attach_offset: Vec2,
-            /// Computed z-order for this frame: role + direction + IMF head-behind flag.
-            z_order: i32,
-        }
-
-        // Direction from the current tag suffix ("idle_nw" → top_left = true).
-        // Drives the z-order table: topLeft (W/NW/N/NE) vs bottomRight (S/SW/E/SE).
-        let is_top_left = composite
-            .tag
-            .as_deref()
-            .map(tag_is_top_left)
-            .unwrap_or(false);
-
-        // Anchor attach point and IMF head-behind flag both come from the body atlas.
-        let body_atlas = atlases.get(&composite.layers[body_idx].atlas);
-        let anchor_attach: Option<Vec2> = body_atlas
-            .and_then(|a| a.frame_attach_points.get(frame).copied().flatten())
-            .map(|ap| ap.as_vec2());
-        let head_behind = body_atlas
-            .and_then(|a| a.frame_head_behind.get(frame).copied())
-            .unwrap_or(false);
-
-        // Iterate body first (so frames[0] is always the anchor), then all other layers.
-        let layer_order: Vec<usize> = std::iter::once(body_idx)
-            .chain((0..composite.layers.len()).filter(|&i| i != body_idx))
-            .collect();
-
-        // `current_frame` is a flat index into the body atlas's frame sequence.
-        // Non-body layers (weapon, head, etc.) may have different frame counts per action,
-        // so their flat sequences diverge from the body's. We remap by computing the
-        // relative position within the body's tag, then applying it to each layer's own
-        // tag range for the same tag name.
-        let tag_name = composite.tag.clone();
-        let rel_frame = (frame as u16).saturating_sub(*tag_range.start());
-
-        let mut frames: Vec<FrameInfo> = Vec::with_capacity(composite.layers.len());
-        let mut all_ready = true;
-        for &layer_idx in &layer_order {
-            let layer_def = &composite.layers[layer_idx];
-            let Some(atlas) = atlases.get(&layer_def.atlas) else {
-                all_ready = false;
-                break;
-            };
-            let Some(layout) = layouts.get(&atlas.atlas_layout) else {
-                all_ready = false;
-                break;
-            };
-
-            // Map relative position within body's tag to this layer's own tag range.
-            let mapped_frame = match tag_name.as_deref() {
-                Some(t) => match atlas.tags.get(t) {
-                    // Layer carries the tag: remap rel_frame into its range.
-                    Some(m) => (*m.range.start() + rel_frame).min(*m.range.end()) as usize,
-                    // Tag not found on this layer (e.g. shadow has only one tag);
-                    // fall back to frame 0 to avoid out-of-bounds displacements.
-                    None => 0,
-                },
-                // tag: None — cycle through all frames directly.
-                None => (rel_frame as usize).min(atlas.frame_durations.len().saturating_sub(1)),
-            };
-
-            let atlas_idx = atlas.get_atlas_index(mapped_frame);
-            let rect = layout.textures[atlas_idx];
-            let atlas_size = layout.size.as_vec2();
-
-            let uv_min = rect.min.as_vec2() / atlas_size;
-            let uv_max = rect.max.as_vec2() / atlas_size;
-            let size_px = (rect.max - rect.min).as_vec2();
-            let origin = atlas
-                .frame_origins
-                .get(mapped_frame)
-                .copied()
-                .unwrap_or(IVec2::ZERO);
-
-            let self_attach = atlas
-                .frame_attach_points
-                .get(mapped_frame)
-                .copied()
-                .flatten()
-                .map(|ap| ap.as_vec2());
-            let attach_offset = match (anchor_attach, self_attach) {
-                (Some(a), Some(s)) => a - s,
-                _ => Vec2::ZERO,
-            };
-
-            frames.push(FrameInfo {
-                image: atlas.atlas_image.clone(),
-                uv_min,
-                uv_max,
-                size_px,
-                origin,
-                attach_offset,
-                z_order: layer_def.role.z_order(is_top_left, head_behind),
-            });
-        }
-        if !all_ready || frames.is_empty() {
-            continue;
-        }
-
-        // ── 3. Compute canvas bounds anchored to the body (first/anchor) layer ──
-        // The body's tight frame is placed at canvas (0, 0). Its feet are at
-        // body.origin within that frame, so canvas_feet = body.origin (stable).
-        // Other layers can extend the canvas in any direction; if they extend
-        // left or above the body's top-left, we shift the canvas right/down by
-        // the overflow so all content remains in positive canvas coordinates.
-        let body = &frames[0];
-        let mut content_min = Vec2::ZERO; // body top-left at canvas (0, 0)
-        let mut content_max = body.size_px; // body bottom-right
-        for fi in frames.iter().skip(1) {
-            let lo = body.origin.as_vec2() + fi.attach_offset - fi.origin.as_vec2();
-            let hi = lo + fi.size_px;
-            content_min = content_min.min(lo);
-            content_max = content_max.max(hi);
-        }
-        // Shift canvas right/down if any layer extends above/left of body origin.
-        let overflow = (-content_min).max(Vec2::ZERO);
-        let canvas_size = (content_max + overflow).max(Vec2::ONE);
-        // canvas_feet = body's feet in canvas pixel space.
-        // When the body layer has an attach point, use the sprite-space origin (correct for
-        // players whose shadow/head layers shift the canvas). When there is no attach point
-        // (effects, monsters/NPCs), use the bottom-middle of the canvas: effects have an
-        // arbitrary sprite origin that is not their visual base, and monsters naturally have
-        // their feet at the canvas bottom (only 1px of padding separates origin from edge).
-        let canvas_feet = if anchor_attach.is_some() {
-            body.origin.as_vec2() + overflow
-        } else {
-            Vec2::new(canvas_size.x / 2.0, canvas_size.y)
-        };
-
-        // ── 4. Build layer uniforms (sorted by z-order) ───────────────────
-        // Canvas bounds (step 3) always use frames[0] (body) as the anchor.
-        // GPU draw order is determined by each frame's computed z_order:
-        // lower z = submitted first = drawn behind.
-        let mut render_order: Vec<usize> = (0..frames.len()).collect();
-        render_order.sort_by_key(|&i| frames[i].z_order);
-
-        let mut textures: [Handle<Image>; MAX_LAYERS] = std::array::from_fn(|_| Handle::default());
-        let mut layer_uniforms = [LayerUniform::default(); MAX_LAYERS];
-        let count = frames.len().min(MAX_LAYERS) as u32;
-
-        for (slot, &fi_idx) in render_order.iter().enumerate().take(MAX_LAYERS) {
-            let fi = &frames[fi_idx];
-            textures[slot] = fi.image.clone();
-            // top-left of this layer's frame in canvas pixels
-            let offset = canvas_feet + fi.attach_offset - fi.origin.as_vec2();
-            layer_uniforms[slot] = LayerUniform {
-                atlas_uv_min: fi.uv_min.into(),
-                atlas_uv_max: fi.uv_max.into(),
-                canvas_offset: offset.into(),
-                layer_size: fi.size_px.into(),
-            };
-        }
-
-        // ── 5. Update material ────────────────────────────────────────────
-        if let Some(mat) = mats.get_mut(&mat_handle.0) {
-            mat.textures = textures;
-            mat.canvas_size = canvas_size;
-            mat.layer_count = count;
-            mat.layers = layer_uniforms;
-        }
 
         // ── 6. Size and position the billboard quad ───────────────────────
-        // Scale so 1 unit = 1 pixel, then apply optional BillboardScale factor.
-        // scale_factor < 1.0 normalizes effect sprites whose ACT bakes large canvases.
-        transform.scale = Vec3::new(canvas_size.x * scale_factor, canvas_size.y * scale_factor, 1.0);
+        // scale_factor = 1.0 for actors (canvas is already in correct pixel scale).
+        transform.scale = Vec3::new(layout.canvas_size.x, layout.canvas_size.y, 1.0);
 
-        // The canvas feet pixel is at local offset (local_x, local_y) from the
-        // billboard center (in scaled canvas space):
-        //   local_x = canvas_feet.x - canvas_size.x / 2  (rightward in canvas)
-        //   local_y = canvas_size.y / 2 - canvas_feet.y  (upward; feet below center is negative)
-        //
-        // orient_billboard applies a Y-rotation to face the camera plus a fixed X tilt,
-        // so the billboard's local Y axis is NOT the same as cam_up. Using cam_up here
-        // causes the feet position to drift as the camera pitches. Instead, derive the
-        // billboard's world-space axes from its already-computed rotation.
-        let local_x = (canvas_feet.x - canvas_size.x / 2.0) * scale_factor;
-        let local_y = (canvas_size.y / 2.0 - canvas_feet.y) * scale_factor;
+        let local_x = layout.canvas_feet.x - layout.canvas_size.x / 2.0;
+        let local_y = layout.canvas_size.y / 2.0 - layout.canvas_feet.y;
         let billboard_right = transform.rotation * Vec3::X;
         let billboard_up = transform.rotation * Vec3::Y;
         transform.translation =
-            -billboard_right * local_x - billboard_up * local_y + Vec3::Y * feet_lift;
+            -billboard_right * local_x - billboard_up * local_y + Vec3::Y * actor.feet_lift;
     }
 }
 
@@ -659,10 +679,10 @@ pub fn direction_index(facing: Vec2, cam_fwd: Vec2) -> u8 {
 
 const SHADOW_SPR_PATH: &str = "sprite/shadow/shadow.spr";
 
-/// Prepends a shadow layer to every newly spawned [`RoComposite`] that doesn't already have one.
-/// Entities with [`NoShadowLayer`] are skipped.
+/// Prepends a shadow layer to every newly spawned actor [`RoComposite`] (those with [`ActorBillboard`]).
+/// Effect billboards and other non-actor composites are skipped because they lack `ActorBillboard`.
 fn attach_shadow_layer(
-    mut composites: Query<&mut RoComposite, (Added<RoComposite>, Without<NoShadowLayer>)>,
+    mut composites: Query<&mut RoComposite, (Added<RoComposite>, With<ActorBillboard>)>,
     server: Res<AssetServer>,
 ) {
     for mut composite in &mut composites {
@@ -706,6 +726,7 @@ const CAMERA_PARALLEL_BILLBOARDS: bool = true;
 ///
 /// Rotates the billboard about its parent's world position (actor feet) so that the
 /// canvas always faces the camera regardless of the billboard's canvas-layout translation.
+#[allow(clippy::type_complexity)]
 pub fn orient_billboard(
     mut billboards: Query<(&mut Transform, &ChildOf), (With<RoComposite>, Without<Camera3d>)>,
     parents: Query<&GlobalTransform>,

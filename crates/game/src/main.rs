@@ -1,17 +1,17 @@
 mod camera_orbit;
 mod map_interaction;
 
-use crate::camera_orbit::{CameraFollower, OrbitCamera, OrbitCameraPlugin};
-use crate::map_interaction::{MapInteractionPlugin, MapMarker, Navigation};
+use crate::camera_orbit::{CameraFollower, OrbitCameraPlugin};
+use crate::map_interaction::{MapInteractionPlugin, MapMarker};
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::picking::Pickable;
 use bevy::prelude::*;
 use bevy::camera::primitives::Aabb;
-use bevy_ro_maps::{MapLightingReady, NavMesh, RoEffectEmitter, RoMapRoot, RoMapsPlugin, RoModelMesh};
-use std::collections::{HashMap, HashSet};
+use bevy_ro_maps::{MapLightingReady, RoMapRoot, RoMapsPlugin};
+use bevy_ro_models::{RoModelMesh, RoModelsPlugin};
+use bevy_ro_vfx::{EffectBillboard, RoVfxPlugin};
+use std::collections::HashSet;
 use bevy_ro_sprites::prelude::*;
-use std::f32::consts::PI;
-use std::ops::DerefMut;
 
 fn main() {
     App::new()
@@ -21,15 +21,19 @@ fn main() {
         }))
         .add_plugins(OrbitCameraPlugin)
         // .add_plugins(DefaultPickingPlugins)
-        .add_systems(Startup, (setup, load_effect_sprite_map))
+        .add_systems(Startup, setup)
         .add_plugins(RoSpritePlugin)
         .add_plugins(RoMapsPlugin)
+        .add_plugins(RoModelsPlugin)
+        .add_plugins(RoVfxPlugin {
+            assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
+        })
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
         .add_observer(apply_map_lighting)
         .add_systems(PostStartup, attach_composite)
         .insert_resource(ModelFadeCullDistance(500.0))
-        .add_systems(Update, (select_action, update_composite_tag, fade_occluded_models, attach_effect_sprites))
+        .add_systems(Update, (select_action, fade_occluded_models))
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -218,55 +222,6 @@ fn apply_map_lighting(
 }
 
 // ─────────────────────────────────────────────────────────────
-// Public types
-// ─────────────────────────────────────────────────────────────
-
-#[derive(Clone, Copy, PartialEq, Default, Debug)]
-pub enum Action {
-    #[default]
-    Idle,
-    Walk,
-    Sit,
-    PickUp,
-    Alert,
-    Skill,
-    Flinch,
-    Frozen,
-    Dead,
-    Attack1,
-    Attack2,
-    Spell,
-}
-
-impl Action {
-    pub fn tag_name(self) -> &'static str {
-        match self {
-            Action::Idle => "idle",
-            Action::Walk => "walk",
-            Action::Sit => "sit",
-            Action::PickUp => "pickup",
-            Action::Alert => "alert",
-            Action::Skill => "skill",
-            Action::Flinch => "flinch",
-            Action::Frozen => "frozen",
-            Action::Dead => "dead",
-            Action::Attack1 => "attack1",
-            Action::Attack2 => "attack2",
-            Action::Spell => "spell",
-        }
-    }
-}
-
-/// Facing direction in world XZ space (length doesn't matter).
-#[derive(Component, Clone, Copy, Default)]
-pub struct ActorDirection(pub Vec2);
-
-/// Current animation action.
-#[derive(Component, Clone, Copy, Default)]
-pub struct ActorState {
-    pub action: Action,
-}
-
 /// Marker: this entity hosts body + head layers composited on a billboard child entity.
 #[derive(Component)]
 pub struct ActorSprite {
@@ -327,7 +282,7 @@ fn attach_composite(
                 Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
                 MeshMaterial3d(mats.add(RoCompositeMaterial::default())),
                 Transform::default(),
-                FeetLift(10.0),
+                ActorBillboard { feet_lift: 10.0 },
             ));
         });
     }
@@ -336,38 +291,6 @@ fn attach_composite(
 // ─────────────────────────────────────────────────────────────
 // Systems
 // ─────────────────────────────────────────────────────────────
-
-/// Propagate ActorState/ActorDirection changes to the RoComposite tag on the billboard child.
-fn update_composite_tag(
-    actors: Query<
-        (&ActorState, &ActorDirection, &Children),
-        // Or<(Changed<ActorState>, Changed<ActorDirection>)>,
-        (With<ActorState>, With<ActorDirection>),
-    >,
-    mut billboards: Query<&mut RoComposite>,
-    camera_q: Query<&Transform, With<Camera3d>>,
-) {
-    let cam_fwd = camera_q
-        .single()
-        .ok()
-        .map(|t| {
-            let f = t.forward().as_vec3();
-            Vec2::new(f.x, f.z)
-        })
-        .unwrap_or(Vec2::NEG_Y);
-
-    for (state, dir, children) in &actors {
-        for child in children.iter() {
-            let Ok(mut composite) = billboards.get_mut(child) else {
-                continue;
-            };
-            let dir_idx = direction_index(dir.0, cam_fwd);
-            let tag = composite_tag(state.action.tag_name(), dir_idx);
-            composite.tag = Some(tag);
-            composite.playing = !matches!(state.action, Action::Idle | Action::Sit);
-        }
-    }
-}
 
 //
 // Events
@@ -493,7 +416,7 @@ fn fade_occluded_models(
     cull_dist: Res<ModelFadeCullDistance>,
     camera_q: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     player_q: Query<&GlobalTransform, With<PlayerControl>>,
-    billboards: Query<&GlobalTransform, (With<RoComposite>, Without<EffectComposite>)>,
+    billboards: Query<&GlobalTransform, (With<RoComposite>, Without<EffectBillboard>)>,
     model_meshes: Query<
         (Entity, &GlobalTransform, &Aabb, &MeshMaterial3d<StandardMaterial>),
         With<RoModelMesh>,
@@ -571,77 +494,3 @@ fn fade_occluded_models(
     *previously_faded = should_fade;
 }
 
-/// Marker placed on effect billboard entities to exclude them from actor-occlusion fade checks.
-#[derive(Component)]
-struct EffectComposite;
-
-/// Maps RSW effect IDs to SPR file stems (e.g. `47 → "torch_01"`).
-/// Loaded from `sprite/effect/effect_sprites.json` at startup.
-#[derive(Resource, Default)]
-struct EffectSpriteMap(HashMap<u32, String>);
-
-const ASSETS_PATH: &str =
-    "/Users/rmpader/code_projects/project_metaling/target/assets";
-
-fn load_effect_sprite_map(mut commands: Commands) {
-    let path = format!("{ASSETS_PATH}/sprite/effect/effect_sprites.json");
-    let map = std::fs::read_to_string(&path)
-        .ok()
-        .and_then(|json| serde_json::from_str::<HashMap<u32, String>>(&json).ok())
-        .unwrap_or_default();
-    if map.is_empty() {
-        warn!("effect_sprites.json not found or empty — no effect sprites will render");
-    } else {
-        info!("Loaded {} effect sprite mappings", map.len());
-    }
-    commands.insert_resource(EffectSpriteMap(map));
-}
-
-/// Divisor applied to effect billboard canvas size to normalize ACT-baked pixel scales
-/// to world units. Effect ACT files use large layer scale values (e.g. 7.46×) that make
-/// canvases 10–20× larger than actor sprites. Tune this constant to adjust visual size.
-const EFFECT_SPRITE_SCALE: f32 = 1.0 / 35.0;
-
-/// Reacts to newly spawned [`RoEffectEmitter`] entities and attaches a [`RoComposite`] billboard
-/// child for effect IDs that have a corresponding SPR sprite.
-fn attach_effect_sprites(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut mats: ResMut<Assets<RoCompositeMaterial>>,
-    server: Res<AssetServer>,
-    effect_map: Res<EffectSpriteMap>,
-    new_effects: Query<(Entity, &RoEffectEmitter), Added<RoEffectEmitter>>,
-) {
-    for (entity, emitter) in &new_effects {
-        let Some(stem) = effect_map.0.get(&emitter.effect_id) else {
-            println!("Not found {:?}", &emitter.effect_id);
-            continue;
-        };
-        println!("Found {:?}", stem);
-        let spr_path = format!("sprite/effect/{stem}.spr");
-        // tag: None plays all frames in sequence — effect ACTs are non-directional loops.
-        // A directional tag like "idle_s" silently skips rendering if the ACT has only
-        // one action, so we let the composite cycle the full frame range instead.
-        commands.entity(entity).insert(Visibility::Inherited).with_children(|parent| {
-            parent.spawn((
-                RoComposite {
-                    layers: vec![CompositeLayerDef {
-                        atlas: server.load(spr_path),
-                        role: SpriteRole::Body,
-                    }],
-                    tag: None,
-                    playing: true,
-                    ..Default::default()
-                },
-                Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
-                MeshMaterial3d(mats.add(RoCompositeMaterial::default())),
-                Transform::default(),
-                Visibility::Visible,
-                EffectComposite,
-                NoShadowLayer,
-                BillboardScale(EFFECT_SPRITE_SCALE),
-                Pickable { should_block_lower: false, is_hoverable: false },
-            ));
-        });
-    }
-}
