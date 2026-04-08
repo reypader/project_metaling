@@ -22,6 +22,7 @@ use bevy::{
     },
     shader::ShaderRef,
 };
+use bevy_ro_sounds::PlaySound;
 
 use crate::{animation::SpriteFrameEvent, loader::RoAtlas};
 
@@ -354,6 +355,7 @@ pub fn advance_and_update_composite(
     mats: &mut Assets<RoCompositeMaterial>,
     time: &Time,
     commands: &mut Commands,
+    tf: &Transform,
 ) -> Option<CompositeLayout> {
     // ── 1. Advance animation ──────────────────────────────────────────
     // The Body layer is the compositing anchor and animation driver.
@@ -405,11 +407,23 @@ pub fn advance_and_update_composite(
             if let Some(atlas) = body_handle.as_ref().and_then(|h| atlases.get(h))
                 && let Some(Some(event)) = atlas.frame_events.get(new_frame as usize)
             {
+                println!("composite event {:?}", event);
                 commands.trigger(SpriteFrameEvent {
                     entity,
                     event: event.clone(),
                     tag: composite.tag.clone(),
                 });
+                let lower = event.to_ascii_lowercase();
+                println!("composite play sound {:?}", event);
+                if lower.ends_with(".wav") || lower.ends_with(".mp3") {
+                    commands.trigger(PlaySound {
+                        path: event.clone(),
+                        looping: false,
+                        location: Some(tf.clone()),
+                        volume: Some(20.0),
+                        range: Some(100000.0),
+                    });
+                }
             }
         }
     }
@@ -623,6 +637,7 @@ fn update_actor_composites(
             &mut mats,
             &time,
             &mut commands,
+            &transform,
         ) else {
             continue;
         };
@@ -719,6 +734,9 @@ fn disable_billboard_shadows(mut commands: Commands, query: Query<Entity, Added<
 /// which matches the original RO client behaviour but introduces slight angular divergence
 /// at the screen edges.
 const CAMERA_PARALLEL_BILLBOARDS: bool = false;
+/// Maximum tilt angle in degrees for the spherical billboard mode.
+/// The computed pitch is clamped to this value. Has no effect when `CAMERA_PARALLEL_BILLBOARDS` is true.
+const SPHERICAL_MAX_TILT_DEGREES: f32 = 30.0;
 
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
@@ -730,7 +748,7 @@ pub fn orient_billboard(
     camera_q: Query<&Transform, (With<Camera3d>, Without<RoComposite>)>,
 ) {
     let Ok(cam) = camera_q.single() else { return };
-    const TILT: f32 = 25.0 * std::f32::consts::PI / 180.0;
+    const TILT: f32 = 30.0 * std::f32::consts::PI / 180.0;
     for (mut tf, child_of) in &mut billboards {
         // Use the parent (actor) world position as the pivot so the rotation is
         // stable regardless of the canvas-centering offset stored in tf.translation.
@@ -757,7 +775,8 @@ pub fn orient_billboard(
             let face_dir = closest - pivot;
             let xz_len = Vec2::new(face_dir.x, face_dir.z).length();
             let yaw = f32::atan2(face_dir.x, face_dir.z);
-            let pitch = -f32::atan2(face_dir.y, xz_len);
+            let max_tilt = SPHERICAL_MAX_TILT_DEGREES.to_radians();
+            let pitch = (-f32::atan2(face_dir.y, xz_len)).clamp(-max_tilt, max_tilt);
             tf.rotation = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(pitch);
         };
     }

@@ -3,28 +3,47 @@ mod map_interaction;
 
 use crate::camera_orbit::{CameraFollower, OrbitCameraPlugin};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker};
+use bevy::camera::primitives::Aabb;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::picking::Pickable;
 use bevy::prelude::*;
-use bevy::camera::primitives::Aabb;
 use bevy_ro_maps::{MapLightingReady, RoMapRoot, RoMapsPlugin};
 use bevy_ro_models::{RoModelInstance, RoModelMesh, RoModelsPlugin};
+use bevy_ro_sounds::RoSoundsPlugin;
+use bevy_ro_sprites::SpriteFrameEvent;
+use bevy_ro_sprites::prelude::{
+    Action, ActorBillboard, ActorDirection, ActorState, CompositeLayerDef, RoComposite,
+    RoCompositeMaterial, RoSpritePlugin, SpriteRole, composite_tag, direction_index,
+};
 use bevy_ro_vfx::{EffectBillboard, RoVfxPlugin};
 use std::collections::{HashMap, HashSet};
-use bevy_ro_sprites::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(AssetPlugin {
-            file_path: "/Users/rmpader/code_projects/project_metaling/target/assets".to_string(),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(AssetPlugin {
+                    file_path: "/Users/rmpader/code_projects/project_metaling/target/assets"
+                        .to_string(),
+                    ..default()
+                })
+                .set(bevy::audio::AudioPlugin {
+                    // RO map coordinates are in the hundreds of world units; scale down so that
+                    // spatial attenuation kicks in at game-relevant distances rather than at 1 unit.
+                    // This value is tunable: lower = sounds carry farther globally.
+                    default_spatial_scale: bevy::audio::SpatialScale::new(0.04),
+                    ..default()
+                }),
+        )
         .add_plugins(OrbitCameraPlugin)
         // .add_plugins(DefaultPickingPlugins)
         .add_systems(Startup, setup)
         .add_plugins(RoSpritePlugin)
-        .add_plugins(RoMapsPlugin)
+        .add_plugins(RoMapsPlugin {
+            assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
+        })
         .add_plugins(RoModelsPlugin)
+        .add_plugins(RoSoundsPlugin)
         .add_plugins(RoVfxPlugin {
             assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
         })
@@ -33,13 +52,16 @@ fn main() {
         .add_observer(apply_map_lighting)
         .add_systems(PostStartup, attach_composite)
         .insert_resource(ModelFadeCullDistance(500.0))
-        .add_systems(Update, (select_action, cache_model_vertices, fade_occluded_models).chain())
+        .add_systems(
+            Update,
+            (select_action, cache_model_vertices, fade_occluded_models).chain(),
+        )
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
                 "ACT event '{}' on {:?} during {:?}",
                 e.event, e.entity, e.tag
-            );
+            )
         })
         .run();
 }
@@ -56,9 +78,9 @@ fn setup(
             // asset: asset_server.load("maps/payon/payon.gnd"),
             // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
-            asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
+            // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
             // asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
-            // asset: asset_server.load("maps/pprontera/pprontera.gnd"),
+            asset: asset_server.load("maps/prontera/prontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -79,6 +101,23 @@ fn setup(
         },
     ));
 
+    commands.spawn((
+        ActorSprite {
+            body: "sprite/human_female_knight/body.spr",
+            head: "sprite/human_female_head/head/11.spr",
+            weapon: Some("sprite/human_female_knight/weapon/spear/weapon.spr"),
+            weapon_slash: Some("sprite/human_female_knight/weapon/spear/slash.spr"),
+        },
+        ActorState {
+            action: Action::Idle,
+        },
+        ActorDirection(-Vec3::Z.xz()),
+        Transform::from_xyz(0.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        PlayerControl,
+        SpatialListener::new(1.0),
+    ));
+    commands.spawn((Transform::from_xyz(0.0, 0.0, 0.0), CameraFollower));
+
     // Actor — body.spr + head 17.spr, composited in one quad
     commands.spawn((
         ActorSprite {
@@ -91,25 +130,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(Vec2::Y),
-        Transform::from_xyz(-20.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
-    ));
-    commands.spawn((
-        ActorSprite {
-            body: "sprite/human_female_knight/body.spr",
-            head: "sprite/human_female_head/head/11.spr",
-            weapon: Some("sprite/human_female_knight/weapon/spear/weapon.spr"),
-            weapon_slash: Some("sprite/human_female_knight/weapon/spear/slash.spr"),
-        },
-        ActorState {
-            action: Action::Idle,
-        },
-        ActorDirection(-Vec3::Z.xz()),
-        Transform::from_xyz(0.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
-        PlayerControl,
-    ));
-    commands.spawn((
-        Transform::from_xyz(0.0, 0.0, 0.0),
-        CameraFollower,
+        Transform::from_xyz(-20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
     ));
 
     commands.spawn((
@@ -123,7 +144,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(Vec2::Y),
-        Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15,0.15,0.15)),
+        Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
     ));
     // Directional sun light — direction and color will be overwritten by apply_map_lighting
     // once the map asset finishes loading.
@@ -394,11 +415,13 @@ fn model_ndc_rect(
     for corner in corners {
         let world = model_gt.transform_point(corner);
         if let Some(ndc) = camera.world_to_ndc(cam_gt, world)
-            && ndc.z >= 0.0 && ndc.z <= 1.0 {
-                min = min.min(ndc.truncate());
-                max = max.max(ndc.truncate());
-                any = true;
-            }
+            && ndc.z >= 0.0
+            && ndc.z <= 1.0
+        {
+            min = min.min(ndc.truncate());
+            max = max.max(ndc.truncate());
+            any = true;
+        }
     }
     if !any {
         return None;
@@ -454,7 +477,13 @@ fn fade_occluded_models(
     player_q: Query<(&GlobalTransform, &Children), With<PlayerControl>>,
     billboards: Query<&GlobalTransform, (With<RoComposite>, Without<EffectBillboard>)>,
     model_meshes: Query<
-        (Entity, &GlobalTransform, &Aabb, &MeshMaterial3d<StandardMaterial>, Option<&CachedMeshVertices>),
+        (
+            Entity,
+            &GlobalTransform,
+            &Aabb,
+            &MeshMaterial3d<StandardMaterial>,
+            Option<&CachedMeshVertices>,
+        ),
         With<RoModelMesh>,
     >,
     parent_q: Query<&ChildOf>,
@@ -510,7 +539,8 @@ fn fade_occluded_models(
                 }
             } else {
                 // Fallback: AABB rect test for entities whose vertex cache isn't ready yet.
-                let Some((model_rect, model_z)) = model_ndc_rect(camera, cam_gt, model_gt, aabb) else {
+                let Some((model_rect, model_z)) = model_ndc_rect(camera, cam_gt, model_gt, aabb)
+                else {
                     continue;
                 };
                 billboard_rects.iter().any(|&(bill_rect, bill_z)| {
@@ -549,7 +579,11 @@ fn fade_occluded_models(
     let dt = time.delta_secs();
 
     fade_alphas.retain(|&entity, alpha| {
-        let target = if should_fade.contains(&entity) { FADED_ALPHA } else { 1.0 };
+        let target = if should_fade.contains(&entity) {
+            FADED_ALPHA
+        } else {
+            1.0
+        };
         let step = FADE_SPEED * dt;
         if (*alpha - target).abs() <= step {
             *alpha = target;
@@ -592,3 +626,6 @@ fn model_instance_root(
     }
 }
 
+//
+// Events
+//

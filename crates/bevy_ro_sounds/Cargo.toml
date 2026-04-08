@@ -1,0 +1,13 @@
+[package]
+name = "bevy_ro_sounds"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.18", default-features = false, features = [
+    "bevy_audio",
+    "bevy_asset",
+    "bevy_log",
+    "wav",
+    "mp3",
+] }

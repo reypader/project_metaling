@@ -39,3 +39,9 @@ translate = true
 # Flat and data/wav/effect/ subdirectory; all .wav plus a handful of .mp3.
 # BGM is not inside the GRF (it lives in the game's bgm/ folder on disk).
 path_prefixes = ["data/wav/"]
+extensions = ["wav"]
+
+[[bundle]]
+name = "lookup"
+translate = false
+extensions = ["txt"]

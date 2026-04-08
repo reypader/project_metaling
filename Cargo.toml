@@ -7,6 +7,7 @@ members = [
     "crates/bevy_ro_vfx",
     "crates/asset_importer",
     "crates/grf_extractor",
+    "crates/bevy_ro_sounds",
     "crates/game",
 ]
 resolver = "3"

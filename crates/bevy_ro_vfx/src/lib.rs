@@ -136,6 +136,7 @@ fn update_effect_composites(
             &mut mats,
             &time,
             &mut commands,
+            &transform,
         ) else {
             continue;
         };
@@ -147,6 +148,6 @@ fn update_effect_composites(
         let local_y = (layout.canvas_size.y / 2.0 - layout.canvas_feet.y) * sf;
         let billboard_right = transform.rotation * Vec3::X;
         let billboard_up = transform.rotation * Vec3::Y;
-        transform.translation = -billboard_right * local_x - billboard_up * local_y;
+        transform.translation = (Vec3::Y * 8.0)-billboard_right * local_x - billboard_up * local_y;
     }
 }

@@ -239,6 +239,37 @@ pub fn batch(
         }
     }
 
+    // Lookup (text data — mp3nametable.txt, etc.)
+    if want("lookup") {
+        let misc_out = out_root.join("misc");
+        for entry in &m.lookup {
+            let src = data_root.join(&entry.path);
+            if !src.exists() {
+                log_skip(&mut skip_log, "lookup", &toml::to_string(entry)?, "file not found");
+                skipped += 1;
+                continue;
+            }
+            // mp3nametable.txt is converted to a clean JSON map instead of copied as-is.
+            let filename = std::path::Path::new(&entry.path)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_ascii_lowercase())
+                .unwrap_or_default();
+            if filename == "mp3nametable.txt" {
+                let map = parse_mp3nametable(&src)?;
+                let json = serde_json::to_string_pretty(&map)?;
+                std::fs::create_dir_all(&misc_out)?;
+                std::fs::write(misc_out.join("mp3nametable.json"), json)?;
+            } else {
+                let dst = misc_out.join(&entry.path);
+                if let Some(parent) = dst.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::copy(&src, &dst)?;
+            }
+            exported += 1;
+        }
+    }
+
     // Sounds
     if want("sound") {
         // WAV filenames are ACT event keys and must be preserved exactly — no translation.
@@ -602,23 +633,84 @@ fn emit_effect_sprites_json(map: &HashMap<u32, String>) -> String {
     format!("{{{}}}", pairs.join(","))
 }
 
+/// Parses `mp3nametable.txt` into a clean `{map_name: bgm_path}` map.
+/// Reads bytes and converts with lossy UTF-8 to tolerate CP949 comment lines.
+fn parse_mp3nametable(src: &Path) -> Result<HashMap<String, String>> {
+    let bytes = std::fs::read(src).with_context(|| format!("reading {}", src.display()))?;
+    let text = String::from_utf8_lossy(&bytes);
+    let mut map = HashMap::new();
+    for line in text.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with("//") {
+            continue;
+        }
+        let parts: Vec<&str> = line.splitn(3, '#').collect();
+        if parts.len() < 2 {
+            continue;
+        }
+        let rsw_part = parts[0].trim();
+        let bgm_part = parts[1].trim();
+        if rsw_part.is_empty() || bgm_part.is_empty() {
+            continue;
+        }
+        let map_name = Path::new(&rsw_part.replace('\\', "/"))
+            .file_stem()
+            .map(|s| s.to_string_lossy().to_lowercase())
+            .unwrap_or_default();
+        let bgm_path = bgm_part.replace('\\', "/").replace("//", "/");
+        if !map_name.is_empty() && !bgm_path.is_empty() {
+            map.insert(map_name, bgm_path);
+        }
+    }
+    Ok(map)
+}
+
 fn convert_bmp_to_png(src: &Path, dst: &Path) -> Result<()> {
     let img = image::open(src).with_context(|| format!("opening BMP {}", src.display()))?;
-
-    // 2. Convert to RGBA8 (gives us the alpha channel)
     let mut rgba_img = img.to_rgba8();
 
-    // Define the color you want to make transparent (e.g., White)
-    let target_color = [255, 0, 255];
-
-    // 3. Iterate over pixels and set alpha to 0 for the target color
     for pixel in rgba_img.pixels_mut() {
-        // pixel.0 is the [r, g, b, a] array
-        if pixel.0[0] == target_color[0]
-            && pixel.0[1] == target_color[1]
-            && pixel.0[2] == target_color[2]
-        {
-            pixel.0[3] = 0; // Set alpha to transparent
+        if pixel.0[0] == 255 && pixel.0[1] == 0 && pixel.0[2] == 255 {
+            pixel.0[3] = 0;
+        }
+    }
+
+    // Edge dilation: propagate opaque pixel colors into transparent border pixels
+    // so bilinear filtering doesn't blend magenta into visible edges.
+    let (width, height) = rgba_img.dimensions();
+    for _ in 0..2 {
+        let reference = rgba_img.clone();
+        for y in 0..height {
+            for x in 0..width {
+                if reference.get_pixel(x, y).0[3] != 0 {
+                    continue;
+                }
+                let neighbors = [
+                    (x.wrapping_sub(1), y),
+                    (x + 1, y),
+                    (x, y.wrapping_sub(1)),
+                    (x, y + 1),
+                ];
+                let (mut r, mut g, mut b, mut count) = (0u32, 0u32, 0u32, 0u32);
+                for (nx, ny) in neighbors {
+                    if nx < width && ny < height {
+                        let np = reference.get_pixel(nx, ny).0;
+                        if np[3] != 0 {
+                            r += np[0] as u32;
+                            g += np[1] as u32;
+                            b += np[2] as u32;
+                            count += 1;
+                        }
+                    }
+                }
+                if count > 0 {
+                    let p = rgba_img.get_pixel_mut(x, y);
+                    p.0[0] = (r / count) as u8;
+                    p.0[1] = (g / count) as u8;
+                    p.0[2] = (b / count) as u8;
+                    // alpha stays 0
+                }
+            }
         }
     }
 

@@ -30,7 +30,7 @@ enum Command {
         output: Option<PathBuf>,
 
         /// Sprite types to process (comma-separated).
-        /// Valid values: body, head, headgear, garment, weapon, shield, shadow, projectile, map, sound.
+        /// Valid values: body, head, headgear, garment, weapon, shield, shadow, projectile, map, sound, effect, lookup.
         /// Example: --types body,head,headgear,weapon,shield,shadow,map
         #[arg(long, value_name = "TYPES")]
         types: Option<String>,
@@ -70,7 +70,7 @@ enum Command {
         output: PathBuf,
 
         /// Sprite types to include (comma-separated).
-        /// Valid values: body, head, headgear, garment, weapon, shield, shadow, projectile, map, sound.
+        /// Valid values: body, head, headgear, garment, weapon, shield, shadow, projectile, map, sound, effect, lookup.
         /// Example: --types body,head,headgear,weapon,shield,shadow,map
         #[arg(long, value_name = "TYPES")]
         types: Option<String>,
@@ -177,6 +177,7 @@ const VALID_TYPES: &[&str] = &[
     "map",
     "sound",
     "effect",
+    "lookup",
 ];
 
 fn parse_types(types: Option<&str>) -> anyhow::Result<Option<Vec<String>>> {

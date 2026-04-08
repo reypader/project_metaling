@@ -29,6 +29,8 @@ pub struct Manifest {
     pub map: Vec<MapEntry>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub effect: Vec<EffectEntry>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lookup: Vec<LookupEntry>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -131,4 +133,10 @@ pub struct EffectEntry {
     pub name: String,
     pub spr: String,
     pub act: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct LookupEntry {
+    /// Path relative to data_root (e.g. "mp3nametable.txt").
+    pub path: String,
 }

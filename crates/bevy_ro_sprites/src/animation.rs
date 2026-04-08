@@ -7,6 +7,7 @@ use bevy::{
     sprite::Sprite,
     sprite_render::Material2d,
 };
+use bevy_ro_sounds::PlaySound;
 use std::time::Duration;
 
 pub struct RoAnimationPlugin;
@@ -89,7 +90,7 @@ impl<M: Material + RenderAnimation> RenderAnimation for MeshMaterial3d<M> {
     }
 }
 
-pub fn render_animation<T: RenderAnimation + Component<Mutability=Mutable>>(
+pub fn render_animation<T: RenderAnimation + Component<Mutability = Mutable>>(
     mut animations: Query<(&RoAnimation, &mut T, &RoAnimationState)>,
     atlases: Res<Assets<RoAtlas>>,
     mut extra: <T as RenderAnimation>::Extra<'_>,
@@ -146,12 +147,12 @@ pub enum AnimationRepeat {
 }
 
 pub fn update_ro_animation(
-    mut animations: Query<(Entity, &mut RoAnimation, &mut RoAnimationState)>,
+    mut animations: Query<(Entity, &Transform, &mut RoAnimation, &mut RoAnimationState)>,
     atlases: Res<Assets<RoAtlas>>,
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, mut animation, mut state) in animations.iter_mut() {
+    for (entity, tf, mut animation, mut state) in animations.iter_mut() {
         let Some(atlas) = atlases.get(&animation.atlas) else {
             continue;
         };
@@ -203,12 +204,25 @@ pub fn update_ro_animation(
 
             state.current_frame = new_frame;
 
+            println!("check events on {:?}", new_frame);
             if let Some(Some(event)) = atlas.frame_events.get(usize::from(new_frame)) {
+                println!("animation event {:?}", event);
                 commands.trigger(SpriteFrameEvent {
                     entity,
                     event: event.clone(),
                     tag: animation.animation.tag.clone(),
                 });
+                let lower = event.to_ascii_lowercase();
+                println!("animation play sound{:?}", lower);
+                if lower.ends_with(".wav") || lower.ends_with(".mp3") {
+                    commands.trigger(PlaySound {
+                        path: event.clone(),
+                        looping: false,
+                        location: Some(tf.clone()),
+                        volume: Some(1.0),
+                        range: Some(100.0),
+                    });
+                }
             }
         }
     }

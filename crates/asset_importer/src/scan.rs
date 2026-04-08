@@ -103,6 +103,7 @@ pub fn scan(
         projectile: Vec::new(),
         map: Vec::new(),
         effect: Vec::new(),
+        lookup: Vec::new(),
     };
 
     if want("shadow") {
@@ -135,13 +136,16 @@ pub fn scan(
     if want("effect") {
         scan_effects(data_root, &mut m)?;
     }
+    if want("lookup") {
+        scan_lookup(data_root, &mut m)?;
+    }
 
     let toml_text = toml::to_string_pretty(&m)?;
     std::fs::write(output, &toml_text).with_context(|| format!("writing {}", output.display()))?;
 
     println!("Wrote manifest: {}", output.display());
     println!(
-        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={} effects={}",
+        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={} effects={} lookups={}",
         m.body.len(),
         m.head.len(),
         m.headgear.len(),
@@ -152,6 +156,7 @@ pub fn scan(
         m.projectile.len(),
         m.map.len(),
         m.effect.len(),
+        m.lookup.len(),
     );
 
     Ok(())
@@ -632,6 +637,27 @@ fn scan_effects(data_root: &Path, m: &mut Manifest) -> Result<()> {
             spr: format!("sprite/effect/{stem}.spr"),
             act: format!("sprite/effect/{stem}.act"),
         });
+    }
+    Ok(())
+}
+
+fn scan_lookup(data_root: &Path, m: &mut Manifest) -> Result<()> {
+    collect_txt_files(data_root, data_root, m)
+}
+
+fn collect_txt_files(root: &Path, dir: &Path, m: &mut Manifest) -> Result<()> {
+    for entry in std::fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if entry.file_type()?.is_dir() {
+            collect_txt_files(root, &path, m)?;
+        } else if path.extension().and_then(|e| e.to_str()).is_some_and(|e| e.eq_ignore_ascii_case("txt")) {
+            let rel = path
+                .strip_prefix(root)
+                .map(|p| p.to_string_lossy().replace('\\', "/"))
+                .unwrap_or_default();
+            m.lookup.push(LookupEntry { path: rel });
+        }
     }
     Ok(())
 }

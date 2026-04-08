@@ -1,4 +1,7 @@
 use crate::assets::RoMapAsset;
+use crate::bgm::BgmTable;
+use crate::navigation::NavMesh;
+use crate::terrain_material::{TerrainLightmapExtension, TerrainMaterial};
 use bevy::{
     asset::RenderAssetUsages,
     mesh::{Indices, PrimitiveTopology},
@@ -6,13 +9,18 @@ use bevy::{
     prelude::*,
 };
 use bevy_ro_models::PendingModel;
-use crate::terrain_material::{TerrainLightmapExtension, TerrainMaterial};
+use bevy_ro_sounds::PlaySound;
 use ro_files::{LightSource, ModelInstance, RswLighting, RswObject};
-use crate::navigation::NavMesh;
 
 /// Vertex data accumulated per texture group while building mesh geometry.
 /// Fields: (positions, normals, uv0, uv1, indices)
-type MeshGroup = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<[f32; 2]>, Vec<u32>);
+type MeshGroup = (
+    Vec<[f32; 3]>,
+    Vec<[f32; 3]>,
+    Vec<[f32; 2]>,
+    Vec<[f32; 2]>,
+    Vec<u32>,
+);
 
 /// Marker component placed on each terrain mesh entity spawned by the plugin.
 #[derive(Component)]
@@ -82,6 +90,7 @@ pub(crate) fn spawn_map_meshes(
     mut map_roots: Query<(Entity, &mut RoMapRoot)>,
     map_assets: Res<Assets<RoMapAsset>>,
     asset_server: Res<AssetServer>,
+    bgm_table: Res<BgmTable>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut terrain_materials: ResMut<Assets<TerrainMaterial>>,
@@ -107,6 +116,25 @@ pub(crate) fn spawn_map_meshes(
         );
         root.spawned = true;
         commands.trigger(MapLightingReady(map.lighting.clone()));
+
+        // Trigger BGM for this map if the table has an entry.
+        let map_name = asset_server
+            .get_path(&root.asset)
+            .and_then(|p| {
+                p.path()
+                    .file_stem()
+                    .map(|s| s.to_string_lossy().to_lowercase())
+            })
+            .unwrap_or_default();
+        if let Some(bgm_path) = bgm_table.0.get(&*map_name) {
+            commands.trigger(PlaySound {
+                path: bgm_path.clone(),
+                looping: true,
+                location: None,
+                volume: None,
+                range: None,
+            });
+        }
 
         let gnd = &map.gnd;
         let scale = gnd.scale;
@@ -261,68 +289,92 @@ pub(crate) fn spawn_map_meshes(
                 // North wall: shared edge at Z = z_nw. z_sw of tile (row+1) == z_nw of this
                 // tile, so the correct neighbor is row+1, not row-1.
                 if cube.north_surface_id >= 0
-                    && let Some(surf) = gnd.surfaces.get(cube.north_surface_id as usize) {
-                        let tex_idx = surf.texture_id as usize;
-                        if surf.texture_id >= 0 && tex_idx < texture_count
-                            && let Some(north) = gnd.cube(col, row + 1) {
-                                // v0=BL, v1=BR, v2=TL, v3=TR
-                                // Top vertices come from neighbor's south edge (heights[0]=SW, heights[1]=SE).
-                                let v0 = Vec3::new(x0, -cube.heights[2], z_nw);
-                                let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
-                                let v2 = Vec3::new(x0, -north.heights[0], z_nw);
-                                let v3 = Vec3::new(x1, -north.heights[1], z_nw);
-                                // North wall lies in the Z-plane; normal is always +Z (faces south).
-                                let n = [0.0_f32, 0.0, 1.0];
+                    && let Some(surf) = gnd.surfaces.get(cube.north_surface_id as usize)
+                {
+                    let tex_idx = surf.texture_id as usize;
+                    if surf.texture_id >= 0
+                        && tex_idx < texture_count
+                        && let Some(north) = gnd.cube(col, row + 1)
+                    {
+                        // v0=BL, v1=BR, v2=TL, v3=TR
+                        // Top vertices come from neighbor's south edge (heights[0]=SW, heights[1]=SE).
+                        let v0 = Vec3::new(x0, -cube.heights[2], z_nw);
+                        let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
+                        let v2 = Vec3::new(x0, -north.heights[0], z_nw);
+                        let v3 = Vec3::new(x1, -north.heights[1], z_nw);
+                        // North wall lies in the Z-plane; normal is always +Z (faces south).
+                        let n = [0.0_f32, 0.0, 1.0];
 
-                                let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
-                                let base = positions.len() as u32;
-                                positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
-                                normals.extend([n, n, n, n]);
-                                uvs.push([surf.u[0], surf.v[0]]);
-                                uvs.push([surf.u[1], surf.v[1]]);
-                                uvs.push([surf.u[2], surf.v[2]]);
-                                uvs.push([surf.u[3], surf.v[3]]);
-                                // UV1 north wall: v0=(lm1.x,lm1.y), v1=(lm2.x,lm1.y),
-                                //                v2=(lm1.x,lm2.y), v3=(lm2.x,lm2.y)
-                                let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
-                                uvs1.extend([[lm1[0], lm1[1]], [lm2[0], lm1[1]],
-                                             [lm1[0], lm2[1]], [lm2[0], lm2[1]]]);
-                                // T1: v0→v1→v2, T2: v1→v3→v2
-                                indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
-                            }
+                        let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
+                        let base = positions.len() as u32;
+                        positions.extend([
+                            v0.to_array(),
+                            v1.to_array(),
+                            v2.to_array(),
+                            v3.to_array(),
+                        ]);
+                        normals.extend([n, n, n, n]);
+                        uvs.push([surf.u[0], surf.v[0]]);
+                        uvs.push([surf.u[1], surf.v[1]]);
+                        uvs.push([surf.u[2], surf.v[2]]);
+                        uvs.push([surf.u[3], surf.v[3]]);
+                        // UV1 north wall: v0=(lm1.x,lm1.y), v1=(lm2.x,lm1.y),
+                        //                v2=(lm1.x,lm2.y), v3=(lm2.x,lm2.y)
+                        let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
+                        uvs1.extend([
+                            [lm1[0], lm1[1]],
+                            [lm2[0], lm1[1]],
+                            [lm1[0], lm2[1]],
+                            [lm2[0], lm2[1]],
+                        ]);
+                        // T1: v0→v1→v2, T2: v1→v3→v2
+                        indices.extend([base, base + 1, base + 2, base + 1, base + 3, base + 2]);
                     }
+                }
 
                 // East wall: shared edge at X = x1, between this tile and col+1.
                 if cube.east_surface_id >= 0
-                    && let Some(surf) = gnd.surfaces.get(cube.east_surface_id as usize) {
-                        let tex_idx = surf.texture_id as usize;
-                        if surf.texture_id >= 0 && tex_idx < texture_count
-                            && let Some(east) = gnd.cube(col + 1, row) {
-                                // v0=BS, v1=BN, v2=TS, v3=TN
-                                let v0 = Vec3::new(x1, -cube.heights[1], z_sw);
-                                let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
-                                let v2 = Vec3::new(x1, -east.heights[0], z_sw);
-                                let v3 = Vec3::new(x1, -east.heights[2], z_nw);
-                                // East wall lies in the X-plane; normal is always -X (faces west).
-                                let n = [-1.0_f32, 0.0, 0.0];
+                    && let Some(surf) = gnd.surfaces.get(cube.east_surface_id as usize)
+                {
+                    let tex_idx = surf.texture_id as usize;
+                    if surf.texture_id >= 0
+                        && tex_idx < texture_count
+                        && let Some(east) = gnd.cube(col + 1, row)
+                    {
+                        // v0=BS, v1=BN, v2=TS, v3=TN
+                        let v0 = Vec3::new(x1, -cube.heights[1], z_sw);
+                        let v1 = Vec3::new(x1, -cube.heights[3], z_nw);
+                        let v2 = Vec3::new(x1, -east.heights[0], z_sw);
+                        let v3 = Vec3::new(x1, -east.heights[2], z_nw);
+                        // East wall lies in the X-plane; normal is always -X (faces west).
+                        let n = [-1.0_f32, 0.0, 0.0];
 
-                                let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
-                                let base = positions.len() as u32;
-                                positions.extend([v0.to_array(), v1.to_array(), v2.to_array(), v3.to_array()]);
-                                normals.extend([n, n, n, n]);
-                                uvs.push([surf.u[0], surf.v[0]]);
-                                uvs.push([surf.u[1], surf.v[1]]);
-                                uvs.push([surf.u[2], surf.v[2]]);
-                                uvs.push([surf.u[3], surf.v[3]]);
-                                // UV1 east wall: v0=(lm2.x,lm1.y), v1=(lm1.x,lm1.y),
-                                //               v2=(lm2.x,lm2.y), v3=(lm1.x,lm2.y)
-                                let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
-                                uvs1.extend([[lm2[0], lm1[1]], [lm1[0], lm1[1]],
-                                             [lm2[0], lm2[1]], [lm1[0], lm2[1]]]);
-                                // T1: v1→v0→v2, T2: v1→v2→v3
-                                indices.extend([base + 1, base, base + 2, base + 1, base + 2, base + 3]);
-                            }
+                        let (positions, normals, uvs, uvs1, indices) = &mut groups[tex_idx];
+                        let base = positions.len() as u32;
+                        positions.extend([
+                            v0.to_array(),
+                            v1.to_array(),
+                            v2.to_array(),
+                            v3.to_array(),
+                        ]);
+                        normals.extend([n, n, n, n]);
+                        uvs.push([surf.u[0], surf.v[0]]);
+                        uvs.push([surf.u[1], surf.v[1]]);
+                        uvs.push([surf.u[2], surf.v[2]]);
+                        uvs.push([surf.u[3], surf.v[3]]);
+                        // UV1 east wall: v0=(lm2.x,lm1.y), v1=(lm1.x,lm1.y),
+                        //               v2=(lm2.x,lm2.y), v3=(lm1.x,lm2.y)
+                        let (lm1, lm2) = lightmap_uv_range(surf.lightmap_id, atlas_size_px);
+                        uvs1.extend([
+                            [lm2[0], lm1[1]],
+                            [lm1[0], lm1[1]],
+                            [lm2[0], lm2[1]],
+                            [lm1[0], lm2[1]],
+                        ]);
+                        // T1: v1→v0→v2, T2: v1→v2→v3
+                        indices.extend([base + 1, base, base + 2, base + 1, base + 2, base + 3]);
                     }
+                }
             }
         }
 
@@ -355,7 +407,10 @@ pub(crate) fn spawn_map_meshes(
                 }
             }
 
-            let mut water_mesh = Mesh::new(PrimitiveTopology::TriangleList, RenderAssetUsages::default());
+            let mut water_mesh = Mesh::new(
+                PrimitiveTopology::TriangleList,
+                RenderAssetUsages::default(),
+            );
             water_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions);
             water_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
             water_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
@@ -386,14 +441,22 @@ pub(crate) fn spawn_map_meshes(
                     Mesh3d(meshes.add(water_mesh)),
                     MeshMaterial3d(material),
                     Transform::default(),
-                    WaterAnimator { frames, interval_secs, elapsed: 0.0, current_frame: 0 },
+                    WaterAnimator {
+                        frames,
+                        interval_secs,
+                        elapsed: 0.0,
+                        current_frame: 0,
+                    },
                 ))
                 .id();
             commands.entity(root_entity).add_child(water_entity);
         }
 
         let total_verts: usize = groups.iter().map(|(p, _, _, _, _)| p.len()).sum();
-        let non_empty = groups.iter().filter(|(p, _, _, _, _)| !p.is_empty()).count();
+        let non_empty = groups
+            .iter()
+            .filter(|(p, _, _, _, _)| !p.is_empty())
+            .count();
         let all_positions: Vec<[f32; 3]> = groups
             .iter()
             .flat_map(|(p, _, _, _, _)| p.iter().copied())
@@ -540,10 +603,12 @@ pub(crate) fn spawn_map_meshes(
         let dims = MapDims { scale, cx, cz };
         let light_entities = spawn_lights(&map.objects, dims, &mut commands);
         let effect_entities = spawn_effects(&map.objects, dims, &mut commands);
+        let audio_count = trigger_audio_sources(&map.objects, &mut commands);
         info!(
-            "[RoMap] spawned {} point light(s), {} effect emitter(s)",
+            "[RoMap] spawned {} point light(s), {} effect emitter(s), {} audio source(s)",
             light_entities.len(),
-            effect_entities.len()
+            effect_entities.len(),
+            audio_count,
         );
         commands
             .entity(root_entity)
@@ -555,19 +620,11 @@ pub(crate) fn spawn_map_meshes(
 /// Converts an RSW object position to BrowEdit3 local space (same system as model instances).
 /// The root entity's centering Transform brings this into Bevy world space.
 fn rsw_local_pos(pos: [f32; 3], dims: MapDims) -> Vec3 {
-    Vec3::new(
-        dims.cx + pos[0],
-        -pos[1],
-        dims.scale + dims.cz - pos[2],
-    )
+    Vec3::new(dims.cx + pos[0], -pos[1], dims.scale + dims.cz - pos[2])
 }
 
 /// Spawns a `PointLight` child entity for every `RswObject::Light` in `objects`.
-fn spawn_lights(
-    objects: &[RswObject],
-    dims: MapDims,
-    commands: &mut Commands,
-) -> Vec<Entity> {
+fn spawn_lights(objects: &[RswObject], dims: MapDims, commands: &mut Commands) -> Vec<Entity> {
     objects
         .iter()
         .filter_map(|obj| {
@@ -604,11 +661,7 @@ fn spawn_point_light(light: &LightSource, dims: MapDims, commands: &mut Commands
 }
 
 /// Spawns a positioned marker entity for every `RswObject::Effect` in `objects`.
-fn spawn_effects(
-    objects: &[RswObject],
-    dims: MapDims,
-    commands: &mut Commands,
-) -> Vec<Entity> {
+fn spawn_effects(objects: &[RswObject], dims: MapDims, commands: &mut Commands) -> Vec<Entity> {
     objects
         .iter()
         .filter_map(|obj| {
@@ -632,6 +685,38 @@ fn spawn_effects(
         .collect()
 }
 
+/// Fires a [`PlaySound`] trigger for every `RswObject::Audio` in `objects` and spawns a debug
+/// cylinder marker at each emitter position so they can be located visually.
+///
+/// Audio emitters are spawned as root-level entities (not children of the map root), so their
+/// world position must already account for the root entity's centering transform (-cx, 0, -(scale+cz)).
+/// This collapses to: world = (rsw.x, -rsw.y, -rsw.z) — no dims needed.
+fn trigger_audio_sources(
+    objects: &[RswObject],
+    commands: &mut Commands,
+) -> usize {
+    let mut count = 0;
+    for obj in objects {
+        let RswObject::Audio(audio) = obj else {
+            continue;
+        };
+        let [x, y, z] = audio.pos;
+        let pos = Vec3::new(x, -y, -z);
+        info!(
+            "[Audio] emitter '{}' | rsw_pos={:?} → world={:.1?} | vol={} range={} width={} height={}",
+            audio.file, audio.pos, pos, audio.volume, audio.range, audio.width, audio.height
+        );
+        commands.trigger(PlaySound {
+            path: audio.file.clone(),
+            looping: true,
+            location: Some(Transform::from_translation(pos)),
+            volume: Some(audio.volume),
+            range: Some(audio.range),
+        });
+        count += 1;
+    }
+    count
+}
 
 /// Builds an RGBA lightmap atlas from all `GndLightmapSlice` entries.
 ///
@@ -640,11 +725,18 @@ fn spawn_effects(
 /// RGB = baked light color, A = shadow/AO intensity.
 ///
 /// Returns the atlas `Handle<Image>` and the atlas side length in pixels.
-fn build_lightmap_atlas(gnd: &ro_files::GndFile, images: &mut Assets<Image>) -> (Handle<Image>, usize) {
+fn build_lightmap_atlas(
+    gnd: &ro_files::GndFile,
+    images: &mut Assets<Image>,
+) -> (Handle<Image>, usize) {
     let n = gnd.lightmap_slices.len();
     if n == 0 {
         let img = Image::new(
-            bevy::render::render_resource::Extent3d { width: 1, height: 1, depth_or_array_layers: 1 },
+            bevy::render::render_resource::Extent3d {
+                width: 1,
+                height: 1,
+                depth_or_array_layers: 1,
+            },
             bevy::render::render_resource::TextureDimension::D2,
             vec![255u8; 4],
             bevy::render::render_resource::TextureFormat::Rgba8UnormSrgb,
@@ -672,7 +764,7 @@ fn build_lightmap_atlas(gnd: &ro_files::GndFile, images: &mut Assets<Image>) -> 
                 let atlas_y = row * 8 + yy;
                 let pixel = (atlas_y * atlas_size + atlas_x) * 4;
                 let texel = xx + 8 * yy;
-                data[pixel]     = slice.lightmap[3 * texel];
+                data[pixel] = slice.lightmap[3 * texel];
                 data[pixel + 1] = slice.lightmap[3 * texel + 1];
                 data[pixel + 2] = slice.lightmap[3 * texel + 2];
                 data[pixel + 3] = slice.shadowmap[texel];
