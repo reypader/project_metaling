@@ -15,7 +15,7 @@ use bevy_ro_sprites::prelude::{
     Action, ActorBillboard, ActorDirection, ActorState, CompositeLayerDef, RoComposite,
     RoCompositeMaterial, RoSpritePlugin, SpriteRole, composite_tag, direction_index,
 };
-use bevy_ro_vfx::{EffectBillboard, RoVfxPlugin};
+use bevy_ro_vfx::{EffectBillboard, RoEffectEmitter, RoVfxPlugin};
 use std::collections::{HashMap, HashSet};
 
 fn main() {
@@ -46,6 +46,8 @@ fn main() {
         .add_plugins(RoSoundsPlugin)
         .add_plugins(RoVfxPlugin {
             assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
+            config_path: "/Users/rmpader/code_projects/project_metaling/config/EffectTable.json"
+                .into(),
         })
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
@@ -56,6 +58,7 @@ fn main() {
             Update,
             (select_action, cache_model_vertices, fade_occluded_models).chain(),
         )
+        .add_systems(Update, spawn_emitter)
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -79,8 +82,8 @@ fn setup(
             // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
             // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
-            // asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
-            asset: asset_server.load("maps/prontera/prontera.gnd"),
+            asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
+            // asset: asset_server.load("maps/prontera/prontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -207,6 +210,28 @@ fn select_action(keys: Res<ButtonInput<KeyCode>>, mut q: Query<&mut ActorState>)
             state.action = a;
         }
     }
+}
+
+fn spawn_emitter(
+    mut commands: Commands,
+    keys: Res<ButtonInput<KeyCode>>,
+    marker: Single<&Transform, With<MapMarker>>,
+) {
+    let m = marker.clone();
+    let effect = if keys.pressed(KeyCode::Comma) {
+        Some(RoEffectEmitter { effect_id: 6 })
+    } else if keys.pressed(KeyCode::Period) {
+        Some(RoEffectEmitter { effect_id: 12 })
+    } else if keys.pressed(KeyCode::Slash) {
+        Some(RoEffectEmitter { effect_id: 7 })
+    } else {
+        None
+    };
+
+    if let Some(e) = effect {
+        println!("Playing effect {:?}", e.effect_id);
+        commands.spawn((m, GlobalTransform::from(m), Visibility::default(), e));
+    };
 }
 
 #[derive(Component)]

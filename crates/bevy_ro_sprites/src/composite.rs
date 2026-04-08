@@ -419,7 +419,7 @@ pub fn advance_and_update_composite(
                     commands.trigger(PlaySound {
                         path: event.clone(),
                         looping: false,
-                        location: Some(tf.clone()),
+                        location: Some(*tf),
                         volume: Some(20.0),
                         range: Some(100000.0),
                     });

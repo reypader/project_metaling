@@ -218,9 +218,9 @@ pub fn update_ro_animation(
                     commands.trigger(PlaySound {
                         path: event.clone(),
                         looping: false,
-                        location: Some(tf.clone()),
-                        volume: Some(1.0),
-                        range: Some(100.0),
+                        location: Some(*tf),
+                        volume: Some(20.0),
+                        range: Some(100000.0),
                     });
                 }
             }

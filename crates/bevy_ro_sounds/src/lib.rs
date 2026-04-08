@@ -90,7 +90,7 @@ fn handle_play_sound(
 /// Returns `None` for strings that are not sound file references.
 fn resolve_sound_path(raw: &str) -> Option<String> {
     let filename = raw
-        .rsplit(|c| c == '/' || c == '\\')
+        .rsplit(['/', '\\'])
         .next()
         .unwrap_or(raw)
         .trim();

@@ -8,12 +8,14 @@ mod terrain_material;
 pub use assets::RoMapAsset;
 pub use bgm::BgmTable;
 pub use loader::RoMapLoader;
-pub use render::{MapLightingReady, RoEffectEmitter, RoMapLight, RoMapMesh, RoMapRoot};
+pub use bevy_ro_vfx::RoEffectEmitter;
+pub use render::{MapLightingReady, RoMapLight, RoMapMesh, RoMapRoot};
 pub use navigation::NavMesh;
 pub use terrain_material::{TerrainLightmapExtension, TerrainMaterial, TERRAIN_LIGHTMAP_SHADER_HANDLE};
 
 pub mod prelude {
-    pub use crate::{BgmTable, MapLightingReady, NavMesh, RoEffectEmitter, RoMapAsset, RoMapLight, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
+    pub use crate::{BgmTable, MapLightingReady, NavMesh, RoMapAsset, RoMapLight, RoMapLoader, RoMapMesh, RoMapRoot, RoMapsPlugin};
+    pub use bevy_ro_vfx::RoEffectEmitter;
     pub use ro_files::TerrainType;
 }
 

@@ -10,6 +10,7 @@ use bevy::{
 };
 use bevy_ro_models::PendingModel;
 use bevy_ro_sounds::PlaySound;
+use bevy_ro_vfx::RoEffectEmitter;
 use ro_files::{LightSource, ModelInstance, RswLighting, RswObject};
 
 /// Vertex data accumulated per texture group while building mesh geometry.
@@ -30,14 +31,6 @@ pub struct RoMapMesh;
 #[derive(Component)]
 pub struct RoMapLight;
 
-/// Placed on each RSW effect-emitter entity spawned by the plugin.
-/// Stores the raw RSW effect data so game code can drive visual effects later.
-#[derive(Component, Clone)]
-pub struct RoEffectEmitter {
-    pub effect_id: u32,
-    pub emit_speed: f32,
-    pub params: [f32; 4],
-}
 
 /// Place this component on a root entity to have the plugin spawn terrain mesh children once
 /// the referenced [`RoMapAsset`] has loaded.
@@ -675,8 +668,6 @@ fn spawn_effects(objects: &[RswObject], dims: MapDims, commands: &mut Commands) 
                         Visibility::Hidden,
                         RoEffectEmitter {
                             effect_id: effect.effect_id,
-                            emit_speed: effect.emit_speed,
-                            params: effect.params,
                         },
                     ))
                     .id(),
