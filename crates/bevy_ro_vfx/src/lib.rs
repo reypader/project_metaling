@@ -10,7 +10,7 @@ use bevy_ro_sprites::prelude::{
     CompositeLayerDef, RoComposite, RoCompositeMaterial, SpriteRole, advance_and_update_composite,
 };
 use cylinder::{animate_cylinders, spawn_cylinder_effect};
-use effect_table::{EffectKind, EffectTable, load_effect_table};
+use effect_table::{CylinderDef, EffectKind, EffectTable, PlaneDef, load_effect_table};
 use plane_effect::{animate_plane_effects, spawn_plane_effect};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -30,7 +30,7 @@ pub enum EffectRepeat {
 /// The VFX plugin reacts to `Added<RoEffectEmitter>` and spawns the appropriate visuals/sounds.
 #[derive(Component, Clone)]
 pub struct RoEffectEmitter {
-    pub effect_id: u32,
+    pub effect_id: String,
     pub repeat: EffectRepeat,
 }
 
@@ -122,22 +122,33 @@ fn dispatch_effects(
     new_effects: Query<(Entity, &RoEffectEmitter, &GlobalTransform), Added<RoEffectEmitter>>,
 ) {
     for (entity, emitter, gtf) in &new_effects {
-        let id = emitter.effect_id;
+        let id = &emitter.effect_id;
         let repeat = emitter.repeat;
         let mut has_visual = false;
 
         // EffectTable path: CYLINDER, STR, SPR (EffectTable variant), wav-only, etc.
-        if let Some(entries) = effect_table.0.get(&id) {
+        if let Some(entries) = effect_table.0.get(id.as_str()) {
             for entry in entries {
                 println!("Spawning effect {:?}", entry.kind);
 
                 if let Some(wav) = &entry.wav {
-                    spawn_wav_effect(&mut commands, wav, gtf);
+                    let resolved_wav = resolve_placeholder(wav, entry.rand);
+                    spawn_wav_effect(&mut commands, &resolved_wav, gtf);
                 }
                 match &entry.kind {
                     EffectKind::AudioOnly => {}
                     EffectKind::Cylinder(def) => {
                         has_visual = true;
+                        let resolved;
+                        let def = if def.texture_name.contains("%d") {
+                            resolved = CylinderDef {
+                                texture_name: resolve_placeholder(&def.texture_name, entry.rand),
+                                ..def.clone()
+                            };
+                            &resolved
+                        } else {
+                            def
+                        };
                         spawn_cylinder_effect(
                             &mut commands,
                             &mut meshes,
@@ -150,7 +161,8 @@ fn dispatch_effects(
                     }
                     EffectKind::Str { file } => {
                         has_visual = true;
-                        let stem = file.trim_start_matches("effect/");
+                        let resolved = resolve_placeholder(file, entry.rand);
+                        let stem = resolved.trim_start_matches("effect/");
                         spawn_str_effect(
                             &mut commands,
                             &mut meshes,
@@ -165,18 +177,29 @@ fn dispatch_effects(
                     }
                     EffectKind::Spr { file } => {
                         has_visual = true;
+                        let resolved = resolve_placeholder(file, entry.rand);
                         spawn_spr_effect(
                             &mut commands,
                             &mut meshes,
                             &mut composite_mats,
                             &server,
                             entity,
-                            file,
+                            &resolved,
                             repeat,
                         );
                     }
                     EffectKind::Plane2D(def) => {
                         has_visual = true;
+                        let resolved;
+                        let def = if def.file.contains("%d") {
+                            resolved = PlaneDef {
+                                file: resolve_placeholder(&def.file, entry.rand),
+                                ..def.clone()
+                            };
+                            &resolved
+                        } else {
+                            def
+                        };
                         spawn_plane_effect(
                             &mut commands,
                             &mut meshes,
@@ -190,6 +213,16 @@ fn dispatch_effects(
                     }
                     EffectKind::Plane3D(def) => {
                         has_visual = true;
+                        let resolved;
+                        let def = if def.file.contains("%d") {
+                            resolved = PlaneDef {
+                                file: resolve_placeholder(&def.file, entry.rand),
+                                ..def.clone()
+                            };
+                            &resolved
+                        } else {
+                            def
+                        };
                         spawn_plane_effect(
                             &mut commands,
                             &mut meshes,
@@ -213,6 +246,21 @@ fn dispatch_effects(
         if !has_visual && repeat != EffectRepeat::Infinite {
             commands.entity(entity).despawn();
         }
+    }
+}
+
+/// Replaces `%d` in `s` with a random integer from the `[min, max]` inclusive range.
+/// Returns the original string unchanged when there is no `%d` or no `rand` range.
+fn resolve_placeholder(s: &str, rand: Option<[u32; 2]>) -> String {
+    if s.contains("%d") {
+        let n = if let Some([min, max]) = rand {
+            fastrand::u32(min..=max)
+        } else {
+            1
+        };
+        s.replace("%d", &n.to_string())
+    } else {
+        s.to_owned()
     }
 }
 

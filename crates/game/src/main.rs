@@ -219,15 +219,15 @@ fn spawn_emitter(
 ) {
     let m = marker.clone();
     let effect = if keys.clear_just_pressed(KeyCode::Comma) {
-        Some(RoEffectEmitter { effect_id: 1, repeat: EffectRepeat::Times(1) })
+        Some(RoEffectEmitter { effect_id: "ef_firebolt".to_string(), repeat: EffectRepeat::Times(1) })
     } else if keys.clear_just_pressed(KeyCode::Period) {
-        Some(RoEffectEmitter { effect_id: 11, repeat: EffectRepeat::Times(1) })
+        Some(RoEffectEmitter { effect_id: "92".to_string(), repeat: EffectRepeat::Times(1) })
     } else if keys.clear_just_pressed(KeyCode::Slash) {
-        Some(RoEffectEmitter { effect_id: 41, repeat: EffectRepeat::Times(1) })
+        Some(RoEffectEmitter { effect_id: "41".to_string(), repeat: EffectRepeat::Times(1) })
     } else if keys.clear_just_pressed(KeyCode::Semicolon) {
-        Some(RoEffectEmitter { effect_id: 315, repeat: EffectRepeat::Times(1) })
+        Some(RoEffectEmitter { effect_id: "315".to_string(), repeat: EffectRepeat::Times(1) })
     } else if keys.clear_just_pressed(KeyCode::KeyL) {
-        Some(RoEffectEmitter { effect_id: 121, repeat: EffectRepeat::Times(1) })
+        Some(RoEffectEmitter { effect_id: "121".to_string(), repeat: EffectRepeat::Times(1) })
     } else {
         None
     };

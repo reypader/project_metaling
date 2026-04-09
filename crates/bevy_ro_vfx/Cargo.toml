@@ -17,3 +17,4 @@ bevy_ro_sounds = { path = "../bevy_ro_sounds" }
 ro_files = { path = "../ro_files" }
 serde_json = "1"
 json5 = "0.4"
+fastrand = "2"

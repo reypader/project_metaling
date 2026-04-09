@@ -1,10 +1,10 @@
-use bevy::math::Vec2;
+use bevy::math::{Vec2, Vec3};
 use bevy::prelude::Resource;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CylinderDef {
     pub texture_name: String,
     pub height: f32,
@@ -23,9 +23,14 @@ pub struct CylinderDef {
 /// Shared definition for `Plane2D` and `Plane3D` effect types.
 ///
 /// Sizes (`size_start`, `size_end`) are in raw pixel units; divide by 35 for world units.
-/// Positions (`pos_start`, `pos_end`) are in world units, relative to the emitter.
-/// For `Plane3D`, `posz` is a fixed Y height offset; `angle`/`to_angle` are Y-axis degrees.
-/// For `Plane2D`, `angle` is a Z-rotation tilt; the effect faces the camera.
+///
+/// JSON axis → Bevy axis mapping:
+///   - JSON `posx` → Bevy X
+///   - JSON `posy` → Bevy Z
+///   - JSON `posz` → Bevy Y
+///
+/// `pos_start`/`pos_end` store `(posxStart, poszStart, posyStart)` → Bevy `(X, Y_animated, Z)`.
+/// The fixed `posz` base height is added to the Y component at spawn time.
 #[derive(Debug, Clone)]
 pub struct PlaneDef {
     /// Texture file with extension, `"effect/"` prefix stripped.
@@ -42,12 +47,18 @@ pub struct PlaneDef {
     pub size_start: Vec2,
     /// End size in raw pixel units.
     pub size_end: Vec2,
-    /// Start position offset from emitter in world units `(posxStart, poszStart)`.
-    pub pos_start: Vec2,
-    /// End position offset from emitter in world units `(posxEnd, poszEnd)`.
-    pub pos_end: Vec2,
-    /// Fixed Y height offset (for 3D effects; ignored by 2D).
+    /// Start position `(posxStart, poszStart, posyStart)` → Bevy `(X, Y_anim, Z)`.
+    pub pos_start: Vec3,
+    /// End position `(posxEnd, poszEnd, posyEnd)` → Bevy `(X, Y_anim, Z)`.
+    pub pos_end: Vec3,
+    /// Fixed Bevy Y base height (`posz`). Added to `pos_start.y`/`pos_end.y` at spawn.
     pub posz: f32,
+    /// Random range `[min, max]` for the Bevy X start position (`posxStartRand..posxStartRandMiddle`).
+    /// When present, overrides `pos_start.x` at each spawn.
+    pub pos_x_rand: Option<[f32; 2]>,
+    /// Random range `[min, max]` for the Bevy Z start position (`posyStartRand..posyStartRandMiddle`).
+    /// When present, overrides `pos_start.z` at each spawn.
+    pub pos_z_rand: Option<[f32; 2]>,
     /// Initial angle in degrees.
     pub angle: f32,
     /// Final angle in degrees (equals `angle` when there is no rotation animation).
@@ -69,10 +80,18 @@ pub enum EffectKind {
 pub struct EffectEntry {
     pub kind: EffectKind,
     pub wav: Option<String>,
+    /// When a filename contains `%d`, replace it with a random integer in `[min, max]` inclusive.
+    /// Applies to `wav` and to the `file` field inside `kind`.
+    pub rand: Option<[u32; 2]>,
 }
 
+/// Effect definitions loaded from `config/EffectTable.json`.
+///
+/// All keys are stored as strings, matching the JSON5 source exactly.
+/// Numeric IDs from RSW (e.g. `311`) are looked up by converting to string.
+/// Named keys (e.g. `"ef_firebolt"`) are looked up directly by name.
 #[derive(Resource, Default)]
-pub struct EffectTable(pub HashMap<u32, Vec<EffectEntry>>);
+pub struct EffectTable(pub HashMap<String, Vec<EffectEntry>>);
 
 pub fn load_effect_table(path: &Path) -> EffectTable {
     let raw = match std::fs::read_to_string(path) {
@@ -96,12 +115,9 @@ pub fn load_effect_table(path: &Path) -> EffectTable {
         return EffectTable::default();
     };
 
-    let mut table: HashMap<u32, Vec<EffectEntry>> = HashMap::new();
+    let mut table: HashMap<String, Vec<EffectEntry>> = HashMap::new();
 
     for (key, entries_val) in root_obj {
-        let Ok(effect_id) = key.parse::<u32>() else {
-            continue;
-        };
         let Some(entries) = entries_val.as_array() else {
             continue;
         };
@@ -116,6 +132,12 @@ pub fn load_effect_table(path: &Path) -> EffectTable {
                 .get("wav")
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_owned());
+
+            let rand = entry.get("rand").and_then(|v| v.as_array()).and_then(|a| {
+                let min = a.first()?.as_u64()? as u32;
+                let max = a.get(1)?.as_u64()? as u32;
+                Some([min, max])
+            });
 
             let type_str = entry.get("type").and_then(|v| v.as_str());
 
@@ -195,11 +217,11 @@ pub fn load_effect_table(path: &Path) -> EffectTable {
                 }
             };
 
-            parsed_entries.push(EffectEntry { kind, wav });
+            parsed_entries.push(EffectEntry { kind, wav, rand });
         }
 
         if !parsed_entries.is_empty() {
-            table.insert(effect_id, parsed_entries);
+            table.insert(key.clone(), parsed_entries);
         }
     }
 
@@ -258,11 +280,25 @@ fn parse_plane_def(entry: &serde_json::Map<String, Value>) -> PlaneDef {
         size_end = Vec2::splat(s);
     }
 
+    // JSON posx → Bevy X; JSON posy → Bevy Z; JSON posz → Bevy Y.
     let posx_start = f32_field(entry, "posxStart", f32_field(entry, "posx", 0.0));
     let posx_end = f32_field(entry, "posxEnd", posx_start);
+    let posy_start = f32_field(entry, "posyStart", 0.0);
+    let posy_end = f32_field(entry, "posyEnd", posy_start);
     let posz_start = f32_field(entry, "poszStart", 0.0);
     let posz_end = f32_field(entry, "poszEnd", posz_start);
     let posz = f32_field(entry, "posz", 0.0);
+
+    let pos_x_rand = {
+        let min = opt_f32_field(entry, "posxStartRand");
+        let max = opt_f32_field(entry, "posxStartRandMiddle");
+        min.zip(max).map(|(a, b)| [a, b])
+    };
+    let pos_z_rand = {
+        let min = opt_f32_field(entry, "posyStartRand");
+        let max = opt_f32_field(entry, "posyStartRandMiddle");
+        min.zip(max).map(|(a, b)| [a, b])
+    };
 
     let angle = f32_field(entry, "angle", 0.0);
     let to_angle = f32_field(entry, "toAngle", angle);
@@ -277,12 +313,18 @@ fn parse_plane_def(entry: &serde_json::Map<String, Value>) -> PlaneDef {
         color,
         size_start,
         size_end,
-        pos_start: Vec2::new(posx_start, posz_start),
-        pos_end: Vec2::new(posx_end, posz_end),
+        pos_start: Vec3::new(posx_start, posz_start, posy_start),
+        pos_end: Vec3::new(posx_end, posz_end, posy_end),
         posz,
+        pos_x_rand,
+        pos_z_rand,
         angle,
         to_angle,
     }
+}
+
+fn opt_f32_field(obj: &serde_json::Map<String, Value>, key: &str) -> Option<f32> {
+    obj.get(key).and_then(|v| v.as_f64()).map(|n| n as f32)
 }
 
 fn f32_field(obj: &serde_json::Map<String, Value>, key: &str, default: f32) -> f32 {

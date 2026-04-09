@@ -79,9 +79,18 @@ pub fn spawn_plane_effect(
 
     let mesh_handle = meshes.add(build_plane_mesh());
 
-    // posz is a fixed Y height offset; pos_start/end animate X and Z-height.
-    let pos_start = Vec3::new(def.pos_start.x, def.posz + def.pos_start.y, 0.0);
-    let pos_end = Vec3::new(def.pos_end.x, def.posz + def.pos_end.y, 0.0);
+    // JSON axis mapping: posx → Bevy X, posy → Bevy Z, posz → Bevy Y.
+    // pos_start/end.y holds poszStart/End (Bevy Y anim); posz is the fixed Y base.
+    // pos_start/end.z holds posyStart/End (Bevy Z anim).
+    // Random ranges override the start X and Z when present.
+    let x_start = def.pos_x_rand.map_or(def.pos_start.x, |[min, max]| {
+        min + fastrand::f32() * (max - min)
+    });
+    let z_start = def.pos_z_rand.map_or(def.pos_start.z, |[min, max]| {
+        min + fastrand::f32() * (max - min)
+    });
+    let pos_start = Vec3::new(x_start, def.posz + def.pos_start.y, z_start);
+    let pos_end = Vec3::new(def.pos_end.x, def.posz + def.pos_end.y, def.pos_end.z);
 
     let initial_size = def.size_start * SIZE_SCALE;
     let initial_transform = Transform {

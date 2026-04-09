@@ -9,6 +9,7 @@ members = [
     "crates/grf_extractor",
     "crates/bevy_ro_sounds",
     "crates/game",
+    "crates/lub_decompiler",
 ]
 resolver = "3"
 

@@ -314,7 +314,20 @@
 
 # Keys that could not be confidently translated (review manually):
 "암" = "dark"
-
+"회전카운터" = "e_spin_counter_"
+"하얀포션" = "white_potion"
+"파란포션" = "blue_potion"
+"초록포션" = "green_potion"
+"빨간포션" = "red_potion"
+"주홍포션" = "scarlet_potion"
+"노란포션" = "yellow_potion"
+"프리징스피어" = "freezing_sphere"
+"플레어스피어" = "flare_sphere"
+"포이즌스피어" = "poison_sphere"
+"블라인드스피어" = "dark_sphere"
+"라이트닝스피어" = "lightning_sphere"
+"폭죽" = "fireworks"
+"사이킥웨이브" = "psychic_wave"
 
 
 # ---------------------------------------------------------------------------

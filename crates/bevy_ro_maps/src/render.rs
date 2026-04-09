@@ -667,7 +667,7 @@ fn spawn_effects(objects: &[RswObject], dims: MapDims, commands: &mut Commands) 
                         Transform::from_translation(rsw_local_pos(effect.pos, dims)),
                         Visibility::Hidden,
                         RoEffectEmitter {
-                            effect_id: effect.effect_id,
+                            effect_id: effect.effect_id.to_string(),
                             repeat: EffectRepeat::Infinite,
                         },
                     ))
