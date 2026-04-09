@@ -15,7 +15,7 @@ use bevy_ro_sprites::prelude::{
     Action, ActorBillboard, ActorDirection, ActorState, CompositeLayerDef, RoComposite,
     RoCompositeMaterial, RoSpritePlugin, SpriteRole, composite_tag, direction_index,
 };
-use bevy_ro_vfx::{EffectBillboard, RoEffectEmitter, RoVfxPlugin};
+use bevy_ro_vfx::{EffectBillboard, EffectRepeat, RoEffectEmitter, RoVfxPlugin};
 use std::collections::{HashMap, HashSet};
 
 fn main() {
@@ -82,8 +82,8 @@ fn setup(
             // asset: asset_server.load("maps/geffen/geffen.gnd"),
             // asset: asset_server.load("maps/pay_fild01/pay_fild01.gnd"),
             // asset: asset_server.load("maps/aldebaran/aldebaran.gnd"),
-            asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
-            // asset: asset_server.load("maps/prontera/prontera.gnd"),
+            // asset: asset_server.load("maps/pay_dun02/pay_dun02.gnd"),
+            asset: asset_server.load("maps/prontera/prontera.gnd"),
             spawned: false,
         },
         Transform::default(),
@@ -138,10 +138,10 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_knight/body.spr",
+            body: "sprite/human_female_assassin/body.spr",
             head: "sprite/human_female_head/head/5.spr",
-            weapon: Some("sprite/human_female_knight/weapon/two_handed_spear/weapon.spr"),
-            weapon_slash: Some("sprite/human_female_knight/weapon/two_handed_spear/slash.spr"),
+            weapon: Some("sprite/human_female_assassin/weapon/katar_katar/weapon.spr"),
+            weapon_slash: Some("sprite/human_female_assassin/weapon/katar_katar/slash.spr"),
         },
         ActorState {
             action: Action::Idle,
@@ -214,16 +214,20 @@ fn select_action(keys: Res<ButtonInput<KeyCode>>, mut q: Query<&mut ActorState>)
 
 fn spawn_emitter(
     mut commands: Commands,
-    keys: Res<ButtonInput<KeyCode>>,
+    mut keys: ResMut<ButtonInput<KeyCode>>,
     marker: Single<&Transform, With<MapMarker>>,
 ) {
     let m = marker.clone();
-    let effect = if keys.pressed(KeyCode::Comma) {
-        Some(RoEffectEmitter { effect_id: 6 })
-    } else if keys.pressed(KeyCode::Period) {
-        Some(RoEffectEmitter { effect_id: 12 })
-    } else if keys.pressed(KeyCode::Slash) {
-        Some(RoEffectEmitter { effect_id: 7 })
+    let effect = if keys.clear_just_pressed(KeyCode::Comma) {
+        Some(RoEffectEmitter { effect_id: 1, repeat: EffectRepeat::Times(1) })
+    } else if keys.clear_just_pressed(KeyCode::Period) {
+        Some(RoEffectEmitter { effect_id: 11, repeat: EffectRepeat::Times(1) })
+    } else if keys.clear_just_pressed(KeyCode::Slash) {
+        Some(RoEffectEmitter { effect_id: 41, repeat: EffectRepeat::Times(1) })
+    } else if keys.clear_just_pressed(KeyCode::Semicolon) {
+        Some(RoEffectEmitter { effect_id: 315, repeat: EffectRepeat::Times(1) })
+    } else if keys.clear_just_pressed(KeyCode::KeyL) {
+        Some(RoEffectEmitter { effect_id: 121, repeat: EffectRepeat::Times(1) })
     } else {
         None
     };

@@ -45,3 +45,8 @@ extensions = ["wav"]
 name = "lookup"
 translate = false
 extensions = ["txt"]
+
+[[bundle]]
+name = "effect"
+translate = false
+extensions = ["tga", "str"]

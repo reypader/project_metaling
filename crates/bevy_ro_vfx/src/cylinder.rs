@@ -1,4 +1,5 @@
 use crate::effect_table::CylinderDef;
+use crate::EffectRepeat;
 use bevy::asset::RenderAssetUsages;
 use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::prelude::*;
@@ -19,6 +20,12 @@ pub struct CylinderAnimator {
     pub frame_duration_secs: f32,
     pub rotate: bool,
     pub current_frame: u32,
+    /// Remaining play count; `None` = loop forever.
+    pub remaining: Option<u32>,
+    /// Duration of one full play cycle in seconds. `f32::INFINITY` for static effects with no natural end.
+    pub cycle_secs: f32,
+    /// Time accumulated within the current play cycle.
+    pub cycle_elapsed: f32,
 }
 
 pub fn spawn_cylinder_effect(
@@ -28,6 +35,7 @@ pub fn spawn_cylinder_effect(
     server: &AssetServer,
     parent_entity: Entity,
     def: &CylinderDef,
+    repeat: EffectRepeat,
 ) {
     let mesh = build_cone_frustum(
         def.bottom_size * CYLINDER_SCALE,
@@ -62,12 +70,28 @@ pub fn spawn_cylinder_effect(
         0.1
     };
 
+    // One cycle = total animation duration. Fall back to per-frame accumulation if duration_ms
+    // is not set; static rotate-only effects have no natural end so cycle_secs = INFINITY.
+    let cycle_secs = if def.duration_ms > 0.0 {
+        def.duration_ms / 1000.0
+    } else if def.animation_frames > 1 {
+        def.animation_frames as f32 * frame_duration_secs
+    } else {
+        f32::INFINITY
+    };
+
     let animator = CylinderAnimator {
         animation_frames: def.animation_frames,
         elapsed_secs: 0.0,
         frame_duration_secs,
         rotate: def.rotate,
         current_frame: 0,
+        remaining: match repeat {
+            EffectRepeat::Infinite => None,
+            EffectRepeat::Times(n) => Some(n),
+        },
+        cycle_secs,
+        cycle_elapsed: 0.0,
     };
 
     commands.entity(parent_entity).with_children(|parent| {
@@ -82,37 +106,54 @@ pub fn spawn_cylinder_effect(
 }
 
 /// Advances CYLINDER animators: rotates and/or steps through texture frames each tick.
+/// Despawns the parent emitter entity once all play cycles have completed.
 pub fn animate_cylinders(
     mut query: Query<(
+        &ChildOf,
         &mut Transform,
         &MeshMaterial3d<StandardMaterial>,
         &mut CylinderAnimator,
     )>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut commands: Commands,
     time: Res<Time>,
 ) {
-    for (mut transform, mat_handle, mut anim) in &mut query {
+    for (child_of, mut transform, mat_handle, mut anim) in &mut query {
         let dt = time.delta_secs();
 
         if anim.rotate {
             transform.rotate_y(dt * std::f32::consts::FRAC_PI_4);
         }
 
-        if anim.animation_frames <= 1 {
-            continue;
+        if anim.animation_frames > 1 {
+            anim.elapsed_secs += dt;
+            if anim.elapsed_secs >= anim.frame_duration_secs {
+                anim.elapsed_secs -= anim.frame_duration_secs;
+                anim.current_frame = (anim.current_frame + 1) % anim.animation_frames;
+
+                if let Some(mat) = materials.get_mut(&mat_handle.0) {
+                    let frame_height = 1.0 / anim.animation_frames as f32;
+                    // V is flipped (top=0, bottom=1), so frame 0 sits at the top of the strip.
+                    let v_offset = anim.current_frame as f32 * frame_height;
+                    mat.uv_transform =
+                        bevy::math::Affine2::from_translation(Vec2::new(0.0, v_offset))
+                            * bevy::math::Affine2::from_scale(Vec2::new(1.0, frame_height));
+                }
+            }
         }
 
-        anim.elapsed_secs += dt;
-        if anim.elapsed_secs >= anim.frame_duration_secs {
-            anim.elapsed_secs -= anim.frame_duration_secs;
-            anim.current_frame = (anim.current_frame + 1) % anim.animation_frames;
-
-            if let Some(mat) = materials.get_mut(&mat_handle.0) {
-                let frame_height = 1.0 / anim.animation_frames as f32;
-                // V is flipped (top=0, bottom=1), so frame 0 sits at the top of the strip.
-                let v_offset = anim.current_frame as f32 * frame_height;
-                mat.uv_transform = bevy::math::Affine2::from_translation(Vec2::new(0.0, v_offset))
-                    * bevy::math::Affine2::from_scale(Vec2::new(1.0, frame_height));
+        if let Some(remaining) = anim.remaining {
+            anim.cycle_elapsed += dt;
+            if anim.cycle_elapsed >= anim.cycle_secs {
+                anim.cycle_elapsed -= anim.cycle_secs;
+                let next = remaining - 1;
+                if next == 0 {
+                    commands.entity(child_of.parent()).despawn();
+                    continue;
+                }
+                anim.remaining = Some(next);
+                anim.current_frame = 0;
+                anim.elapsed_secs = 0.0;
             }
         }
     }

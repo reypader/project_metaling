@@ -26,3 +26,5 @@ pub use gnd::{GndCube, GndFile, GndLightmapSlice, GndSurface, GndWaterPlane};
 pub use rsw::{
     AudioSource, EffectEmitter, LightSource, ModelInstance, RswFile, RswLighting, RswObject,
 };
+pub mod str;
+pub use str::{StrFile, StrKeyframe, StrLayer};

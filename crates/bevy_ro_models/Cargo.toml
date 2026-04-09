@@ -10,6 +10,8 @@ bevy = { version = "0.18", default-features = false, features = [
     "bevy_log",
     "bevy_pbr",
     "bevy_picking",
+    "png",
+    "tga",
 ] }
 ro_files = { path = "../ro_files" }
 anyhow = "1"

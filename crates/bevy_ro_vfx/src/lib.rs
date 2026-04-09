@@ -1,5 +1,7 @@
 mod cylinder;
 mod effect_table;
+mod plane_effect;
+mod str_effect;
 
 use bevy::picking::Pickable;
 use bevy::prelude::*;
@@ -9,14 +11,27 @@ use bevy_ro_sprites::prelude::{
 };
 use cylinder::{animate_cylinders, spawn_cylinder_effect};
 use effect_table::{EffectKind, EffectTable, load_effect_table};
+use plane_effect::{animate_plane_effects, spawn_plane_effect};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use str_effect::{animate_str, orient_str_billboards, spawn_str_effect};
+
+/// Controls how many times a VFX effect plays before its entity is destroyed.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum EffectRepeat {
+    /// Loop forever; the emitter entity is never automatically destroyed.
+    #[default]
+    Infinite,
+    /// Play exactly `n` times, then despawn the emitter entity and all children.
+    Times(u32),
+}
 
 /// Placed on each RSW effect-emitter entity by `bevy_ro_maps`.
 /// The VFX plugin reacts to `Added<RoEffectEmitter>` and spawns the appropriate visuals/sounds.
 #[derive(Component, Clone)]
 pub struct RoEffectEmitter {
     pub effect_id: u32,
+    pub repeat: EffectRepeat,
 }
 
 /// Marker placed on effect billboard child entities.
@@ -26,6 +41,16 @@ pub struct RoEffectEmitter {
 #[derive(Component)]
 pub struct EffectBillboard {
     pub scale_factor: f32,
+    /// Remaining play count; `None` = infinite. Decremented each time the animation loops.
+    pub remaining: Option<u32>,
+    /// Frame index from the previous tick, used to detect loop boundaries.
+    pub prev_frame: u16,
+}
+
+/// Holds init-time paths needed by runtime VFX systems.
+#[derive(Resource)]
+struct VfxConfig {
+    assets_root: std::path::PathBuf,
 }
 
 /// Bevy plugin that manages visual effects driven by [`RoEffectEmitter`] entities.
@@ -43,9 +68,15 @@ impl Plugin for RoVfxPlugin {
 
         app.insert_resource(sprite_map);
         app.insert_resource(effect_table);
+        app.insert_resource(VfxConfig {
+            assets_root: self.assets_root.clone(),
+        });
         app.add_systems(Update, dispatch_effects);
         app.add_systems(Update, update_effect_composites);
         app.add_systems(Update, animate_cylinders);
+        app.add_systems(Update, animate_str.before(orient_str_billboards));
+        app.add_systems(Update, animate_plane_effects);
+        app.add_systems(Update, orient_str_billboards);
     }
 }
 
@@ -87,10 +118,14 @@ fn dispatch_effects(
     server: Res<AssetServer>,
     effect_table: Res<EffectTable>,
     sprite_map: Res<EffectSpriteMap>,
+    config: Res<VfxConfig>,
     new_effects: Query<(Entity, &RoEffectEmitter, &GlobalTransform), Added<RoEffectEmitter>>,
 ) {
     for (entity, emitter, gtf) in &new_effects {
         let id = emitter.effect_id;
+        let repeat = emitter.repeat;
+        let mut has_visual = false;
+
         // EffectTable path: CYLINDER, STR, SPR (EffectTable variant), wav-only, etc.
         if let Some(entries) = effect_table.0.get(&id) {
             for entry in entries {
@@ -102,6 +137,7 @@ fn dispatch_effects(
                 match &entry.kind {
                     EffectKind::AudioOnly => {}
                     EffectKind::Cylinder(def) => {
+                        has_visual = true;
                         spawn_cylinder_effect(
                             &mut commands,
                             &mut meshes,
@@ -109,16 +145,61 @@ fn dispatch_effects(
                             &server,
                             entity,
                             def,
+                            repeat,
                         );
                     }
                     EffectKind::Str { file } => {
-                        warn!("[RoVfx] STR effect {id} not yet implemented: {file}");
+                        has_visual = true;
+                        let stem = file.trim_start_matches("effect/");
+                        spawn_str_effect(
+                            &mut commands,
+                            &mut meshes,
+                            &mut std_mats,
+                            &server,
+                            &config.assets_root,
+                            entity,
+                            stem,
+                            5.0,
+                            repeat,
+                        );
                     }
                     EffectKind::Spr { file } => {
-                        warn!("[RoVfx] EffectTable SPR effect {id} not yet implemented: {file}");
+                        has_visual = true;
+                        spawn_spr_effect(
+                            &mut commands,
+                            &mut meshes,
+                            &mut composite_mats,
+                            &server,
+                            entity,
+                            file,
+                            repeat,
+                        );
                     }
-                    EffectKind::Plane2D | EffectKind::Plane3D => {
-                        warn!("[RoVfx] 2D/3D plane effect {id} not yet implemented");
+                    EffectKind::Plane2D(def) => {
+                        has_visual = true;
+                        spawn_plane_effect(
+                            &mut commands,
+                            &mut meshes,
+                            &mut std_mats,
+                            &server,
+                            entity,
+                            def,
+                            true,
+                            repeat,
+                        );
+                    }
+                    EffectKind::Plane3D(def) => {
+                        has_visual = true;
+                        spawn_plane_effect(
+                            &mut commands,
+                            &mut meshes,
+                            &mut std_mats,
+                            &server,
+                            entity,
+                            def,
+                            false,
+                            repeat,
+                        );
                     }
                     EffectKind::Func => {
                         warn!("[RoVfx] FUNC effect {id} not yet implemented");
@@ -127,16 +208,10 @@ fn dispatch_effects(
             }
         }
 
-        // effect_sprites.json path: SPR/ACT billboard composites.
-        if let Some(stem) = sprite_map.0.get(&id) {
-            spawn_spr_effect(
-                &mut commands,
-                &mut meshes,
-                &mut composite_mats,
-                &server,
-                entity,
-                stem,
-            );
+
+        // No visual animator was attached; clean up non-infinite emitters immediately.
+        if !has_visual && repeat != EffectRepeat::Infinite {
+            commands.entity(entity).despawn();
         }
     }
 }
@@ -147,8 +222,8 @@ fn spawn_wav_effect(commands: &mut Commands, wav: &str, gtf: &GlobalTransform) {
         path: format!("{wav}.wav"),
         looping: false,
         location: Some(tf),
-        volume: Some(20.0),
-        range: Some(100000.0),
+        volume: Some(1.0),
+        range: Some(1000.0),
     });
 }
 
@@ -159,6 +234,7 @@ fn spawn_spr_effect(
     server: &AssetServer,
     parent_entity: Entity,
     stem: &str,
+    repeat: EffectRepeat,
 ) {
     info!("[RoVfx] Attaching SPR sprite for stem '{}'", stem);
     let spr_path = format!("sprite/effect/{stem}.spr");
@@ -182,6 +258,11 @@ fn spawn_spr_effect(
                 Visibility::Visible,
                 EffectBillboard {
                     scale_factor: EFFECT_SPRITE_SCALE,
+                    remaining: match repeat {
+                        EffectRepeat::Infinite => None,
+                        EffectRepeat::Times(n) => Some(n),
+                    },
+                    prev_frame: 0,
                 },
                 Pickable {
                     should_block_lower: false,
@@ -192,14 +273,17 @@ fn spawn_spr_effect(
 }
 
 /// Applies layout and positioning for effect billboard children (those with [`EffectBillboard`]).
+/// Also counts animation loop completions and despawns the parent emitter entity when done.
 fn update_effect_composites(
     mut composites: Query<
         (
+            &ChildOf,
             Entity,
             &mut RoComposite,
             &MeshMaterial3d<RoCompositeMaterial>,
             &mut Transform,
-            &EffectBillboard,
+            &GlobalTransform,
+            &mut EffectBillboard,
         ),
         Without<Camera3d>,
     >,
@@ -209,7 +293,17 @@ fn update_effect_composites(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, mut composite, mat_handle, mut transform, effect) in &mut composites {
+    for (
+        child_of,
+        entity,
+        mut composite,
+        mat_handle,
+        mut transform,
+        global_transform,
+        mut effect,
+    ) in &mut composites
+    {
+        let prev_frame = effect.prev_frame;
         let Some(layout) = advance_and_update_composite(
             entity,
             &mut composite,
@@ -219,10 +313,23 @@ fn update_effect_composites(
             &mut mats,
             &time,
             &mut commands,
-            &transform,
+            global_transform,
         ) else {
             continue;
         };
+
+        // Detect when the animation wraps back to the start frame (loop boundary).
+        effect.prev_frame = composite.current_frame;
+        if composite.current_frame < prev_frame
+            && let Some(remaining) = effect.remaining
+        {
+            let next = remaining - 1;
+            if next == 0 {
+                commands.entity(child_of.parent()).despawn();
+                continue;
+            }
+            effect.remaining = Some(next);
+        }
 
         let sf = effect.scale_factor;
         transform.scale = Vec3::new(layout.canvas_size.x * sf, layout.canvas_size.y * sf, 1.0);

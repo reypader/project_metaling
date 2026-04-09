@@ -10,7 +10,7 @@ use bevy::{
 };
 use bevy_ro_models::PendingModel;
 use bevy_ro_sounds::PlaySound;
-use bevy_ro_vfx::RoEffectEmitter;
+use bevy_ro_vfx::{EffectRepeat, RoEffectEmitter};
 use ro_files::{LightSource, ModelInstance, RswLighting, RswObject};
 
 /// Vertex data accumulated per texture group while building mesh geometry.
@@ -668,6 +668,7 @@ fn spawn_effects(objects: &[RswObject], dims: MapDims, commands: &mut Commands) 
                         Visibility::Hidden,
                         RoEffectEmitter {
                             effect_id: effect.effect_id,
+                            repeat: EffectRepeat::Infinite,
                         },
                     ))
                     .id(),

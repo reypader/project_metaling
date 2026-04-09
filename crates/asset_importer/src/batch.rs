@@ -1,6 +1,6 @@
 use crate::manifest::Manifest;
 use anyhow::{Context, Result};
-use ro_files::{gnd, rsm, rsw, translate};
+use ro_files::{gnd, rsm, rsw, str as ro_str, translate};
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
@@ -398,6 +398,12 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<()> {
         } else if name_str.to_ascii_lowercase().ends_with(".bmp") {
             let dst_path = dst.join(bmp_to_png_name(&name_str));
             convert_bmp_to_png(&src_path, &dst_path)?;
+        } else if name_str.to_ascii_lowercase().ends_with(".str") {
+            let data = std::fs::read(&src_path)
+                .with_context(|| format!("reading {}", src_path.display()))?;
+            let rewritten = ro_str::rewrite_textures(&data)
+                .with_context(|| format!("rewriting STR {}", src_path.display()))?;
+            std::fs::write(dst.join(&name), rewritten)?;
         } else {
             std::fs::copy(&src_path, dst.join(&name))?;
         }
@@ -424,6 +430,12 @@ fn copy_dir_translated(
             copy_dir_translated(&src_path, &dst_path, known, misses)?;
         } else if original_str.to_ascii_lowercase().ends_with(".bmp") {
             convert_bmp_to_png(&src_path, &dst_path)?;
+        } else if original_str.to_ascii_lowercase().ends_with(".str") {
+            let data = std::fs::read(&src_path)
+                .with_context(|| format!("reading {}", src_path.display()))?;
+            let rewritten = ro_str::rewrite_textures(&data)
+                .with_context(|| format!("rewriting STR {}", src_path.display()))?;
+            std::fs::write(&dst_path, rewritten)?;
         } else {
             std::fs::copy(&src_path, &dst_path)?;
         }

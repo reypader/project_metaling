@@ -80,6 +80,7 @@
 "스킬" = "skill"                  # Mage skill-cast animation overlay
 "메탈" = "metal"                  # Summoner foxtail weapon variant
 "악기" = "instrument"             # Bard instrument weapon type
+"카타르" = "katar"                 # just added Apr 9 2026
 
 # ---------------------------------------------------------------------------
 # Base job classes

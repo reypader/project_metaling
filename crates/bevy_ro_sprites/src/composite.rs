@@ -355,7 +355,7 @@ pub fn advance_and_update_composite(
     mats: &mut Assets<RoCompositeMaterial>,
     time: &Time,
     commands: &mut Commands,
-    tf: &Transform,
+    global_tf: &GlobalTransform,
 ) -> Option<CompositeLayout> {
     // ── 1. Advance animation ──────────────────────────────────────────
     // The Body layer is the compositing anchor and animation driver.
@@ -419,9 +419,9 @@ pub fn advance_and_update_composite(
                     commands.trigger(PlaySound {
                         path: event.clone(),
                         looping: false,
-                        location: Some(*tf),
-                        volume: Some(20.0),
-                        range: Some(100000.0),
+                        location: Some(global_tf.compute_transform()),
+                        volume: Some(1.0),
+                        range: Some(1000.0),
                     });
                 }
             }
@@ -617,6 +617,7 @@ fn update_actor_composites(
             &mut RoComposite,
             &MeshMaterial3d<RoCompositeMaterial>,
             &mut Transform,
+            &GlobalTransform,
             &ActorBillboard,
         ),
         Without<Camera3d>,
@@ -627,7 +628,9 @@ fn update_actor_composites(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    for (entity, mut composite, mat_handle, mut transform, actor) in &mut composites {
+    for (entity, mut composite, mat_handle, mut transform, global_transform, actor) in
+        &mut composites
+    {
         let Some(layout) = advance_and_update_composite(
             entity,
             &mut composite,
@@ -637,7 +640,7 @@ fn update_actor_composites(
             &mut mats,
             &time,
             &mut commands,
-            &transform,
+            global_transform,
         ) else {
             continue;
         };

@@ -13,13 +13,17 @@ pub struct PlaySound {
     pub range: Option<f32>,
 }
 
+/// Marker for one-shot audio entities that should be despawned when playback finishes.
+#[derive(Component)]
+struct OneShotAudio;
+
 /// Plugin that handles [`PlaySound`] events by spawning Bevy audio entities.
 pub struct RoSoundsPlugin;
 
 impl Plugin for RoSoundsPlugin {
     fn build(&self, app: &mut App) {
         app.add_observer(handle_play_sound);
-        app.add_systems(Last, mute_audio_on_exit);
+        app.add_systems(Last, (mute_audio_on_exit, despawn_finished_sounds));
     }
 }
 
@@ -65,46 +69,75 @@ fn handle_play_sound(
     } else {
         PlaybackSettings::ONCE
     };
+    let one_shot = if ev.looping { None } else { Some(OneShotAudio) };
     match ev.location {
         Some(tf) => {
             println!("playing {:?} {:?}", resolved, tf);
             // Spatial scale is intentionally left to the global default_spatial_scale (set in
             // AudioPlugin). Per-sound overrides via with_spatial_scale() REPLACE the global value
             // rather than multiply it, so using one here would bypass the world-scale correction.
-            commands.spawn((
+            let mut cmd = commands.spawn((
                 tf,
                 GlobalTransform::from(tf),
                 AudioPlayer::new(handle),
                 settings
                     .with_spatial(true)
                     .with_volume(Volume::Linear(ev.volume.unwrap_or(1.0))),
-            ))
+            ));
+            if let Some(marker) = one_shot {
+                cmd.insert(marker);
+            }
+            cmd
         }
-        None => commands.spawn((AudioPlayer::new(handle), settings)),
+        None => {
+            let mut cmd = commands.spawn((AudioPlayer::new(handle), settings));
+            if let Some(marker) = one_shot {
+                cmd.insert(marker);
+            }
+            cmd
+        }
     };
 }
 
+fn despawn_finished_sounds(
+    mut commands: Commands,
+    spatial: Query<(Entity, &SpatialAudioSink), With<OneShotAudio>>,
+    non_spatial: Query<(Entity, &AudioSink), With<OneShotAudio>>,
+) {
+    for (entity, sink) in &spatial {
+        if sink.empty() {
+            commands.entity(entity).despawn();
+        }
+    }
+    for (entity, sink) in &non_spatial {
+        if sink.empty() {
+            commands.entity(entity).despawn();
+        }
+    }
+}
+
 /// Normalises a raw sound reference into an asset-relative path.
-/// Takes only the filename after the last `/` or `\`, then prefixes
-/// `wav/` for `.wav` files and `bgm/` for `.mp3` files.
+/// Normalizes a raw sound path into an asset-relative path.
+/// Backslashes are converted to forward slashes. For `.wav` files, a `wav/`
+/// prefix is added if not already present. `.mp3` files are returned as-is
+/// (assumed to already carry a `bgm/` prefix or need none).
 /// Returns `None` for strings that are not sound file references.
 fn resolve_sound_path(raw: &str) -> Option<String> {
-    let filename = raw
-        .rsplit(['/', '\\'])
-        .next()
-        .unwrap_or(raw)
-        .trim();
-    if filename.is_empty() {
+    let normalized = raw.replace('\\', "/");
+    let trimmed = normalized.trim();
+    if trimmed.is_empty() {
         return None;
     }
-    let lower = filename.to_ascii_lowercase();
-    println!("{:?}", lower);
+    let lower = trimmed.to_ascii_lowercase();
     if lower.ends_with(".wav") {
-        Some(format!("wav/{filename}"))
+        if lower.starts_with("wav/") {
+            Some(trimmed.to_string())
+        } else {
+            Some(format!("wav/{trimmed}"))
+        }
     } else if lower.ends_with(".mp3") {
-        Some(format!("bgm/{filename}"))
+        Some(trimmed.to_string())
     } else {
-        println!("{:?}", lower);
         None
     }
 }
