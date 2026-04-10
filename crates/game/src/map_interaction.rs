@@ -1,4 +1,5 @@
-use crate::{Action, ActorDirection, ActorState, PlayerControl};
+use crate::player_control::PlayerControl;
+use crate::{Action, ActorDirection, ActorState};
 use bevy::app::{App, Plugin, Update};
 use bevy::prelude::Visibility::{Hidden, Visible};
 use bevy::prelude::*;

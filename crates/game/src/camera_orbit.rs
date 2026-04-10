@@ -2,18 +2,17 @@
 // Camera orbit
 // ─────────────────────────────────────────────────────────────
 
-use crate::PlayerControl;
+use crate::player_control::PlayerControl;
 use bevy::app::{App, Plugin, Update};
 use bevy::camera::Camera3d;
-use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::input::ButtonInput;
+use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::math::{StableInterpolate, Vec3};
 use bevy::prelude::IntoScheduleConfigs;
 use bevy::prelude::{
     Component, EulerRot, KeyCode, MouseButton, Quat, Res, ResMut, Resource, Single, Time,
     Transform, With, Without,
 };
-
 pub struct OrbitCameraPlugin;
 impl Plugin for OrbitCameraPlugin {
     fn build(&self, app: &mut App) {
@@ -80,7 +79,8 @@ fn camera_orbit(
     let (yaw, pitch, roll) = camera.rotation.to_euler(EulerRot::YXZ);
 
     // Clamp pitch: no shallower than 30° from ground (-PI/6), no steeper than 30° from vertical (-PI/3).
-    let pitch = (pitch + delta_pitch).clamp(-std::f32::consts::FRAC_PI_3, -std::f32::consts::FRAC_PI_6);
+    let pitch =
+        (pitch + delta_pitch).clamp(-std::f32::consts::FRAC_PI_3, -std::f32::consts::FRAC_PI_6);
     let yaw = yaw + delta_yaw;
     camera.rotation = Quat::from_euler(EulerRot::YXZ, yaw, pitch, roll);
 
