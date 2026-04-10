@@ -12,8 +12,7 @@ use bevy_ro_sprites::prelude::{
 use cylinder::{animate_cylinders, spawn_cylinder_effect};
 use effect_table::{CylinderDef, EffectKind, EffectTable, PlaneDef, load_effect_table};
 use plane_effect::{animate_plane_effects, spawn_plane_effect};
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use str_effect::{animate_str, orient_str_billboards, spawn_str_effect};
 
 /// Controls how many times a VFX effect plays before its entity is destroyed.
@@ -63,10 +62,8 @@ pub struct RoVfxPlugin {
 
 impl Plugin for RoVfxPlugin {
     fn build(&self, app: &mut App) {
-        let sprite_map = load_effect_sprite_map(&self.assets_root);
         let effect_table = load_effect_table(&self.config_path);
 
-        app.insert_resource(sprite_map);
         app.insert_resource(effect_table);
         app.insert_resource(VfxConfig {
             assets_root: self.assets_root.clone(),
@@ -78,30 +75,6 @@ impl Plugin for RoVfxPlugin {
         app.add_systems(Update, animate_plane_effects);
         app.add_systems(Update, orient_str_billboards);
     }
-}
-
-/// Maps RSW effect IDs to SPR file stems (e.g. `47 → "torch_01"`).
-/// Loaded from `sprite/effect/effect_sprites.json` in the assets root.
-#[derive(Resource, Default)]
-struct EffectSpriteMap(HashMap<u32, String>);
-
-fn load_effect_sprite_map(assets_root: &Path) -> EffectSpriteMap {
-    let json_path = assets_root.join("sprite/effect/effect_sprites.json");
-    let map = std::fs::read_to_string(&json_path)
-        .ok()
-        .and_then(|json| serde_json::from_str::<HashMap<u32, String>>(&json).ok())
-        .unwrap_or_default();
-
-    if map.is_empty() {
-        warn!(
-            "[RoVfx] effect_sprites.json not found or empty at {:?} — no SPR effect sprites will render",
-            json_path
-        );
-    } else {
-        info!("[RoVfx] Loaded {} effect sprite mappings", map.len());
-    }
-
-    EffectSpriteMap(map)
 }
 
 /// Divisor applied to effect billboard canvas size to normalize ACT-baked pixel scales
@@ -117,7 +90,6 @@ fn dispatch_effects(
     mut composite_mats: ResMut<Assets<RoCompositeMaterial>>,
     server: Res<AssetServer>,
     effect_table: Res<EffectTable>,
-    sprite_map: Res<EffectSpriteMap>,
     config: Res<VfxConfig>,
     new_effects: Query<(Entity, &RoEffectEmitter, &GlobalTransform), Added<RoEffectEmitter>>,
 ) {
@@ -240,7 +212,6 @@ fn dispatch_effects(
                 }
             }
         }
-
 
         // No visual animator was attached; clean up non-infinite emitters immediately.
         if !has_visual && repeat != EffectRepeat::Infinite {
