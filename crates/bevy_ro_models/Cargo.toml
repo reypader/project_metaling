@@ -13,5 +13,5 @@ bevy = { version = "0.18", default-features = false, features = [
     "png",
     "tga",
 ] }
-ro_files = { path = "../ro_files" }
+ro_files = { path = "../ro_files", features = ["bevy"] }
 anyhow = "1"

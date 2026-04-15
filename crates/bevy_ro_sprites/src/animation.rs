@@ -219,8 +219,8 @@ pub fn update_ro_animation(
                         path: event.clone(),
                         looping: false,
                         location: Some(*tf),
-                        volume: Some(1.0),
-                        range: Some(1000.0),
+                        volume: None,
+                        range: None,
                     });
                 }
             }

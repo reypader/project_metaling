@@ -15,8 +15,7 @@ use bevy_ro_models::RoModelsPlugin;
 use bevy_ro_sounds::RoSoundsPlugin;
 use bevy_ro_sprites::SpriteFrameEvent;
 use bevy_ro_sprites::prelude::{
-    Action, ActorBillboard, ActorDirection, ActorState, CompositeLayerDef, RoComposite,
-    RoCompositeMaterial, RoSpritePlugin, SpriteRole, composite_tag, direction_index,
+    Action, ActorDirection, ActorSprite, ActorState, RoSpritePlugin,
 };
 use bevy_ro_vfx::RoVfxPlugin;
 
@@ -40,22 +39,22 @@ fn main() {
         .add_plugins(OrbitCameraPlugin)
         // .add_plugins(DefaultPickingPlugins)
         .add_systems(Startup, setup)
-        .add_plugins(RoSpritePlugin)
+        .add_plugins(RoSpritePlugin::default())
         .add_plugins(RoMapsPlugin {
             assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
         })
         .add_plugins(RoModelsPlugin)
-        .add_plugins(RoSoundsPlugin)
+        .add_plugins(RoSoundsPlugin::default())
         .add_plugins(RoVfxPlugin {
             assets_root: "/Users/rmpader/code_projects/project_metaling/target/assets".into(),
             config_path: "/Users/rmpader/code_projects/project_metaling/config/EffectTable.json"
                 .into(),
+            effect_sprite_scale_divisor: 35.0,
         })
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
         .add_plugins(OcclusionFadingPlugin)
         .add_plugins(PlayerControlPlugin)
-        .add_systems(PostStartup, attach_composite)
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -103,10 +102,10 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_knight/body.spr",
-            head: Some("sprite/human_female_head/head/11.spr"),
-            weapon: Some("sprite/human_female_knight/weapon/spear/weapon.spr"),
-            weapon_slash: Some("sprite/human_female_knight/weapon/spear/slash.spr"),
+            body: "sprite/human_female_knight/body.spr".into(),
+            head: Some("sprite/human_female_head/head/11.spr".into()),
+            weapon: Some("sprite/human_female_knight/weapon/spear/weapon.spr".into()),
+            weapon_slash: Some("sprite/human_female_knight/weapon/spear/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -121,10 +120,10 @@ fn setup(
     // Actor — body.spr + head 17.spr, composited in one quad
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_male_novice/body.spr",
-            head: Some("sprite/human_male_head/head/10.spr"),
-            weapon: Some("sprite/human_male_novice/weapon/sword/weapon.spr"),
-            weapon_slash: Some("sprite/human_male_novice/weapon/sword/slash.spr"),
+            body: "sprite/human_male_novice/body.spr".into(),
+            head: Some("sprite/human_male_head/head/10.spr".into()),
+            weapon: Some("sprite/human_male_novice/weapon/sword/weapon.spr".into()),
+            weapon_slash: Some("sprite/human_male_novice/weapon/sword/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -135,10 +134,10 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_assassin/body.spr",
-            head: Some("sprite/human_female_head/head/5.spr"),
-            weapon: Some("sprite/human_female_assassin/weapon/katar_katar/weapon.spr"),
-            weapon_slash: Some("sprite/human_female_assassin/weapon/katar_katar/slash.spr"),
+            body: "sprite/human_female_assassin/body.spr".into(),
+            head: Some("sprite/human_female_head/head/5.spr".into()),
+            weapon: Some("sprite/human_female_assassin/weapon/katar_katar/weapon.spr".into()),
+            weapon_slash: Some("sprite/human_female_assassin/weapon/katar_katar/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -147,9 +146,9 @@ fn setup(
         Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
     ));
 
-     commands.spawn((
+    commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_assassin/body.spr",
+            body: "sprite/human_female_assassin/body.spr".into(),
             head: None,
             weapon: None,
             weapon_slash: None,
@@ -184,69 +183,3 @@ fn setup(
     ));
 }
 
-// ─────────────────────────────────────────────────────────────
-/// Marker: this entity hosts body + head layers composited on a billboard child entity.
-#[derive(Component)]
-pub struct ActorSprite {
-    pub body: &'static str,
-    pub head: Option<&'static str>,
-    pub weapon: Option<&'static str>,
-    pub weapon_slash: Option<&'static str>,
-}
-
-// ─────────────────────────────────────────────────────────────
-// Spawn
-// ─────────────────────────────────────────────────────────────
-
-fn attach_composite(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut mats: ResMut<Assets<RoCompositeMaterial>>,
-    actors: Query<(Entity, &ActorSprite, &ActorState, &ActorDirection)>,
-    server: Res<AssetServer>,
-    camera: Single<&Transform, With<Camera3d>>,
-) {
-    for (entity, sprite, state, dir) in &actors {
-        let tag = composite_tag(
-            state.action.tag_name(),
-            direction_index(dir.0, camera.forward().as_vec3().xz().normalize()),
-        );
-
-        let mut layers = vec![CompositeLayerDef {
-            atlas: server.load(sprite.body),
-            role: SpriteRole::Body,
-        }];
-        if let Some(head) = sprite.head {
-            layers.push(CompositeLayerDef {
-                atlas: server.load(head),
-                role: SpriteRole::Head,
-            })
-        }
-        if let Some(weapon) = sprite.weapon {
-            layers.push(CompositeLayerDef {
-                atlas: server.load(weapon),
-                role: SpriteRole::Weapon { slot: 0 },
-            })
-        }
-        if let Some(weapon_slash) = sprite.weapon_slash {
-            layers.push(CompositeLayerDef {
-                atlas: server.load(weapon_slash),
-                role: SpriteRole::Weapon { slot: 1 },
-            })
-        }
-        commands.entity(entity).with_children(|parent| {
-            parent.spawn((
-                RoComposite {
-                    layers,
-                    tag: Some(tag),
-                    playing: true,
-                    ..Default::default()
-                },
-                Mesh3d(meshes.add(Rectangle::new(1.0, 1.0))),
-                MeshMaterial3d(mats.add(RoCompositeMaterial::default())),
-                Transform::default(),
-                ActorBillboard { feet_lift: 10.0 },
-            ));
-        });
-    }
-}

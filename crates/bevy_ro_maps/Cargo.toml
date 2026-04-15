@@ -13,7 +13,7 @@ bevy = { version = "0.18", default-features = false, features = [
     "png",
     "tga",
 ] }
-ro_files = { path = "../ro_files" }
+ro_files = { path = "../ro_files", features = ["bevy"] }
 bevy_ro_models = { path = "../bevy_ro_models" }
 bevy_ro_sounds = { path = "../bevy_ro_sounds" }
 bevy_ro_vfx = { path = "../bevy_ro_vfx" }

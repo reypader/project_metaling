@@ -17,11 +17,31 @@ pub struct PlaySound {
 #[derive(Component)]
 struct OneShotAudio;
 
+/// Runtime configuration for the sound plugin, inserted as a `Resource`.
+#[derive(Resource, Clone, Debug)]
+pub struct RoSoundsConfig {
+    /// Default volume for spatial sound effects when `PlaySound::volume` is `None`.
+    /// Default: `1.0`.
+    pub default_sfx_volume: f32,
+}
+
+impl Default for RoSoundsConfig {
+    fn default() -> Self {
+        Self {
+            default_sfx_volume: 1.0,
+        }
+    }
+}
+
 /// Plugin that handles [`PlaySound`] events by spawning Bevy audio entities.
-pub struct RoSoundsPlugin;
+#[derive(Default)]
+pub struct RoSoundsPlugin {
+    pub config: RoSoundsConfig,
+}
 
 impl Plugin for RoSoundsPlugin {
     fn build(&self, app: &mut App) {
+        app.insert_resource(self.config.clone());
         app.add_observer(handle_play_sound);
         app.add_systems(Last, (mute_audio_on_exit, despawn_finished_sounds));
     }
@@ -48,6 +68,7 @@ fn handle_play_sound(
     trigger: On<PlaySound>,
     mut commands: Commands,
     server: Res<AssetServer>,
+    config: Res<RoSoundsConfig>,
 ) {
     let ev = trigger.event();
     let Some(resolved) = resolve_sound_path(&ev.path) else {
@@ -70,6 +91,7 @@ fn handle_play_sound(
         PlaybackSettings::ONCE
     };
     let one_shot = if ev.looping { None } else { Some(OneShotAudio) };
+    let volume = ev.volume.unwrap_or(config.default_sfx_volume);
     match ev.location {
         Some(tf) => {
             println!("playing {:?} {:?}", resolved, tf);
@@ -82,7 +104,7 @@ fn handle_play_sound(
                 AudioPlayer::new(handle),
                 settings
                     .with_spatial(true)
-                    .with_volume(Volume::Linear(ev.volume.unwrap_or(1.0))),
+                    .with_volume(Volume::Linear(volume)),
             ));
             if let Some(marker) = one_shot {
                 cmd.insert(marker);

@@ -59,13 +59,7 @@ fn apply_map_lighting(
 ) {
     let lighting = &trigger.event().0;
 
-    // Convert spherical coordinates to a sun ray direction.
-    // Start from (0, -1, 0) (straight down), rotate around X by -latitude then around Y
-    // by longitude. The resulting vector is the direction the light travels.
-    let lat_rad = (lighting.latitude as f32).to_radians();
-    let lon_rad = (lighting.longitude as f32).to_radians();
-    let rot = Quat::from_rotation_y(-lon_rad) * Quat::from_rotation_x(lat_rad);
-    let sun_dir = rot * Vec3::NEG_Y;
+    let sun_dir = ro_files::coord::lighting_direction(lighting.longitude, lighting.latitude);
 
     let [dr, dg, db] = lighting.diffuse;
     let [ar, ag, ab] = lighting.ambient;

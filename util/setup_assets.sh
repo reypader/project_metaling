@@ -13,5 +13,5 @@ cargo run -p asset_importer -- batch --types body,head,weapon,headgear,shield,sh
 echo "Decompiling LUB files"
 cargo run -p lub_decompiler
 
-# echo "Cleanup ./target/tmp/"
-# rm -rf target/tmp/
+echo "Cleanup ./target/tmp/"
+rm -rf target/tmp/

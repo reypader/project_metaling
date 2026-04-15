@@ -420,8 +420,8 @@ pub fn advance_and_update_composite(
                         path: event.clone(),
                         looping: false,
                         location: Some(global_tf.compute_transform()),
-                        volume: Some(1.0),
-                        range: Some(1000.0),
+                        volume: None,
+                        range: None,
                     });
                 }
             }
@@ -669,8 +669,11 @@ fn tag_is_top_left(tag: &str) -> bool {
 /// `action` is the animation name (e.g. `"idle"`, `"walk"`) and `dir` is the
 /// 0-7 direction index from [`direction_index`].
 pub fn composite_tag(action: &str, dir: u8) -> String {
-    const DIRS: &[&str] = &["e", "se", "s", "sw", "w", "nw", "n", "ne"];
-    format!("{}_{}", action, DIRS[dir as usize % 8])
+    format!(
+        "{}_{}",
+        action,
+        crate::actor::SCREEN_DIR_SUFFIXES[dir as usize % 8]
+    )
 }
 
 /// Converts a world-space facing direction + camera forward to a 0–7 direction index.
@@ -693,13 +696,12 @@ pub fn direction_index(facing: Vec2, cam_fwd: Vec2) -> u8 {
     ((angle + std::f32::consts::PI / 8.0) / (std::f32::consts::TAU / 8.0)) as u8 % 8
 }
 
-const SHADOW_SPR_PATH: &str = "sprite/shadow/shadow.spr";
-
 /// Prepends a shadow layer to every newly spawned actor [`RoComposite`] (those with [`ActorBillboard`]).
 /// Effect billboards and other non-actor composites are skipped because they lack `ActorBillboard`.
 fn attach_shadow_layer(
     mut composites: Query<&mut RoComposite, (Added<RoComposite>, With<ActorBillboard>)>,
     server: Res<AssetServer>,
+    config: Res<crate::RoSpriteConfig>,
 ) {
     for mut composite in &mut composites {
         if composite
@@ -712,7 +714,7 @@ fn attach_shadow_layer(
         composite.layers.insert(
             0,
             CompositeLayerDef {
-                atlas: server.load(SHADOW_SPR_PATH),
+                atlas: server.load(config.shadow_sprite_path.clone()),
                 role: SpriteRole::Shadow,
             },
         );
@@ -731,16 +733,6 @@ fn disable_billboard_shadows(mut commands: Commands, query: Query<Entity, Added<
     }
 }
 
-/// When `true`, all billboards are made parallel to the camera plane by projecting each
-/// actor pivot onto the camera's right-axis line before computing the facing direction.
-/// When `false`, each billboard faces the camera position directly (spherical orientation),
-/// which matches the original RO client behaviour but introduces slight angular divergence
-/// at the screen edges.
-const CAMERA_PARALLEL_BILLBOARDS: bool = false;
-/// Maximum tilt angle in degrees for the spherical billboard mode.
-/// The computed pitch is clamped to this value. Has no effect when `CAMERA_PARALLEL_BILLBOARDS` is true.
-const SPHERICAL_MAX_TILT_DEGREES: f32 = 30.0;
-
 /// Keeps every [`RoComposite`] billboard facing the camera.
 ///
 /// Rotates the billboard about its parent's world position (actor feet) so that the
@@ -749,9 +741,9 @@ pub fn orient_billboard(
     mut billboards: Query<(&mut Transform, &ChildOf), (With<RoComposite>, Without<Camera3d>)>,
     parents: Query<&GlobalTransform>,
     camera_q: Query<&Transform, (With<Camera3d>, Without<RoComposite>)>,
+    config: Res<crate::RoSpriteConfig>,
 ) {
     let Ok(cam) = camera_q.single() else { return };
-    const TILT: f32 = 30.0 * std::f32::consts::PI / 180.0;
     for (mut tf, child_of) in &mut billboards {
         // Use the parent (actor) world position as the pivot so the rotation is
         // stable regardless of the canvas-centering offset stored in tf.translation.
@@ -759,28 +751,30 @@ pub fn orient_billboard(
             .get(child_of.parent())
             .map(|gt| gt.translation())
             .unwrap_or(Vec3::ZERO);
-        if CAMERA_PARALLEL_BILLBOARDS {
-            // Project pivot onto the camera's right-axis line so all billboards
-            // stay parallel to the camera plane (no angular divergence at screen edges).
-            let cam_right = cam.rotation * Vec3::X;
-            let t = (pivot - cam.translation).dot(cam_right);
-            let closest = cam.translation + t * cam_right;
-            let dx = closest.x - pivot.x;
-            let dz = closest.z - pivot.z;
-            tf.rotation = Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-TILT);
-        } else {
-            // Spherical: same horizontal projection as the parallel branch, but tilt
-            // is computed from the actual angle to the camera's right-axis line rather
-            // than the fixed TILT constant.
-            let cam_right = cam.rotation * Vec3::X;
-            let t = (pivot - cam.translation).dot(cam_right);
-            let closest = cam.translation + t * cam_right;
-            let face_dir = closest - pivot;
-            let xz_len = Vec2::new(face_dir.x, face_dir.z).length();
-            let yaw = f32::atan2(face_dir.x, face_dir.z);
-            let max_tilt = SPHERICAL_MAX_TILT_DEGREES.to_radians();
-            let pitch = (-f32::atan2(face_dir.y, xz_len)).clamp(-max_tilt, max_tilt);
-            tf.rotation = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(pitch);
-        };
+        match config.billboard_mode {
+            crate::BillboardMode::CameraParallel => {
+                // Project pivot onto the camera's right-axis line so all billboards
+                // stay parallel to the camera plane (no angular divergence at screen edges).
+                let cam_right = cam.rotation * Vec3::X;
+                let t = (pivot - cam.translation).dot(cam_right);
+                let closest = cam.translation + t * cam_right;
+                let dx = closest.x - pivot.x;
+                let dz = closest.z - pivot.z;
+                let tilt = config.spherical_max_tilt.to_radians();
+                tf.rotation =
+                    Quat::from_rotation_y(f32::atan2(dx, dz)) * Quat::from_rotation_x(-tilt);
+            }
+            crate::BillboardMode::Spherical => {
+                let cam_right = cam.rotation * Vec3::X;
+                let t = (pivot - cam.translation).dot(cam_right);
+                let closest = cam.translation + t * cam_right;
+                let face_dir = closest - pivot;
+                let xz_len = Vec2::new(face_dir.x, face_dir.z).length();
+                let yaw = f32::atan2(face_dir.x, face_dir.z);
+                let max_tilt = config.spherical_max_tilt.to_radians();
+                let pitch = (-f32::atan2(face_dir.y, xz_len)).clamp(-max_tilt, max_tilt);
+                tf.rotation = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(pitch);
+            }
+        }
     }
 }

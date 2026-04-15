@@ -59,7 +59,7 @@ fn spawn_emitter(
     mut keys: ResMut<ButtonInput<KeyCode>>,
     marker: Single<&Transform, With<MapMarker>>,
 ) {
-    let m = marker.clone();
+    let m = **marker;
     let effect = if keys.clear_just_pressed(KeyCode::Comma) {
         Some(RoEffectEmitter {
             effect_id: "ef_firebolt".to_string(),

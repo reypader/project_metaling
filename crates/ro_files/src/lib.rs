@@ -1,3 +1,6 @@
+#[cfg(feature = "bevy")]
+pub mod coord;
+
 mod decrypt;
 mod util;
 

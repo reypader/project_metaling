@@ -195,7 +195,7 @@ fn build_static_model_on(
                 p[1] += mesh.pos[1];
                 p[2] += mesh.pos[2];
             }
-            actual_min_y = actual_min_y.min(-p[1]);
+            actual_min_y = actual_min_y.min(ro_files::coord::gnd_height(p[1]));
             bb_x_min = bb_x_min.min(p[0]);
             bb_x_max = bb_x_max.max(p[0]);
             bb_z_min = bb_z_min.min(p[2]);
@@ -414,8 +414,7 @@ fn transform_rsm_vertex(
         p[1] += mesh.pos[1];
         p[2] += mesh.pos[2];
     }
-    p[1] = -p[1];
-    p[2] = -p[2];
+    p = ro_files::coord::rsm_flip_yz(p);
     p[0] -= real_bbrange_x;
     p[1] -= actual_min_y;
     p[2] += real_bbrange_z;
@@ -480,7 +479,7 @@ fn build_animated_rsm1_on(
                 p[1] += mesh.pos[1];
                 p[2] += mesh.pos[2];
             }
-            actual_min_y = actual_min_y.min(-p[1]);
+            actual_min_y = actual_min_y.min(ro_files::coord::gnd_height(p[1]));
             bb_x_min = bb_x_min.min(p[0]);
             bb_x_max = bb_x_max.max(p[0]);
             bb_z_min = bb_z_min.min(p[2]);

@@ -127,10 +127,10 @@ impl NavMesh {
         let Some(tile) = self.tile(col, row) else {
             return 0.0;
         };
-        let sw = -tile.altitude_sw;
-        let se = -tile.altitude_se;
-        let nw = -tile.altitude_nw;
-        let ne = -tile.altitude_ne;
+        let sw = ro_files::coord::gat_altitude(tile.altitude_sw);
+        let se = ro_files::coord::gat_altitude(tile.altitude_se);
+        let nw = ro_files::coord::gat_altitude(tile.altitude_nw);
+        let ne = ro_files::coord::gat_altitude(tile.altitude_ne);
 
         let north = nw + (ne - nw) * fx;
         let south = sw + (se - sw) * fx;

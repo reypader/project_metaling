@@ -46,10 +46,12 @@ pub struct EffectBillboard {
     pub prev_frame: u16,
 }
 
-/// Holds init-time paths needed by runtime VFX systems.
+/// Holds init-time config needed by runtime VFX systems.
 #[derive(Resource)]
 struct VfxConfig {
     assets_root: std::path::PathBuf,
+    /// Precomputed `1.0 / divisor` for effect sprite billboard scaling.
+    effect_sprite_scale: f32,
 }
 
 /// Bevy plugin that manages visual effects driven by [`RoEffectEmitter`] entities.
@@ -58,6 +60,9 @@ pub struct RoVfxPlugin {
     pub assets_root: PathBuf,
     /// Path to `config/EffectTable.json` (JS-style effect definitions).
     pub config_path: PathBuf,
+    /// Divisor applied to effect sprite billboard canvas size to normalize ACT-baked
+    /// pixel scales to world units. Default: `35.0` (resulting scale = `1.0 / 35.0`).
+    pub effect_sprite_scale_divisor: f32,
 }
 
 impl Plugin for RoVfxPlugin {
@@ -67,6 +72,7 @@ impl Plugin for RoVfxPlugin {
         app.insert_resource(effect_table);
         app.insert_resource(VfxConfig {
             assets_root: self.assets_root.clone(),
+            effect_sprite_scale: 1.0 / self.effect_sprite_scale_divisor,
         });
         app.add_systems(Update, dispatch_effects);
         app.add_systems(Update, update_effect_composites);
@@ -77,9 +83,6 @@ impl Plugin for RoVfxPlugin {
     }
 }
 
-/// Divisor applied to effect billboard canvas size to normalize ACT-baked pixel scales
-/// to world units.
-const EFFECT_SPRITE_SCALE: f32 = 1.0 / 35.0;
 
 /// Reacts to newly spawned [`RoEffectEmitter`] entities and dispatches visuals and sounds
 /// based on entries in [`EffectTable`] and [`EffectSpriteMap`].
@@ -158,6 +161,7 @@ fn dispatch_effects(
                             entity,
                             &resolved,
                             repeat,
+                            config.effect_sprite_scale,
                         );
                     }
                     EffectKind::Plane2D(def) => {
@@ -241,8 +245,8 @@ fn spawn_wav_effect(commands: &mut Commands, wav: &str, gtf: &GlobalTransform) {
         path: format!("{wav}.wav"),
         looping: false,
         location: Some(tf),
-        volume: Some(1.0),
-        range: Some(1000.0),
+        volume: None,
+        range: None,
     });
 }
 
@@ -254,6 +258,7 @@ fn spawn_spr_effect(
     parent_entity: Entity,
     stem: &str,
     repeat: EffectRepeat,
+    effect_sprite_scale: f32,
 ) {
     info!("[RoVfx] Attaching SPR sprite for stem '{}'", stem);
     let spr_path = format!("sprite/effect/{stem}.spr");
@@ -276,7 +281,7 @@ fn spawn_spr_effect(
                 Transform::default(),
                 Visibility::Visible,
                 EffectBillboard {
-                    scale_factor: EFFECT_SPRITE_SCALE,
+                    scale_factor: effect_sprite_scale,
                     remaining: match repeat {
                         EffectRepeat::Infinite => None,
                         EffectRepeat::Times(n) => Some(n),

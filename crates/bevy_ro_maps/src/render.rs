@@ -11,6 +11,7 @@ use bevy::{
 use bevy_ro_models::PendingModel;
 use bevy_ro_sounds::PlaySound;
 use bevy_ro_vfx::{EffectRepeat, RoEffectEmitter};
+use ro_files::coord;
 use ro_files::{LightSource, ModelInstance, RswLighting, RswObject};
 
 /// Vertex data accumulated per texture group while building mesh geometry.
@@ -533,10 +534,8 @@ pub(crate) fn spawn_map_meshes(
         // This Transform shifts it to [-cx..cx] x [-cz..cz].
         commands
             .entity(root_entity)
-            .insert(Transform::from_translation(Vec3::new(
-                -cx,
-                0.0,
-                -(scale + cz),
+            .insert(Transform::from_translation(coord::map_center_offset(
+                cx, cz, scale,
             )));
 
         // Spawn RSM model instances as child entities with PendingModel for the model crate
@@ -566,14 +565,8 @@ pub(crate) fn spawn_map_meshes(
 
             for inst in model_instances {
                 // Convert RSW position/rotation/scale to Bevy world space (BrowEdit3 convention).
-                let translation =
-                    Vec3::new(cx + inst.pos[0], -inst.pos[1], scale + cz - inst.pos[2]);
-                let rotation = Quat::from_euler(
-                    EulerRot::YXZ,
-                    (-inst.rot[1]).to_radians(),
-                    inst.rot[0].to_radians(),
-                    (-inst.rot[2]).to_radians(),
-                );
+                let translation = coord::rsw_local_pos(inst.pos, cx, cz, scale);
+                let rotation = coord::rsw_rotation(inst.rot);
                 let inst_scale = Vec3::new(inst.scale[0], inst.scale[1], inst.scale[2]);
 
                 let child = commands
@@ -613,7 +606,7 @@ pub(crate) fn spawn_map_meshes(
 /// Converts an RSW object position to BrowEdit3 local space (same system as model instances).
 /// The root entity's centering Transform brings this into Bevy world space.
 fn rsw_local_pos(pos: [f32; 3], dims: MapDims) -> Vec3 {
-    Vec3::new(dims.cx + pos[0], -pos[1], dims.scale + dims.cz - pos[2])
+    coord::rsw_local_pos(pos, dims.cx, dims.cz, dims.scale)
 }
 
 /// Spawns a `PointLight` child entity for every `RswObject::Light` in `objects`.
@@ -692,8 +685,7 @@ fn trigger_audio_sources(
         let RswObject::Audio(audio) = obj else {
             continue;
         };
-        let [x, y, z] = audio.pos;
-        let pos = Vec3::new(x, -y, -z);
+        let pos = coord::rsw_world_pos(audio.pos);
         info!(
             "[Audio] emitter '{}' | rsw_pos={:?} → world={:.1?} | vol={} range={} width={} height={}",
             audio.file, audio.pos, pos, audio.volume, audio.range, audio.width, audio.height
