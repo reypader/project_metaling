@@ -63,6 +63,7 @@ const VALID_TYPES: &[&str] = &[
     "shield",
     "shadow",
     "projectile",
+    "monster",
     "map",
     "sound",
     "effect",

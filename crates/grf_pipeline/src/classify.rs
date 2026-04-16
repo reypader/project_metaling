@@ -13,6 +13,7 @@ pub struct Manifest {
     pub shield: Vec<ShieldEntry>,
     pub shadow: Vec<ShadowEntry>,
     pub projectile: Vec<ProjectileEntry>,
+    pub monster: Vec<MonsterEntry>,
     pub map: Vec<MapEntry>,
     pub effect: Vec<EffectEntry>,
     pub lookup: Vec<LookupEntry>,
@@ -84,6 +85,12 @@ pub struct ShadowEntry {
 }
 
 pub struct ProjectileEntry {
+    pub name: String,
+    pub spr_idx: usize,
+    pub act_idx: usize,
+}
+
+pub struct MonsterEntry {
     pub name: String,
     pub spr_idx: usize,
     pub act_idx: usize,
@@ -231,6 +238,7 @@ pub fn classify(
         shield: Vec::new(),
         shadow: Vec::new(),
         projectile: Vec::new(),
+        monster: Vec::new(),
         map: Vec::new(),
         effect: Vec::new(),
         lookup: Vec::new(),
@@ -350,10 +358,17 @@ pub fn classify(
             continue;
         }
 
-        // Monster sprites for projectile classification: sprite/monster/{stem}.spr
+        // Monster/projectile sprites: sprite/monster/{stem}.spr
+        // Action count distinguishes them: 1 or 8 actions = projectile, otherwise = monster.
         if let Some(rest) = normalized.strip_prefix("sprite/monster/") {
-            if want("projectile") {
-                classify_projectile(rest, i, act_idx, act_action_count_fn, &mut manifest);
+            if want("monster") || want("projectile") {
+                let action_count = act_action_count_fn(act_idx);
+                let is_projectile = matches!(action_count, Some(1) | Some(8));
+                if is_projectile && want("projectile") {
+                    classify_projectile(rest, i, act_idx, act_action_count_fn, &mut manifest);
+                } else if !is_projectile && want("monster") {
+                    classify_monster(rest, i, act_idx, &mut manifest);
+                }
             }
             continue;
         }
@@ -380,6 +395,7 @@ pub fn classify(
     manifest.weapon.sort_by(|a, b| a.job.cmp(&b.job).then(a.gender.cmp(&b.gender)).then(a.name.cmp(&b.name)));
     manifest.shield.sort_by(|a, b| a.job.cmp(&b.job).then(a.gender.cmp(&b.gender)).then(a.name.cmp(&b.name)));
     manifest.projectile.sort_by(|a, b| a.name.cmp(&b.name));
+    manifest.monster.sort_by(|a, b| a.name.cmp(&b.name));
     manifest.map.sort_by(|a, b| a.name.cmp(&b.name));
     manifest.effect.sort_by(|a, b| a.name.cmp(&b.name));
 
@@ -714,6 +730,19 @@ fn classify_effect(rest: &str, spr_idx: usize, act_idx: usize, manifest: &mut Ma
     });
 }
 
+fn classify_monster(rest: &str, spr_idx: usize, act_idx: usize, manifest: &mut Manifest) {
+    // rest = "{stem}.spr" (flat directory)
+    if rest.contains('/') {
+        return;
+    }
+    let stem = strip_ext(rest);
+    manifest.monster.push(MonsterEntry {
+        name: stem.to_string(),
+        spr_idx,
+        act_idx,
+    });
+}
+
 fn classify_projectile(
     rest: &str,
     spr_idx: usize,
@@ -824,7 +853,7 @@ fn data_prefix_from_rest(_prefix: &str, _rest: &str) -> String {
 /// Print manifest summary.
 pub fn print_summary(manifest: &Manifest) {
     println!(
-        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={} effects={} lookups={}",
+        "  bodies={} heads={} headgears={} garments={} weapons={} shields={} shadow={} projectiles={} maps={} effects={} lookups={} monsters={}",
         manifest.body.len(),
         manifest.head.len(),
         manifest.headgear.len(),
@@ -836,6 +865,7 @@ pub fn print_summary(manifest: &Manifest) {
         manifest.map.len(),
         manifest.effect.len(),
         manifest.lookup.len(),
+        manifest.monster.len()
     );
     if !manifest.texture_entries.is_empty() {
         println!("  texture entries={}", manifest.texture_entries.len());

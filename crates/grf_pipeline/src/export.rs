@@ -22,6 +22,7 @@ pub fn export<R: Read + Seek>(
 ) -> Result<()> {
     fs::create_dir_all(output)?;
     let sprite_root = output.join("sprite");
+    let human_root = sprite_root.join("human");
 
     let mut skip_log = String::new();
     let mut miss_log: BTreeSet<String> = BTreeSet::new();
@@ -43,7 +44,7 @@ pub fn export<R: Read + Seek>(
         let out_dir = if let Some(merc_type) = entry.job.strip_suffix("_mercenary") {
             sprite_root.join("mercenary").join("body").join(merc_type)
         } else {
-            sprite_root.join(format!("human_{}_{}", entry.gender, entry.job))
+            human_root.join(format!("{}_{}", entry.gender, entry.job))
         };
         if seen.contains(&out_dir.join("body.spr")) {
             continue;
@@ -72,8 +73,8 @@ pub fn export<R: Read + Seek>(
             skipped += 1;
             continue;
         };
-        let out_dir = sprite_root
-            .join(format!("human_{}_head", entry.gender))
+        let out_dir = human_root
+            .join(format!("{}_head", entry.gender))
             .join("head");
         let name = entry.id.to_string();
         fs::create_dir_all(&out_dir)?;
@@ -94,8 +95,8 @@ pub fn export<R: Read + Seek>(
             skipped += 1;
             continue;
         };
-        let out_dir = sprite_root
-            .join(format!("human_{}_head", entry.gender))
+        let out_dir = human_root
+            .join(format!("{}_head", entry.gender))
             .join("headgear");
         fs::create_dir_all(&out_dir)?;
         fs::write(out_dir.join(format!("{}.spr", entry.name)), &spr_data)?;
@@ -115,8 +116,8 @@ pub fn export<R: Read + Seek>(
             skipped += 1;
             continue;
         };
-        let out_dir = sprite_root
-            .join(format!("human_{}_{}", entry.gender, entry.job))
+        let out_dir = human_root
+            .join(format!("{}_{}", entry.gender, entry.job))
             .join("garment")
             .join(&entry.name);
         fs::create_dir_all(&out_dir)?;
@@ -145,8 +146,8 @@ pub fn export<R: Read + Seek>(
                 .join(merc_type)
                 .join("weapon")
         } else {
-            sprite_root
-                .join(format!("human_{}_{}", entry.gender, entry.job))
+            human_root
+                .join(format!("{}_{}", entry.gender, entry.job))
                 .join("weapon")
                 .join(&entry.name)
         };
@@ -173,14 +174,33 @@ pub fn export<R: Read + Seek>(
             skipped += 1;
             continue;
         };
-        let out_dir = sprite_root
-            .join(format!("human_{}_{}", entry.gender, entry.job))
+        let out_dir = human_root
+            .join(format!("{}_{}", entry.gender, entry.job))
             .join("shield");
         fs::create_dir_all(&out_dir)?;
         fs::write(out_dir.join(format!("{}.spr", entry.name)), &spr_data)?;
         fs::write(out_dir.join(format!("{}.act", entry.name)), &act_data)?;
         if verbose {
             println!("shield: {}_{}_{}", entry.name, entry.job, entry.gender);
+        }
+        exported += 1;
+    }
+
+    // Monsters
+    for entry in &manifest.monster {
+        let spr_data = read_entry(grf, entry.spr_idx);
+        let act_data = read_entry(grf, entry.act_idx);
+        let (Some(spr_data), Some(act_data)) = (spr_data, act_data) else {
+            log_skip(&mut skip_log, "monster", &entry.name, "missing spr/act in GRF");
+            skipped += 1;
+            continue;
+        };
+        let out_dir = sprite_root.join("monster").join(&entry.name);
+        fs::create_dir_all(&out_dir)?;
+        fs::write(out_dir.join("body.spr"), &spr_data)?;
+        fs::write(out_dir.join("body.act"), &act_data)?;
+        if verbose {
+            println!("monster: {}", entry.name);
         }
         exported += 1;
     }

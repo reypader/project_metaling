@@ -230,7 +230,7 @@ pub(crate) fn update_composite_tag(
             let dir_idx = direction_index(dir.0, cam_fwd);
             let tag = composite_tag(state.action.tag_name(), dir_idx);
             composite.tag = Some(tag);
-            composite.playing = !matches!(state.action, Action::Idle | Action::Sit);
+            composite.playing = true; // !matches!(state.action, Action::Idle | Action::Sit);
         }
     }
 }

@@ -105,10 +105,10 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_knight/body.spr".into(),
-            head: Some("sprite/human_female_head/head/11.spr".into()),
-            weapon: Some("sprite/human_female_knight/weapon/spear/weapon.spr".into()),
-            weapon_slash: Some("sprite/human_female_knight/weapon/spear/slash.spr".into()),
+            body: "sprite/human/female_knight/body.spr".into(),
+            head: Some("sprite/human/female_head/head/11.spr".into()),
+            weapon: Some("sprite/human/female_knight/weapon/spear/weapon.spr".into()),
+            weapon_slash: Some("sprite/human/female_knight/weapon/spear/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -123,10 +123,10 @@ fn setup(
     // Actor — body.spr + head 17.spr, composited in one quad
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_male_novice/body.spr".into(),
-            head: Some("sprite/human_male_head/head/10.spr".into()),
-            weapon: Some("sprite/human_male_novice/weapon/sword/weapon.spr".into()),
-            weapon_slash: Some("sprite/human_male_novice/weapon/sword/slash.spr".into()),
+            body: "sprite/human/male_novice/body.spr".into(),
+            head: Some("sprite/human/male_head/head/10.spr".into()),
+            weapon: Some("sprite/human/male_novice/weapon/sword/weapon.spr".into()),
+            weapon_slash: Some("sprite/human/male_novice/weapon/sword/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -137,10 +137,24 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_assassin/body.spr".into(),
-            head: Some("sprite/human_female_head/head/5.spr".into()),
-            weapon: Some("sprite/human_female_assassin/weapon/katar_katar/weapon.spr".into()),
-            weapon_slash: Some("sprite/human_female_assassin/weapon/katar_katar/slash.spr".into()),
+            body: "sprite/monster/andre/body.spr".into(),
+            head: None,
+            weapon: None,
+            weapon_slash: None,
+        },
+        ActorState {
+            action: Action::Idle,
+        },
+        ActorDirection(Vec2::Y),
+        Transform::from_xyz(-20.0, 0.0, 200.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+    ));
+
+    commands.spawn((
+        ActorSprite {
+            body: "sprite/human/female_assassin/body.spr".into(),
+            head: Some("sprite/human/female_head/head/5.spr".into()),
+            weapon: Some("sprite/human/female_assassin/weapon/katar_katar/weapon.spr".into()),
+            weapon_slash: Some("sprite/human/female_assassin/weapon/katar_katar/slash.spr".into()),
         },
         ActorState {
             action: Action::Idle,
@@ -151,7 +165,7 @@ fn setup(
 
     commands.spawn((
         ActorSprite {
-            body: "sprite/human_female_assassin/body.spr".into(),
+            body: "sprite/monster/poring/body.spr".into(),
             head: None,
             weapon: None,
             weapon_slash: None,
@@ -160,7 +174,7 @@ fn setup(
             action: Action::Idle,
         },
         ActorDirection(Vec2::Y),
-        Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        Transform::from_xyz(40.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
     ));
 
     // Directional sun light — direction and color will be overwritten by apply_map_lighting
