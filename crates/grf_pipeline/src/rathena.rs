@@ -4,7 +4,7 @@ use std::path::Path;
 
 /// Parse `idnum2itemresnametable.txt` (CP949, extracted from GRF as raw bytes).
 /// Format per line: `ID#KoreanResName#` or `ID#KoreanResName#AltName#`
-/// Returns `HashMap<u32, String>` mapping item ID → Korean resource name.
+/// Returns `HashMap<u32, String>` mapping item ID to Korean resource name.
 pub fn parse_item_res_table(data: &[u8]) -> HashMap<u32, String> {
     let mut map = HashMap::new();
 
@@ -35,7 +35,7 @@ pub fn parse_item_res_table(data: &[u8]) -> HashMap<u32, String> {
 }
 
 /// Parse rAthena `item_db_equip.yml` (and similar YAML files) into an
-/// `HashMap<u32, String>` mapping item ID → AegisName.
+/// `HashMap<u32, String>` mapping item ID to AegisName.
 ///
 /// Uses a simple line-by-line parser rather than a full YAML library to
 /// avoid an extra dependency; the format is regular enough.
@@ -58,14 +58,14 @@ pub fn parse_rathena_item_db(path: &Path) -> HashMap<u32, String> {
             if !aegis.is_empty() {
                 map.insert(id, aegis);
             }
-            current_id = None; // only capture the first AegisName per entry
+            current_id = None;
         }
     }
 
     map
 }
 
-/// Build a lookup from Korean resource name → AegisName by joining the
+/// Build a lookup from Korean resource name to AegisName by joining the
 /// GRF item res table with the rAthena item DB.
 pub fn build_res_to_aegis(
     res_table: &HashMap<u32, String>,
@@ -75,8 +75,6 @@ pub fn build_res_to_aegis(
     for (id, korean_res) in res_table {
         for db in rathena_dbs {
             if let Some(aegis) = db.get(id) {
-                // Convert AegisName to lowercase with underscores for
-                // consistency with the rest of the translated output.
                 map.insert(korean_res.clone(), aegis.to_lowercase());
                 break;
             }

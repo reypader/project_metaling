@@ -15,23 +15,15 @@ pub struct WeaponTypesFile {
 
 #[derive(Serialize)]
 pub struct WeaponTypeEntry {
-    /// Numeric weapon type ID used internally by Ragnarok Online.
     pub id: u32,
-    /// Sprite directory name for this weapon type (matches the translated GRF path segment).
     pub name: String,
-    /// All item IDs of this weapon type (sorted).
     pub items: Vec<u32>,
 }
 
 // ---------------------------------------------------------------------------
-// SubType → (type_id, sprite_name) mapping
+// SubType mapping
 // ---------------------------------------------------------------------------
 
-/// Map an rAthena weapon SubType string to `(weapon_type_id, sprite_dir_name)`.
-///
-/// SubType names follow rAthena's YAML convention (e.g. `1hSword`, `2hSword`).
-/// IDs follow the standard Ragnarok Online weapon type table as defined in
-/// rAthena's `src/map/pc.hpp` (W_DAGGER=1 … W_2HSTAFF=23).
 fn subtype_to_weapon_type(subtype: &str) -> Option<(u32, &'static str)> {
     match subtype {
         "Dagger" => Some((1, "dagger")),
@@ -65,8 +57,6 @@ fn subtype_to_weapon_type(subtype: &str) -> Option<(u32, &'static str)> {
 // ---------------------------------------------------------------------------
 
 /// Parse rAthena `item_db_equip.yml` for weapon items (`Type: Weapon`).
-///
-/// Returns a map of SubType string → list of item IDs.
 pub fn parse_weapon_items(path: &Path) -> BTreeMap<String, Vec<u32>> {
     let Ok(text) = std::fs::read_to_string(path) else {
         return BTreeMap::new();
@@ -81,7 +71,6 @@ pub fn parse_weapon_items(path: &Path) -> BTreeMap<String, Vec<u32>> {
         let s = line.trim();
 
         if let Some(rest) = s.strip_prefix("- Id:") {
-            // Flush previous item.
             let subtype = current_subtype.take();
             if current_is_weapon
                 && let (Some(id), Some(subtype)) = (current_id, subtype)
@@ -118,8 +107,7 @@ pub fn parse_weapon_items(path: &Path) -> BTreeMap<String, Vec<u32>> {
 // Builder
 // ---------------------------------------------------------------------------
 
-/// Build the weapon types list from the parsed SubType → item IDs map.
-/// Output is sorted by weapon type ID.
+/// Build the weapon types list from the parsed SubType to item IDs map.
 pub fn build_weapon_types(weapon_map: BTreeMap<String, Vec<u32>>) -> Vec<WeaponTypeEntry> {
     let mut by_id: BTreeMap<u32, WeaponTypeEntry> = BTreeMap::new();
 

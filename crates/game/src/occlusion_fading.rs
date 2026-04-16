@@ -10,18 +10,60 @@ use bevy_ro_sprites::prelude::RoComposite;
 use bevy_ro_vfx::EffectBillboard;
 use std::collections::{HashMap, HashSet};
 
-pub struct OcclusionFadingPlugin;
-impl Plugin for OcclusionFadingPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(ModelFadeCullDistance(500.0));
-        app.add_systems(Update, (cache_model_vertices, fade_occluded_models).chain());
+/// Controls how model-vs-billboard occlusion is detected.
+#[derive(Clone, Debug, Default)]
+#[allow(dead_code)]
+pub enum OcclusionMode {
+    /// Project AABB corners to NDC and test bounding rect overlap.
+    /// Cheaper but less precise; may fade models that only overlap at the box level.
+    BoundingBox,
+    /// Subsample mesh vertices, project each to NDC, and test point-in-rect.
+    /// More precise but requires a one-time vertex cache per mesh entity.
+    #[default]
+    VertexProjection,
+}
+
+/// Runtime configuration for the occlusion fading plugin, inserted as a `Resource`.
+#[derive(Resource, Clone, Debug)]
+pub struct OcclusionFadingConfig {
+    /// Detection strategy. Default: `OcclusionMode::VertexProjection`.
+    pub mode: OcclusionMode,
+    /// Maximum distance from the player at which model-vs-billboard overlap is tested.
+    /// Models farther than this are never faded, regardless of screen overlap.
+    /// Default: `500.0`.
+    pub cull_distance: f32,
+}
+
+impl Default for OcclusionFadingConfig {
+    fn default() -> Self {
+        Self {
+            mode: OcclusionMode::default(),
+            cull_distance: 500.0,
+        }
     }
 }
 
-/// Maximum distance from the player at which model-vs-billboard overlap is tested.
-/// Models farther than this are never faded, regardless of screen overlap.
-#[derive(Resource)]
-pub struct ModelFadeCullDistance(pub f32);
+#[derive(Default)]
+pub struct OcclusionFadingPlugin {
+    pub config: OcclusionFadingConfig,
+}
+
+impl Plugin for OcclusionFadingPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(self.config.clone());
+        match self.config.mode {
+            OcclusionMode::VertexProjection => {
+                app.add_systems(
+                    Update,
+                    (cache_model_vertices, fade_occluded_models).chain(),
+                );
+            }
+            OcclusionMode::BoundingBox => {
+                app.add_systems(Update, fade_occluded_models);
+            }
+        }
+    }
+}
 
 /// Subsampled local-space vertex positions cached from a model's `Mesh` asset.
 /// Populated once by `cache_model_vertices` and used by `fade_occluded_models`
@@ -156,7 +198,7 @@ fn cache_model_vertices(
 fn fade_occluded_models(
     mut fade_alphas: Local<HashMap<Entity, f32>>,
     time: Res<Time>,
-    cull_dist: Res<ModelFadeCullDistance>,
+    config: Res<OcclusionFadingConfig>,
     camera_q: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     player_q: Query<(&GlobalTransform, &Children), With<PlayerControl>>,
     billboards: Query<&GlobalTransform, (With<RoComposite>, Without<EffectBillboard>)>,
@@ -181,7 +223,7 @@ fn fade_occluded_models(
         return;
     };
     let player_pos = player_gt.translation();
-    let cull_dist_sq = cull_dist.0 * cull_dist.0;
+    let cull_dist_sq = config.cull_distance * config.cull_distance;
 
     // Project only the player's billboard to NDC. The billboard is a child of the player entity.
     let billboard_rects: Vec<(Rect, f32)> = player_children
@@ -198,42 +240,61 @@ fn fade_occluded_models(
                 continue;
             }
 
-            let occluding = if let Some(CachedMeshVertices(verts)) = cached_verts {
-                // Vertex-based test: project each sampled local-space vertex to NDC and
-                // check if it lands inside a billboard rect while being in front of it.
-                'vertex: {
-                    for &(bill_rect, bill_z) in &billboard_rects {
-                        for &local in verts {
-                            let world = model_gt.transform_point(local);
-                            let Some(ndc) = camera.world_to_ndc(cam_gt, world) else {
-                                continue;
-                            };
-                            if ndc.z < 0.0 || ndc.z > 1.0 {
-                                continue;
+            let occluding = match config.mode {
+                OcclusionMode::VertexProjection => {
+                    if let Some(CachedMeshVertices(verts)) = cached_verts {
+                        // Vertex-based test: project each sampled local-space vertex to NDC
+                        // and check if it lands inside a billboard rect while being in front.
+                        'vertex: {
+                            for &(bill_rect, bill_z) in &billboard_rects {
+                                for &local in verts {
+                                    let world = model_gt.transform_point(local);
+                                    let Some(ndc) = camera.world_to_ndc(cam_gt, world) else {
+                                        continue;
+                                    };
+                                    if ndc.z < 0.0 || ndc.z > 1.0 {
+                                        continue;
+                                    }
+                                    if ndc.z <= bill_z {
+                                        continue;
+                                    }
+                                    if bill_rect.contains(ndc.truncate()) {
+                                        break 'vertex true;
+                                    }
+                                }
                             }
-                            if ndc.z <= bill_z {
-                                continue;
-                            }
-                            if bill_rect.contains(ndc.truncate()) {
-                                break 'vertex true;
-                            }
+                            false
                         }
+                    } else {
+                        // Fallback: AABB rect test while vertex cache loads.
+                        let Some((model_rect, model_z)) =
+                            model_ndc_rect(camera, cam_gt, model_gt, aabb)
+                        else {
+                            continue;
+                        };
+                        billboard_rects.iter().any(|&(bill_rect, bill_z)| {
+                            model_z > bill_z
+                                && model_rect.min.x < bill_rect.max.x
+                                && model_rect.max.x > bill_rect.min.x
+                                && model_rect.min.y < bill_rect.max.y
+                                && model_rect.max.y > bill_rect.min.y
+                        })
                     }
-                    false
                 }
-            } else {
-                // Fallback: AABB rect test for entities whose vertex cache isn't ready yet.
-                let Some((model_rect, model_z)) = model_ndc_rect(camera, cam_gt, model_gt, aabb)
-                else {
-                    continue;
-                };
-                billboard_rects.iter().any(|&(bill_rect, bill_z)| {
-                    model_z > bill_z
-                        && model_rect.min.x < bill_rect.max.x
-                        && model_rect.max.x > bill_rect.min.x
-                        && model_rect.min.y < bill_rect.max.y
-                        && model_rect.max.y > bill_rect.min.y
-                })
+                OcclusionMode::BoundingBox => {
+                    let Some((model_rect, model_z)) =
+                        model_ndc_rect(camera, cam_gt, model_gt, aabb)
+                    else {
+                        continue;
+                    };
+                    billboard_rects.iter().any(|&(bill_rect, bill_z)| {
+                        model_z > bill_z
+                            && model_rect.min.x < bill_rect.max.x
+                            && model_rect.max.x > bill_rect.min.x
+                            && model_rect.min.y < bill_rect.max.y
+                            && model_rect.max.y > bill_rect.min.y
+                    })
+                }
             };
 
             if occluding {

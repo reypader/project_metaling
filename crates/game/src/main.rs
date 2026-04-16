@@ -4,7 +4,7 @@ mod occlusion_fading;
 mod player_control;
 use crate::camera_orbit::{CameraFollower, OrbitCameraPlugin};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker};
-use crate::occlusion_fading::OcclusionFadingPlugin;
+use crate::occlusion_fading::{OcclusionFadingConfig, OcclusionFadingPlugin, OcclusionMode};
 use crate::player_control::{PlayerControl, PlayerControlPlugin};
 
 use bevy::light::CascadeShadowConfigBuilder;
@@ -14,9 +14,7 @@ use bevy_ro_maps::{RoMapRoot, RoMapsPlugin};
 use bevy_ro_models::RoModelsPlugin;
 use bevy_ro_sounds::RoSoundsPlugin;
 use bevy_ro_sprites::SpriteFrameEvent;
-use bevy_ro_sprites::prelude::{
-    Action, ActorDirection, ActorSprite, ActorState, RoSpritePlugin,
-};
+use bevy_ro_sprites::prelude::{Action, ActorDirection, ActorSprite, ActorState, RoSpritePlugin};
 use bevy_ro_vfx::RoVfxPlugin;
 
 fn main() {
@@ -53,7 +51,12 @@ fn main() {
         })
         .add_plugins(MeshPickingPlugin)
         .add_plugins(MapInteractionPlugin)
-        .add_plugins(OcclusionFadingPlugin)
+        .add_plugins(OcclusionFadingPlugin {
+            config: OcclusionFadingConfig {
+                mode: OcclusionMode::BoundingBox,
+                ..default()
+            },
+        })
         .add_plugins(PlayerControlPlugin)
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
@@ -182,4 +185,3 @@ fn setup(
         Transform::from_xyz(0.0, 800.0, 600.0).looking_at(Vec3::new(0.0, -17.0, 0.0), Vec3::Y),
     ));
 }
-

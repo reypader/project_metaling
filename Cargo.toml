@@ -1,15 +1,14 @@
 [workspace]
 members = [
+    "crates/grf_pipeline",
+    "crates/game",
+    "crates/lub_decompiler",
     "crates/ro_files",
     "crates/bevy_ro_maps",
     "crates/bevy_ro_models",
     "crates/bevy_ro_sprites",
     "crates/bevy_ro_vfx",
-    "crates/asset_importer",
-    "crates/grf_extractor",
     "crates/bevy_ro_sounds",
-    "crates/game",
-    "crates/lub_decompiler",
 ]
 resolver = "3"
 

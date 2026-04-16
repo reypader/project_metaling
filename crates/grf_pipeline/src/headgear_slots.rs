@@ -37,7 +37,7 @@ pub(crate) enum HeadSlot {
     Top,
     Mid,
     Low,
-    Mixed, // item spans multiple head slots; default to Top
+    Mixed,
 }
 
 impl HeadSlot {
@@ -55,10 +55,6 @@ impl HeadSlot {
 }
 
 /// Parse rAthena `item_db_equip.yml` for headgear items (View > 0, head location).
-///
-/// Returns a map of view_id → list of (item_id, slot, aegis_name).
-/// The accname for each view group is later derived from the AegisName of
-/// the lowest-ID item in that group.
 pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, String)>> {
     let Ok(text) = std::fs::read_to_string(path) else {
         return HashMap::new();
@@ -75,7 +71,6 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
         let s = line.trim();
 
         if let Some(rest) = s.strip_prefix("- Id:") {
-            // Flush previous item.
             let aegis = current_aegis.take();
             if let (Some(id), Some(view), Some(slot), Some(aegis)) =
                 (current_id, current_view, current_slot, aegis)
@@ -117,7 +112,6 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
                     None => HeadSlot::Low,
                 });
             } else if !s.is_empty() && !s.starts_with('#') {
-                // Left the Locations block.
                 in_location = false;
             }
         }
@@ -140,7 +134,6 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
         });
     }
 
-    // Group by view_id, filtering out view 0 (no sprite).
     let mut map: HashMap<u32, Vec<(u32, HeadSlot, String)>> = HashMap::new();
     for item in items {
         if item.view > 0 {
@@ -157,19 +150,12 @@ pub fn parse_headgear_items(path: &Path) -> HashMap<u32, Vec<(u32, HeadSlot, Str
 // ---------------------------------------------------------------------------
 
 /// Build the headgear slots list from the rAthena headgear item map.
-///
-/// The accname for each view group is the AegisName (lowercased) of the item
-/// with the lowest ID in that group — this is the original/canonical item for
-/// that view, whose AegisName matches the sprite identifier.
 pub fn build_headgear_slots(
     headgear_map: &HashMap<u32, Vec<(u32, HeadSlot, String)>>,
 ) -> Vec<HeadgearSlotEntry> {
-    // Use a BTreeMap so output is sorted by view_id.
     let mut by_view: BTreeMap<u32, HeadgearSlotEntry> = BTreeMap::new();
 
     for (&view_id, item_list) in headgear_map {
-        // Determine the canonical slot: if all items agree, use that slot;
-        // otherwise fall back to Head_Top.
         let slot = item_list
             .iter()
             .map(|(_, s, _)| *s)
@@ -178,7 +164,6 @@ pub fn build_headgear_slots(
             .as_str()
             .to_string();
 
-        // Derive accname from the AegisName of the lowest-ID (primary) item.
         let accname = item_list
             .iter()
             .min_by_key(|(id, _, _)| id)
