@@ -610,7 +610,7 @@ pub fn advance_and_update_composite(
 /// Applies layout+positioning for actor billboard children (those with [`ActorBillboard`]).
 /// Calls [`advance_and_update_composite`] for animation/material, then sizes and places the quad
 /// using `scale_factor = 1.0` and the actor's `feet_lift`.
-fn update_actor_composites(
+pub fn update_actor_composites(
     mut composites: Query<
         (
             Entity,

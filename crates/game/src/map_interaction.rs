@@ -1,3 +1,4 @@
+use crate::interaction::LookTarget;
 use crate::player_control::PlayerControl;
 use crate::{Action, ActorDirection, ActorState};
 use bevy::app::{App, Plugin, Update};
@@ -100,6 +101,7 @@ fn attach_input_listeners(
                  player: Single<(Entity, &Transform), With<PlayerControl>>,
                  query: Query<&NavMesh>,
                  _map: Single<&RoMapRoot>,
+                 mut look_q: Query<&mut LookTarget, With<PlayerControl>>,
                  mut commands: Commands| {
                     if click.button == PointerButton::Primary
                         && let Ok(navmesh) = query.get(click.entity)
@@ -113,6 +115,9 @@ fn attach_input_listeners(
                                         navmesh.path((start.x, start.y), (target.x, target.z))
                                     {
                                         commands.entity(payer_entity).insert(Navigation { path });
+                                        if let Ok(mut look) = look_q.single_mut() {
+                                            look.0 = None;
+                                        }
                                     }
                                 }
                             }

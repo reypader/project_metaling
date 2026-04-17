@@ -204,8 +204,9 @@ pub struct ActorSprite {
 // ─────────────────────────────────────────────────────────────
 
 /// Propagates [`ActorState`]/[`ActorDirection`] changes to the [`RoComposite`] tag on the
-/// billboard child entity. Registered by [`crate::RoSpritePlugin`].
-pub(crate) fn update_composite_tag(
+/// billboard child entity. Registered by [`crate::RoSpritePlugin`]. Exposed so external
+/// systems can order themselves after it (e.g. to override `composite.playing`).
+pub fn update_composite_tag(
     actors: Query<
         (&ActorState, &ActorDirection, &Children),
         (With<ActorState>, With<ActorDirection>),

@@ -1,8 +1,10 @@
 mod camera_orbit;
+mod interaction;
 mod map_interaction;
 mod occlusion_fading;
 mod player_control;
 use crate::camera_orbit::{CameraFollower, OrbitCameraPlugin};
+use crate::interaction::{InteractionPlugin, InteractionTarget, LookTarget};
 use crate::map_interaction::{MapInteractionPlugin, MapMarker};
 use crate::occlusion_fading::{OcclusionFadingConfig, OcclusionFadingPlugin, OcclusionMode};
 use crate::player_control::{PlayerControl, PlayerControlPlugin};
@@ -58,6 +60,7 @@ fn main() {
             },
         })
         .add_plugins(PlayerControlPlugin)
+        .add_plugins(InteractionPlugin)
         .add_observer(|trigger: On<SpriteFrameEvent>| {
             let e = trigger.event();
             info!(
@@ -117,6 +120,8 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
         PlayerControl,
         SpatialListener::new(1.0),
+        InteractionTarget,
+        LookTarget::default(),
     ));
     commands.spawn((Transform::from_xyz(0.0, 0.0, 0.0), CameraFollower));
 
@@ -133,6 +138,8 @@ fn setup(
         },
         ActorDirection(Vec2::Y),
         Transform::from_xyz(-20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        InteractionTarget,
+        LookTarget::default(),
     ));
 
     commands.spawn((
@@ -147,6 +154,7 @@ fn setup(
         },
         ActorDirection(Vec2::Y),
         Transform::from_xyz(-20.0, 0.0, 200.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        InteractionTarget,
     ));
 
     commands.spawn((
@@ -161,6 +169,8 @@ fn setup(
         },
         ActorDirection(Vec2::Y),
         Transform::from_xyz(20.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        InteractionTarget,
+        LookTarget::default(),
     ));
 
     commands.spawn((
@@ -175,6 +185,7 @@ fn setup(
         },
         ActorDirection(Vec2::Y),
         Transform::from_xyz(40.0, 0.0, 100.0).with_scale(Vec3::new(0.15, 0.15, 0.15)),
+        InteractionTarget,
     ));
 
     // Directional sun light — direction and color will be overwritten by apply_map_lighting
